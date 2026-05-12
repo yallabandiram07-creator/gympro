@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gym Subscription Plans</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-page">
+
+<div class="trainer-page">
+
+  <div class="page-header">
+    <div>
+      <h1>Gym Subscription Plans</h1>
+      <p>Choose a plan for your gym management system.</p>
+    </div>
+
+    <a href="dashboard.html" class="logout-small">
+      Back
+    </a>
+  </div>
+
+  <div class="dashboard-cards">
+
+    <div class="panel">
+      <h2>Free Plan</h2>
+
+      <h1>₹0</h1>
+
+      <ul class="modern-list">
+        <li>Up to 20 Members</li>
+        <li>Basic Dashboard</li>
+        <li>Manual Attendance</li>
+      </ul>
+
+      <button onclick="buyPlan('Free',0,30)">
+        Activate Free
+      </button>
+    </div>
+
+    <div class="panel">
+      <h2>Basic Plan</h2>
+
+      <h1>₹999</h1>
+
+      <ul class="modern-list">
+        <li>Unlimited Members</li>
+        <li>QR Attendance</li>
+        <li>Trainer Login</li>
+        <li>Diet Tracking</li>
+      </ul>
+
+      <button onclick="buyPlan('Basic',999,30)">
+        Buy Basic
+      </button>
+    </div>
+
+    <div class="panel">
+      <h2>Premium Plan</h2>
+
+      <h1>₹2499</h1>
+
+      <ul class="modern-list">
+        <li>AI Workout Generator</li>
+        <li>Advanced Analytics</li>
+        <li>WhatsApp Reminders</li>
+        <li>Multi Trainer Support</li>
+      </ul>
+
+      <button onclick="buyPlan('Premium',2499,30)">
+        Buy Premium
+      </button>
+    </div>
+
+  </div>
+
+  <div class="panel">
+    <h2>Current Subscription</h2>
+
+    <p><strong>Plan:</strong> <span id="currentPlan">-</span></p>
+
+    <p><strong>Status:</strong> <span id="currentStatus">-</span></p>
+
+    <p><strong>Expiry:</strong> <span id="currentExpiry">-</span></p>
+  </div>
+
+</div>
+
+<script src="subscription-script.js"></script>
+</body>
+</html>

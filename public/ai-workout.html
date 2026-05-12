@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Workout Generator - GymPro</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-page">
+
+<div class="trainer-page">
+
+  <div class="page-header">
+    <div>
+      <h1>AI Workout Generator</h1>
+      <p>Generate workout plans for members based on their goal.</p>
+    </div>
+    <a href="dashboard.html" class="logout-small">Back</a>
+  </div>
+
+  <div class="panel">
+    <h2>Generate Workout</h2>
+
+    <select id="aiGoal">
+      <option value="fat-loss">Fat Loss</option>
+      <option value="muscle-gain">Muscle Gain</option>
+      <option value="beginner">Beginner Fitness</option>
+      <option value="strength">Strength Training</option>
+    </select>
+
+    <select id="aiMemberSelect">
+      <option value="">Loading members...</option>
+    </select>
+
+    <button class="primary-btn" onclick="generateAIWorkout()">Generate & Save Workout</button>
+  </div>
+
+  <div class="panel">
+    <h2>Generated Plan</h2>
+    <pre id="aiWorkoutOutput" class="plan-box">Select member and goal, then click generate.</pre>
+  </div>
+
+</div>
+
+<script src="ai-workout-script.js"></script>
+</body>
+</html>

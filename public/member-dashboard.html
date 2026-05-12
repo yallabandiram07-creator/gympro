@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Member Dashboard - GymPro</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="member-app-page">
+
+<div class="member-app">
+
+  <aside class="member-sidebar">
+    <div class="brand">
+      <div class="brand-icon">🏋️</div>
+      <div>
+        <h2>GymPro</h2>
+        <p>Member App</p>
+      </div>
+    </div>
+
+    <button class="nav-btn active" onclick="showMemberTab('overview')">🏠 Overview</button>
+    <button class="nav-btn" onclick="showMemberTab('attendance')">📅 Attendance</button>
+    <button class="nav-btn" onclick="showMemberTab('workout')">💪 Workout</button>
+    <button class="nav-btn" onclick="showMemberTab('diet')">🥗 Diet</button>
+
+    <button class="logout-btn" onclick="memberLogout()">Logout</button>
+  </aside>
+
+  <main class="member-main">
+
+    <section id="memberOverviewTab">
+      <div class="member-hero">
+        <div>
+          <h1>Hello, <span id="mName">Member</span></h1>
+          <p>Your membership and progress dashboard.</p>
+        </div>
+        <div class="member-badge" id="membershipStatus">Active</div>
+      </div>
+
+      <div class="dashboard-cards">
+        <div class="stat-card blue">
+          <h3>Points</h3>
+          <p id="mPoints">0</p>
+        </div>
+
+        <div class="stat-card green">
+          <h3>Days Left</h3>
+          <p id="mDaysLeft">0</p>
+        </div>
+
+        <div class="stat-card orange">
+          <h3>Attendance</h3>
+          <p id="mTotalAttendance">0</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Membership Details</h2>
+        <p><strong>Phone:</strong> <span id="mPhone">-</span></p>
+        <p><strong>Plan:</strong> <span id="mPlan">-</span> days</p>
+        <p><strong>Fees:</strong> ₹<span id="mFees">0</span></p>
+        <p><strong>Expiry:</strong> <span id="mExpiry">-</span></p>
+      </div>
+    </section>
+
+    <section id="memberAttendanceTab" style="display:none;">
+      <div class="page-header">
+        <h1>Attendance History</h1>
+        <p>Your gym check-ins.</p>
+      </div>
+
+      <div class="panel">
+        <ul id="memberAttendanceList" class="modern-list"></ul>
+      </div>
+    </section>
+
+    <section id="memberWorkoutTab" style="display:none;">
+      <div class="page-header">
+        <h1>Workout Plan</h1>
+        <p>Your trainer-assigned workout.</p>
+      </div>
+
+      <div class="panel">
+        <pre id="memberWorkoutText" class="plan-box">No workout plan added yet.</pre>
+      </div>
+    </section>
+
+    <section id="memberDietTab" style="display:none;">
+      <div class="page-header">
+        <h1>Diet Tracking</h1>
+        <p>Track your daily diet.</p>
+      </div>
+
+      <div class="content-grid">
+        <div class="panel">
+          <h2>Add Diet Log</h2>
+
+          <input type="number" id="dietWeight" placeholder="Weight kg">
+          <input type="number" id="dietCalories" placeholder="Calories">
+          <input type="number" id="dietProtein" placeholder="Protein grams">
+          <input type="number" id="dietWater" placeholder="Water litres">
+          <textarea id="dietNotes" placeholder="Meal notes"></textarea>
+
+          <button class="primary-btn" onclick="addDietLog()">Save Diet Log</button>
+        </div>
+
+        <div class="panel">
+          <h2>Trainer Diet Plan</h2>
+          <pre id="memberDietText" class="plan-box">No diet plan added yet.</pre>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Diet History</h2>
+        <ul id="dietLogList" class="modern-list"></ul>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+
+<script src="member-script.js"></script>
+</body>
+</html>

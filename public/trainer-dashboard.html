@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Trainer Dashboard - GymPro</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-page">
+
+<div class="trainer-page">
+
+  <div class="page-header">
+    <div>
+      <h1>Trainer Dashboard</h1>
+      <p>Manage members, workout plans and diet plans.</p>
+    </div>
+    <button class="logout-small" onclick="trainerLogout()">Logout</button>
+  </div>
+
+  <div class="dashboard-cards">
+    <div class="stat-card blue">
+      <h3>Trainer</h3>
+      <p id="trainerName">-</p>
+    </div>
+
+    <div class="stat-card green">
+      <h3>Total Members</h3>
+      <p id="trainerTotalMembers">0</p>
+    </div>
+
+    <div class="stat-card orange">
+      <h3>Plans Updated</h3>
+      <p id="plansUpdated">0</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Members List</h2>
+    <ul id="trainerMemberList" class="modern-list"></ul>
+  </div>
+
+</div>
+
+<script src="trainer-script.js"></script>
+</body>
+</html>

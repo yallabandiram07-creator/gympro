@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GymPro Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-page">
+
+<div id="dashboardLock" class="lock-screen" style="display:none;">
+  <div class="lock-card">
+    <h1>Subscription Expired</h1>
+    <p>Your gym dashboard is locked. Renew your plan to continue.</p>
+    <a href="subscription.html" class="primary-btn">Renew Subscription</a>
+    <button onclick="logout()" class="danger-btn">Logout</button>
+  </div>
+</div>
+
+<div class="app-layout" id="dashboardApp">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🏋️</div>
+      <div>
+        <h2>GymPro</h2>
+        <p>Management System</p>
+      </div>
+    </div>
+
+    <nav>
+      <button onclick="showSection('dashboard', this)" class="nav-btn active">📊 Dashboard</button>
+      <button onclick="showSection('attendance', this)" class="nav-btn">✅ Attendance</button>
+      <button onclick="showSection('qr', this)" class="nav-btn">🔐 Dynamic QR</button>
+      <button onclick="showSection('trainers', this)" class="nav-btn">👨‍🏫 Trainers</button>
+      <button onclick="showSection('payments', this)" class="nav-btn">💳 Payment Settings</button>
+      <button onclick="showSection('whatsapp', this)" class="nav-btn">📲 WhatsApp</button>
+      <button onclick="showSection('rewards', this)" class="nav-btn">🎁 Reward Points</button>
+    </nav>
+
+    <a class="member-login-link" href="member-login.html">Member Login Page</a>
+    <a class="member-login-link" href="trainer-login.html">Trainer Login Page</a>
+    <a class="member-login-link" href="ai-workout.html">AI Workout Generator</a>
+    <a class="member-login-link" href="subscription.html">Subscription Plans</a>
+
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </aside>
+
+  <main class="main-content">
+
+    <section id="dashboardSection">
+      <div class="page-header">
+        <h1>Gym Dashboard</h1>
+        <p id="subscriptionInfo">Checking subscription...</p>
+      </div>
+
+      <div class="dashboard-cards">
+        <div class="stat-card blue">
+          <h3>Total Members</h3>
+          <p id="totalMembers">0</p>
+        </div>
+
+        <div class="stat-card green">
+          <h3>Total Revenue</h3>
+          <p>₹<span id="totalRevenue">0</span></p>
+        </div>
+
+        <div class="stat-card orange">
+          <h3>Today Attendance</h3>
+          <p id="todayAttendance">0</p>
+        </div>
+      </div>
+
+      <div class="content-grid">
+        <div class="panel">
+          <h2>Add New Member</h2>
+          <p id="memberLimitInfo"></p>
+
+          <form id="memberForm">
+            <input type="text" id="name" placeholder="Member Name" required>
+            <input type="text" id="phone" placeholder="Phone Number without +91" required>
+            <input type="password" id="memberPass" placeholder="Member Login Password" required>
+            <input type="number" id="plan" placeholder="Plan Duration in Days" required>
+            <input type="number" id="fees" placeholder="Fees Amount" required>
+            <button type="submit" class="primary-btn">Add Member</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <h2>Members List</h2>
+          <ul id="memberList" class="modern-list"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="attendanceSection" style="display:none;">
+      <div class="page-header">
+        <h1>Attendance</h1>
+        <p>Mark attendance manually.</p>
+      </div>
+
+      <div class="content-grid">
+        <div class="panel">
+          <h2>Mark Attendance</h2>
+          <ul id="attendanceMemberList" class="modern-list"></ul>
+        </div>
+
+        <div class="panel">
+          <h2>Today Present Members</h2>
+          <ul id="todayAttendanceList" class="modern-list"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="qrSection" style="display:none;">
+      <div class="page-header">
+        <h1>Dynamic QR Attendance</h1>
+        <p>This QR refreshes every 10 seconds.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Live Gym QR</h2>
+        <div id="dynamicQrBox" class="qr-preview">
+          <p>Click Dynamic QR to load QR.</p>
+        </div>
+        <div class="timer-box">QR refreshes in <span id="qrTimer">10</span> seconds</div>
+      </div>
+    </section>
+
+    <section id="trainersSection" style="display:none;">
+      <div class="page-header">
+        <h1>Trainer Management</h1>
+        <p>Add trainers and give them login access.</p>
+      </div>
+
+      <div class="content-grid">
+        <div class="panel">
+          <h2>Add Trainer</h2>
+          <form id="trainerForm">
+            <input type="text" id="trainerNameInput" placeholder="Trainer Name" required>
+            <input type="text" id="trainerPhoneInput" placeholder="Trainer Phone" required>
+            <input type="email" id="trainerEmailInput" placeholder="Trainer Email" required>
+            <input type="password" id="trainerPasswordInput" placeholder="Trainer Password" required>
+            <button type="submit" class="primary-btn">Add Trainer</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <h2>Trainer List</h2>
+          <ul id="trainerList" class="modern-list"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="paymentsSection" style="display:none;">
+      <div class="page-header">
+        <h1>Payment Settings</h1>
+        <p>Add Razorpay keys for this owner.</p>
+      </div>
+
+      <div class="panel">
+        <input type="text" id="ownerRazorpayKeyId" placeholder="Razorpay Key ID">
+        <input type="password" id="ownerRazorpayKeySecret" placeholder="Razorpay Key Secret">
+        <button class="primary-btn" onclick="saveOwnerPaymentSettings()">Save Razorpay Settings</button>
+        <p id="paymentSettingsStatus"></p>
+      </div>
+    </section>
+
+    <section id="rewardsSection" style="display:none;">
+      <div class="page-header">
+        <h1>Reward Points</h1>
+        <p>Member reward tracking.</p>
+      </div>
+
+      <div class="panel">
+        <ul id="rewardList" class="modern-list"></ul>
+      </div>
+    </section>
+    
+<section id="whatsappSection" style="display:none;">
+  <div class="page-header">
+    <h1>WhatsApp Reminder Settings</h1>
+    <p>Save Meta WhatsApp Cloud API details and send expiry reminders.</p>
+  </div>
+
+  <div class="content-grid">
+    <div class="panel">
+      <h2>WhatsApp Settings</h2>
+
+      <input type="text" id="waPhoneNumberId" placeholder="WhatsApp Phone Number ID">
+      <input type="password" id="waAccessToken" placeholder="Access Token">
+      <input type="text" id="waTemplateName" placeholder="Template Name e.g. hello_world">
+      <input type="text" id="waLanguageCode" placeholder="Language Code e.g. en_US">
+
+      <button class="primary-btn" onclick="saveWhatsAppSettings()">Save WhatsApp Settings</button>
+
+      <p id="waSettingsStatus"></p>
+    </div>
+
+    <div class="panel">
+      <h2>Expiry Reminders</h2>
+      <p>This will send reminders to members expiring within 3 days.</p>
+
+      <button class="primary-btn" onclick="sendExpiryReminders()">Send Expiry Reminders</button>
+
+      <p id="waReminderResult"></p>
+    </div>
+  </div>
+</section>
+
+  </main>
+
+</div>
+
+<script src="owner-script.js"></script>
+</body>
+</html>

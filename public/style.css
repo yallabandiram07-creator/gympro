@@ -1,0 +1,403 @@
+* {
+  box-sizing: border-box;
+  font-family: Inter, Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f4f7fb;
+  color: #0f172a;
+}
+
+.auth-page {
+  min-height: 100vh;
+  background: linear-gradient(rgba(2, 6, 23, .78), rgba(2, 6, 23, .78)), url("gym.jpeg");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-box {
+  width: 360px;
+  background: rgba(255,255,255,.92);
+  padding: 34px;
+  border-radius: 24px;
+  box-shadow: 0 30px 80px rgba(0,0,0,.35);
+  text-align: center;
+}
+
+.auth-box h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+}
+
+.auth-box p {
+  color: #64748b;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 14px 16px;
+  margin: 8px 0;
+  border: 1px solid #dbe3ef;
+  border-radius: 14px;
+  outline: none;
+  font-size: 15px;
+  background: #fff;
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+button, .primary-btn, .logout-small {
+  border: 0;
+  padding: 13px 18px;
+  border-radius: 14px;
+  background: #4361ee;
+  color: white;
+  cursor: pointer;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-block;
+}
+
+button:hover, .primary-btn:hover {
+  opacity: .92;
+}
+
+.danger-btn, .logout-btn, .logout-small {
+  background: #ef4444;
+}
+
+.auth-box button {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.auth-link a, .member-login-link {
+  color: #4361ee;
+  font-weight: 700;
+}
+
+.app-layout, .member-app {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar, .member-sidebar {
+  width: 260px;
+  background: linear-gradient(180deg, #0f172a, #111827);
+  color: white;
+  padding: 24px;
+  position: fixed;
+  height: 100vh;
+  left: 0;
+  top: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 34px;
+}
+
+.brand-icon {
+  width: 46px;
+  height: 46px;
+  background: #4361ee;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.brand p {
+  margin: 2px 0 0;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.nav-btn {
+  width: 100%;
+  background: rgba(255,255,255,.08);
+  color: white;
+  text-align: left;
+  margin-bottom: 12px;
+}
+
+.nav-btn.active {
+  background: #4361ee;
+}
+
+.logout-btn {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  width: calc(100% - 48px);
+}
+
+.member-login-link {
+  display: block;
+  color: #c7d2fe;
+  margin: 10px 0;
+  text-decoration: none;
+}
+
+.trainer-link {
+  color: #ddd6fe;
+}
+
+.main-content, .member-main {
+  margin-left: 260px;
+  padding: 30px;
+  width: calc(100% - 260px);
+}
+
+.page-header, .member-hero {
+  background: white;
+  padding: 28px 32px;
+  border-radius: 22px;
+  margin-bottom: 24px;
+  box-shadow: 0 12px 35px rgba(15,23,42,.06);
+}
+
+.page-header h1, .member-hero h1 {
+  margin: 0;
+  font-size: 34px;
+}
+
+.page-header p, .member-hero p {
+  margin: 8px 0 0;
+  color: #64748b;
+}
+
+.member-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #4361ee, #7c3aed);
+  color: white;
+}
+
+.member-hero p {
+  color: #e0e7ff;
+}
+
+.member-badge {
+  background: #22c55e;
+  padding: 12px 20px;
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+.member-badge.warning {
+  background: #f97316;
+}
+
+.member-badge.expired {
+  background: #ef4444;
+}
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  padding: 26px;
+  border-radius: 22px;
+  color: white;
+  box-shadow: 0 18px 35px rgba(15,23,42,.12);
+}
+
+.stat-card h3 {
+  margin: 0 0 16px;
+  font-size: 16px;
+  opacity: .9;
+}
+
+.stat-card p {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 900;
+}
+
+.blue {
+  background: linear-gradient(135deg, #4361ee, #3b82f6);
+}
+
+.green {
+  background: linear-gradient(135deg, #16a34a, #65a30d);
+}
+
+.orange {
+  background: linear-gradient(135deg, #f97316, #dc2626);
+}
+
+.content-grid, .charts-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  margin-bottom: 24px;
+}
+
+.panel, .chart-card {
+  background: white;
+  padding: 26px;
+  border-radius: 22px;
+  box-shadow: 0 12px 35px rgba(15,23,42,.06);
+}
+
+.panel h2, .chart-card h3 {
+  margin-top: 0;
+  font-size: 24px;
+}
+
+.modern-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.modern-list li {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  padding: 18px;
+  border-radius: 16px;
+  margin-bottom: 14px;
+}
+
+.modern-list strong {
+  display: block;
+  font-size: 17px;
+  margin-bottom: 8px;
+}
+
+.modern-list span {
+  display: block;
+  color: #475569;
+  margin: 4px 0;
+}
+
+.modern-list button {
+  margin-top: 10px;
+}
+
+.plan-box {
+  white-space: pre-wrap;
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  line-height: 1.7;
+  color: #111827;
+}
+
+.reward-banner {
+  background: linear-gradient(135deg, #111827, #334155);
+  color: white;
+  padding: 28px;
+  border-radius: 22px;
+  margin-bottom: 24px;
+}
+
+.qr-preview {
+  text-align: center;
+  padding: 20px;
+}
+
+.qr-img {
+  width: 240px;
+  max-width: 100%;
+}
+
+.timer-box {
+  margin-top: 18px;
+  font-weight: 800;
+  color: #4361ee;
+}
+
+.trainer-page {
+  padding: 30px;
+}
+
+#member-qr-reader {
+  width: 100%;
+  max-width: 520px;
+  margin-top: 20px;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .app-layout, .member-app {
+    flex-direction: column;
+  }
+
+  .sidebar, .member-sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+  }
+
+  .logout-btn {
+    position: static;
+    width: 100%;
+    margin-top: 24px;
+  }
+
+  .main-content, .member-main {
+    margin-left: 0;
+    width: 100%;
+    padding: 18px;
+  }
+
+  .dashboard-cards,
+  .content-grid,
+  .charts-container {
+    grid-template-columns: 1fr;
+  }
+
+  .member-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .page-header h1,
+  .member-hero h1 {
+    font-size: 28px;
+  }
+  .lock-screen {
+  min-height: 100vh;
+  background: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lock-card {
+  background: white;
+  padding: 40px;
+  border-radius: 24px;
+  text-align: center;
+  max-width: 420px;
+}
+
+.lock-card h1 {
+  margin-top: 0;
+  color: #ef4444;
+ }
+}
