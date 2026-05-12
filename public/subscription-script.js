@@ -1,4 +1,4 @@
-const API = "https://gympro-mzxo.onrender.com";
+const API = "https://gympro-mzx0.onrender.com"
 
 function loadCurrentSubscription() {
   const token = localStorage.getItem("token");
