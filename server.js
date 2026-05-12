@@ -621,7 +621,7 @@ const PORT = process.env.PORT || 5000;
 
 // ✅ Keep-alive ping - prevents Render free tier from sleeping
 setInterval(() => {
-  https.get("https://gympro-mzxo.onrender.com/", (res) => {
+  https.get("https://gympro-mzx0.onrender.com/", (res) => {
     console.log("Keep-alive ping sent ✅");
   }).on("error", (err) => {
     console.log("Keep-alive ping failed:", err.message);
