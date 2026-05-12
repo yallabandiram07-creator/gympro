@@ -1,4 +1,4 @@
-const API = "http://localhost:5000";
+const API = "https://gympro-mzxo.onrender.com";
 
 function trainerLogout() {
   localStorage.removeItem("trainerToken");
