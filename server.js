@@ -4,7 +4,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const cors = require("cors");
 const path = require("path");
 const QRCode = require("qrcode");
 const axios = require("axios");
@@ -23,12 +22,13 @@ const subscriptionRoutes = require("./routes/subscriptionRoutes");
 const app = express();
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Origin", "https://gympro-two.vercel.app");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Max-Age", "86400");
 
   if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
+    return res.status(204).end();
   }
 
   next();
@@ -36,7 +36,6 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
-app.use("/", subscriptionRoutes);
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
@@ -81,7 +80,11 @@ function trainerAuth(req, res, next) {
 }
 
 app.get("/", (req, res) => {
-  res.send("GymPro backend is running");
+  res.json({ message: "GymPro backend is running" });
+});
+
+app.get("/cors-test", (req, res) => {
+  res.json({ message: "CORS working" });
 });
 
 app.post("/register", async (req, res) => {
@@ -844,6 +847,8 @@ app.post("/send-expiry-reminders", auth, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+app.use("/", subscriptionRoutes);
 
 app.get("/test-route", (req, res) => {
   res.json({ message: "Server route working" });
