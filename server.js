@@ -1,4 +1,3 @@
-const cors = require("cors");
 require("dotenv").config();
 
 const express = require("express");
@@ -6,6 +5,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
+const path = require("path");
 const QRCode = require("qrcode");
 const axios = require("axios");
 const crypto = require("crypto");
@@ -22,19 +22,36 @@ const subscriptionRoutes = require("./routes/subscriptionRoutes");
 
 const app = express();
 
-app.use(cors({
-  origin: "https://gympro-two.vercel.app",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
-}));
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
 
+    const allowedOrigins = [
+      "https://gympro-two.vercel.app",
+      "https://gympro-mzxo.onrender.com",
+      "http://localhost:5000",
+      "http://127.0.0.1:5000"
+    ];
+
+    if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+      return callback(null, true);
+    }
+
+    return callback(new Error("Not allowed by CORS"));
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/", subscriptionRoutes);
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
-  .catch(err => console.log(err));
+  .catch(err => console.log("MongoDB Error:", err));
 
 const dynamicTokens = {};
 
@@ -43,7 +60,7 @@ function auth(req, res, next) {
   if (!token) return res.status(401).json({ message: "No token" });
 
   try {
-    req.user = jwt.verify(token, "secret");
+    req.user = jwt.verify(token, process.env.JWT_SECRET || "secret");
     next();
   } catch {
     res.status(401).json({ message: "Invalid token" });
@@ -55,7 +72,7 @@ function memberAuth(req, res, next) {
   if (!token) return res.status(401).json({ message: "No member token" });
 
   try {
-    req.member = jwt.verify(token, "membersecret");
+    req.member = jwt.verify(token, process.env.MEMBER_JWT_SECRET || "membersecret");
     next();
   } catch {
     res.status(401).json({ message: "Invalid member token" });
@@ -67,7 +84,7 @@ function trainerAuth(req, res, next) {
   if (!token) return res.status(401).json({ message: "No trainer token" });
 
   try {
-    req.trainer = jwt.verify(token, "trainersecret");
+    req.trainer = jwt.verify(token, process.env.TRAINER_JWT_SECRET || "trainersecret");
     next();
   } catch {
     res.status(401).json({ message: "Invalid trainer token" });
@@ -75,7 +92,7 @@ function trainerAuth(req, res, next) {
 }
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.send("GymPro backend is running");
 });
 
 app.post("/register", async (req, res) => {
@@ -93,7 +110,8 @@ app.post("/register", async (req, res) => {
     }).save();
 
     res.json({ message: "Registered successfully" });
-  } catch {
+  } catch (err) {
+    console.log("Register error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -108,10 +126,11 @@ app.post("/login", async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.json({ message: "Wrong password" });
 
-    const token = jwt.sign({ id: user._id }, "secret");
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || "secret");
 
     res.json({ message: "Login successful", token });
-  } catch {
+  } catch (err) {
+    console.log("Login error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -167,7 +186,7 @@ app.post("/member-login", async (req, res) => {
 
     const token = jwt.sign(
       { id: member._id, userId: member.userId },
-      "membersecret"
+      process.env.MEMBER_JWT_SECRET || "membersecret"
     );
 
     res.json({ message: "Member login successful", token });
@@ -274,7 +293,7 @@ app.post("/trainer-login", async (req, res) => {
 
     const token = jwt.sign(
       { id: trainer._id, userId: trainer.userId },
-      "trainersecret"
+      process.env.TRAINER_JWT_SECRET || "trainersecret"
     );
 
     res.json({ message: "Trainer login successful", token });
@@ -841,6 +860,8 @@ app.get("/test-route", (req, res) => {
   res.json({ message: "Server route working" });
 });
 
-app.listen(5000, "0.0.0.0", () => {
-  console.log("Server running on port 5000 🚀");
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT} 🚀`);
 });
