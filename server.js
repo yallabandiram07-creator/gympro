@@ -22,29 +22,7 @@ const subscriptionRoutes = require("./routes/subscriptionRoutes");
 
 const app = express();
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-
-    const allowedOrigins = [
-      "https://gympro-two.vercel.app",
-      "https://gympro-mzxo.onrender.com",
-      "http://localhost:5000",
-      "http://127.0.0.1:5000"
-    ];
-
-    if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
-      return callback(null, true);
-    }
-
-    return callback(new Error("Not allowed by CORS"));
-  },
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true
-};
-
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/", subscriptionRoutes);
