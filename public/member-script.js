@@ -226,3 +226,21 @@ function logout() {
   localStorage.removeItem("memberToken");
   window.location.href = "member-login.html";
 }
+function checkMembershipStatus(member) {
+  const expiryDate = new Date(member.expiryDate || member.expiry);
+  const today = new Date();
+
+  if (expiryDate < today) {
+    alert("Your membership is expired. Please renew to continue.");
+
+    showSection("payment");
+
+    const attendanceBtn = document.querySelector("button[onclick=\"showSection('attendance')\"]");
+    const workoutBtn = document.querySelector("button[onclick=\"showSection('workout')\"]");
+    const dietBtn = document.querySelector("button[onclick=\"showSection('diet')\"]");
+
+    if (attendanceBtn) attendanceBtn.disabled = true;
+    if (workoutBtn) workoutBtn.disabled = true;
+    if (dietBtn) dietBtn.disabled = true;
+  }
+}
