@@ -3,120 +3,95 @@
 <head>
   <title>Member Dashboard - GymPro</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
-<body class="member-app-page">
+<body onload="loadMemberDashboard()">
 
-<div class="member-app">
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <h2>🏋️ GymPro</h2>
+    <p>Member App</p>
 
-  <aside class="member-sidebar">
-    <div class="brand">
-      <div class="brand-icon">🏋️</div>
-      <div>
-        <h2>GymPro</h2>
-        <p>Member App</p>
-      </div>
-    </div>
+    <button onclick="showSection('overview')">🏠 Overview</button>
+    <button onclick="showSection('attendance')">📅 Attendance</button>
+    <button onclick="showSection('workout')">💪 Workout</button>
+    <button onclick="showSection('diet')">🥗 Diet</button>
+    <button onclick="showSection('payment')">💳 Payment</button>
 
-    <button class="nav-btn active" onclick="showMemberTab('overview')">🏠 Overview</button>
-    <button class="nav-btn" onclick="showMemberTab('attendance')">📅 Attendance</button>
-    <button class="nav-btn" onclick="showMemberTab('workout')">💪 Workout</button>
-    <button class="nav-btn" onclick="showMemberTab('diet')">🥗 Diet</button>
-
-    <button class="logout-btn" onclick="memberLogout()">Logout</button>
+    <button class="logout-btn" onclick="logout()">Logout</button>
   </aside>
 
-  <main class="member-main">
+  <main class="main-content">
 
-    <section id="memberOverviewTab">
-      <div class="member-hero">
-        <div>
-          <h1>Hello, <span id="mName">Member</span></h1>
-          <p>Your membership and progress dashboard.</p>
-        </div>
-        <div class="member-badge" id="membershipStatus">Active</div>
-      </div>
-
-      <div class="dashboard-cards">
-        <div class="stat-card blue">
-          <h3>Points</h3>
-          <p id="mPoints">0</p>
-        </div>
-
-        <div class="stat-card green">
-          <h3>Days Left</h3>
-          <p id="mDaysLeft">0</p>
-        </div>
-
-        <div class="stat-card orange">
-          <h3>Attendance</h3>
-          <p id="mTotalAttendance">0</p>
-        </div>
-      </div>
-
-      <div class="panel">
-        <h2>Membership Details</h2>
-        <p><strong>Phone:</strong> <span id="mPhone">-</span></p>
-        <p><strong>Plan:</strong> <span id="mPlan">-</span> days</p>
-        <p><strong>Fees:</strong> ₹<span id="mFees">0</span></p>
-        <p><strong>Expiry:</strong> <span id="mExpiry">-</span></p>
+    <section id="overview" class="section active">
+      <h1>Member Overview</h1>
+      <div class="card">
+        <h2 id="memberName">Loading...</h2>
+        <p><b>Phone:</b> <span id="memberPhone"></span></p>
+        <p><b>Plan:</b> <span id="memberPlan"></span> days</p>
+        <p><b>Fees:</b> ₹<span id="memberFees"></span></p>
+        <p><b>Expiry:</b> <span id="memberExpiry"></span></p>
+        <p><b>Reward Points:</b> <span id="memberPoints"></span></p>
       </div>
     </section>
 
-    <section id="memberAttendanceTab" style="display:none;">
-      <div class="page-header">
-        <h1>Attendance History</h1>
-        <p>Your gym check-ins.</p>
-      </div>
+    <section id="attendance" class="section">
+      <h1>Attendance History</h1>
+      <div class="card" id="attendanceList">Loading...</div>
+    </section>
 
-      <div class="panel">
-        <ul id="memberAttendanceList" class="modern-list"></ul>
+    <section id="workout" class="section">
+      <h1>Workout Plan</h1>
+      <div class="card">
+        <p id="workoutPlan">No workout plan assigned yet.</p>
       </div>
     </section>
 
-    <section id="memberWorkoutTab" style="display:none;">
-      <div class="page-header">
-        <h1>Workout Plan</h1>
-        <p>Your trainer-assigned workout.</p>
+    <section id="diet" class="section">
+      <h1>Diet Plan</h1>
+      <div class="card">
+        <p id="dietPlan">No diet plan assigned yet.</p>
       </div>
 
-      <div class="panel">
-        <pre id="memberWorkoutText" class="plan-box">No workout plan added yet.</pre>
+      <div class="card">
+        <h2>Add Diet Log</h2>
+        <input id="weight" placeholder="Weight">
+        <input id="calories" placeholder="Calories">
+        <input id="protein" placeholder="Protein">
+        <input id="water" placeholder="Water in litres">
+        <input id="notes" placeholder="Notes">
+        <button onclick="addDietLog()">Add Diet Log</button>
+      </div>
+
+      <div class="card">
+        <h2>Diet Logs</h2>
+        <div id="dietLogs">Loading...</div>
       </div>
     </section>
 
-    <section id="memberDietTab" style="display:none;">
-      <div class="page-header">
-        <h1>Diet Tracking</h1>
-        <p>Track your daily diet.</p>
+    <section id="payment" class="section">
+      <h1>Renew Membership</h1>
+
+      <div class="card">
+        <h2>Current Membership</h2>
+        <p><b>Name:</b> <span id="payMemberName"></span></p>
+        <p><b>Current Expiry:</b> <span id="payExpiry"></span></p>
       </div>
 
-      <div class="content-grid">
-        <div class="panel">
-          <h2>Add Diet Log</h2>
-
-          <input type="number" id="dietWeight" placeholder="Weight kg">
-          <input type="number" id="dietCalories" placeholder="Calories">
-          <input type="number" id="dietProtein" placeholder="Protein grams">
-          <input type="number" id="dietWater" placeholder="Water litres">
-          <textarea id="dietNotes" placeholder="Meal notes"></textarea>
-
-          <button class="primary-btn" onclick="addDietLog()">Save Diet Log</button>
-        </div>
-
-        <div class="panel">
-          <h2>Trainer Diet Plan</h2>
-          <pre id="memberDietText" class="plan-box">No diet plan added yet.</pre>
-        </div>
+      <div class="card">
+        <h2>Renew Now</h2>
+        <input id="renewAmount" type="number" placeholder="Amount ₹">
+        <input id="renewDays" type="number" placeholder="Days">
+        <button onclick="renewMembership()">Pay & Renew</button>
       </div>
 
-      <div class="panel">
-        <h2>Diet History</h2>
-        <ul id="dietLogList" class="modern-list"></ul>
+      <div class="card">
+        <h2>Payment History</h2>
+        <div id="paymentHistory">No payments yet.</div>
       </div>
     </section>
 
   </main>
-
 </div>
 
 <script src="member-script.js"></script>

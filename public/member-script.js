@@ -1,262 +1,228 @@
-const API = "https://gympro-mzx0.onrender.com"
+const API = "https://gympro-mzx0.onrender.com";
 
+let currentMember = null;
 
-function byId(id) {
-  return document.getElementById(id);
+function getMemberToken() {
+  return localStorage.getItem("memberToken");
 }
 
-function setText(id, value) {
-  const el = byId(id);
-  if (el) el.textContent = value;
-}
-
-function show(id) {
-  const el = byId(id);
-  if (el) el.style.display = "block";
-}
-
-function hide(id) {
-  const el = byId(id);
-  if (el) el.style.display = "none";
-}
-
-function memberLogin() {
-  const phone = byId("memberPhone").value.trim();
-  const password = byId("memberPassword").value.trim();
-
-  if (!phone || !password) {
-    alert("Enter phone and password");
-    return;
-  }
-
-  fetch(API + "/member-login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ phone, password })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.token) {
-      localStorage.setItem("memberToken", data.token);
-      window.location.href = "member-dashboard.html";
-    } else {
-      alert(data.message);
-    }
-  })
-  .catch(err => {
-    console.log(err);
-    alert("Login failed. Check server terminal.");
-  });
-}
-
-function memberLogout() {
-  localStorage.removeItem("memberToken");
-  window.location.href = "member-login.html";
-}
-
-function showMemberTab(tab) {
-  hide("memberOverviewTab");
-  hide("memberAttendanceTab");
-  hide("memberWorkoutTab");
-  hide("memberDietTab");
-
-  document.querySelectorAll(".member-sidebar .nav-btn").forEach(btn => {
-    btn.classList.remove("active");
+function showSection(id) {
+  document.querySelectorAll(".section").forEach(sec => {
+    sec.classList.remove("active");
   });
 
-  if (tab === "overview") {
-    show("memberOverviewTab");
-    document.querySelectorAll(".member-sidebar .nav-btn")[0]?.classList.add("active");
-  }
-
-  if (tab === "attendance") {
-    show("memberAttendanceTab");
-    document.querySelectorAll(".member-sidebar .nav-btn")[1]?.classList.add("active");
-  }
-
-  if (tab === "workout") {
-    show("memberWorkoutTab");
-    document.querySelectorAll(".member-sidebar .nav-btn")[2]?.classList.add("active");
-  }
-
-  if (tab === "diet") {
-    show("memberDietTab");
-    document.querySelectorAll(".member-sidebar .nav-btn")[3]?.classList.add("active");
-    loadDietLogs();
-  }
+  document.getElementById(id).classList.add("active");
 }
 
-function loadMemberDashboard() {
-  const token = localStorage.getItem("memberToken");
+async function loadMemberDashboard() {
+  const token = getMemberToken();
 
   if (!token) {
     window.location.href = "member-login.html";
     return;
   }
 
-  fetch(API + "/member-profile", {
-    method: "GET",
-    headers: {
-      Authorization: token
-    }
-  })
-  .then(res => res.json())
-  .then(data => {
+  try {
+    const res = await fetch(API + "/member-profile", {
+      headers: {
+        Authorization: token
+      }
+    });
+
+    const data = await res.json();
+
     if (!data.member) {
-      alert("Please login again");
-      memberLogout();
+      alert("Session expired. Please login again.");
+      logout();
       return;
     }
 
-    const member = data.member;
-    const attendance = data.attendance || [];
-    const dietLogs = data.dietLogs || [];
+    currentMember = data.member;
 
-    const expiryDate = new Date(member.expiryDate || member.expiry);
-    const today = new Date();
-    const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+    document.getElementById("memberName").innerText = data.member.name || "";
+    document.getElementById("memberPhone").innerText = data.member.phone || "";
+    document.getElementById("memberPlan").innerText = data.member.plan || "";
+    document.getElementById("memberFees").innerText = data.member.fees || "";
+    document.getElementById("memberExpiry").innerText = data.member.expiry || "";
+    document.getElementById("memberPoints").innerText = data.member.points || 0;
 
-    setText("mName", member.name || "-");
-    setText("mPhone", member.phone || "-");
-    setText("mPlan", member.plan || "0");
-    setText("mFees", member.fees || "0");
-    setText("mExpiry", member.expiry || "-");
-    setText("mPoints", member.points || 0);
-    setText("mDaysLeft", daysLeft > 0 ? daysLeft : 0);
-    setText("mTotalAttendance", attendance.length);
+    document.getElementById("workoutPlan").innerText =
+      data.member.workoutPlan || "No workout plan assigned yet.";
 
-    setText("memberWorkoutText", member.workoutPlan || "No workout plan added yet.");
-    setText("memberDietText", member.dietPlan || "No diet plan added yet.");
+    document.getElementById("dietPlan").innerText =
+      data.member.dietPlan || "No diet plan assigned yet.";
 
-    const status = byId("membershipStatus");
+    document.getElementById("payMemberName").innerText = data.member.name || "";
+    document.getElementById("payExpiry").innerText = data.member.expiry || "";
 
-    if (status) {
-      status.classList.remove("warning", "expired");
+    document.getElementById("renewAmount").value = data.member.fees || "";
+    document.getElementById("renewDays").value = data.member.plan || "";
 
-      if (daysLeft <= 0) {
-        status.textContent = "Expired";
-        status.classList.add("expired");
-      } else if (daysLeft <= 3) {
-        status.textContent = "Expiring Soon";
-        status.classList.add("warning");
-      } else {
-        status.textContent = "Active";
-      }
-    }
+    renderAttendance(data.attendance || []);
+    renderPayments(data.payments || []);
+    renderDietLogs(data.dietLogs || []);
 
-    const attendanceList = byId("memberAttendanceList");
-
-    if (attendanceList) {
-      attendanceList.innerHTML = "";
-
-      if (attendance.length === 0) {
-        attendanceList.innerHTML = "<li>No attendance history yet.</li>";
-      }
-
-      attendance.forEach(a => {
-        attendanceList.innerHTML += `
-          <li>
-            <strong>${a.date}</strong>
-            <span>Time: ${a.time}</span>
-          </li>
-        `;
-      });
-    }
-
-    renderDietLogs(dietLogs);
-  })
-  .catch(err => {
-    console.log(err);
-    alert("Member dashboard loading failed. Check server terminal.");
-  });
+  } catch (err) {
+    alert("Server waking up. Please refresh after 10 seconds.");
+  }
 }
 
-function addDietLog() {
-  const token = localStorage.getItem("memberToken");
+function renderAttendance(attendance) {
+  const box = document.getElementById("attendanceList");
 
-  const weight = byId("dietWeight").value;
-  const calories = byId("dietCalories").value;
-  const protein = byId("dietProtein").value;
-  const water = byId("dietWater").value;
-  const notes = byId("dietNotes").value;
+  if (!attendance.length) {
+    box.innerHTML = "No attendance history yet.";
+    return;
+  }
 
-  fetch(API + "/member-diet-log", {
+  box.innerHTML = attendance.map(a => `
+    <div class="list-item">
+      <b>${a.date}</b> - ${a.time || ""}
+    </div>
+  `).join("");
+}
+
+function renderPayments(payments) {
+  const box = document.getElementById("paymentHistory");
+
+  if (!payments.length) {
+    box.innerHTML = "No payments yet.";
+    return;
+  }
+
+  box.innerHTML = payments.map(p => `
+    <div class="list-item">
+      <b>₹${p.amount}</b> - ${p.days} days - ${p.status}
+    </div>
+  `).join("");
+}
+
+function renderDietLogs(logs) {
+  const box = document.getElementById("dietLogs");
+
+  if (!logs.length) {
+    box.innerHTML = "No diet logs yet.";
+    return;
+  }
+
+  box.innerHTML = logs.map(log => `
+    <div class="list-item">
+      <b>${log.date}</b><br>
+      Weight: ${log.weight} kg<br>
+      Calories: ${log.calories}<br>
+      Protein: ${log.protein} g<br>
+      Water: ${log.water} L<br>
+      Notes: ${log.notes || ""}
+    </div>
+  `).join("");
+}
+
+async function addDietLog() {
+  const token = getMemberToken();
+
+  const body = {
+    weight: document.getElementById("weight").value,
+    calories: document.getElementById("calories").value,
+    protein: document.getElementById("protein").value,
+    water: document.getElementById("water").value,
+    notes: document.getElementById("notes").value
+  };
+
+  const res = await fetch(API + "/member-diet-log", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: token
     },
-    body: JSON.stringify({
-      weight,
-      calories,
-      protein,
-      water,
-      notes
-    })
-  })
-  .then(res => res.json())
-  .then(data => {
-    alert(data.message);
-
-    byId("dietWeight").value = "";
-    byId("dietCalories").value = "";
-    byId("dietProtein").value = "";
-    byId("dietWater").value = "";
-    byId("dietNotes").value = "";
-
-    loadDietLogs();
-  })
-  .catch(err => {
-    console.log(err);
-    alert("Diet log failed");
+    body: JSON.stringify(body)
   });
+
+  const data = await res.json();
+  alert(data.message);
+  loadMemberDashboard();
 }
 
-function loadDietLogs() {
-  const token = localStorage.getItem("memberToken");
+async function renewMembership() {
+  const token = getMemberToken();
 
-  fetch(API + "/member-diet-logs", {
-    method: "GET",
-    headers: {
-      Authorization: token
-    }
-  })
-  .then(res => res.json())
-  .then(logs => {
-    renderDietLogs(logs);
-  })
-  .catch(err => {
-    console.log(err);
-  });
-}
+  const amount = document.getElementById("renewAmount").value;
+  const days = document.getElementById("renewDays").value;
 
-function renderDietLogs(logs) {
-  const list = byId("dietLogList");
-  if (!list) return;
-
-  list.innerHTML = "";
-
-  if (!logs || logs.length === 0) {
-    list.innerHTML = "<li>No diet logs yet.</li>";
+  if (!amount || !days) {
+    alert("Enter amount and days");
     return;
   }
 
-  logs.forEach(log => {
-    list.innerHTML += `
-      <li>
-        <strong>${log.date}</strong>
-        <span>Weight: ${log.weight || 0} kg</span>
-        <span>Calories: ${log.calories || 0}</span>
-        <span>Protein: ${log.protein || 0} g</span>
-        <span>Water: ${log.water || 0} L</span>
-        <span>Notes: ${log.notes || "-"}</span>
-      </li>
-    `;
-  });
+  try {
+    const keyRes = await fetch(API + "/razorpay-key", {
+      headers: {
+        Authorization: token
+      }
+    });
+
+    const keyData = await keyRes.json();
+
+    if (!keyData.key) {
+      alert(keyData.message || "Razorpay key not found");
+      return;
+    }
+
+    const orderRes = await fetch(API + "/create-renewal-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token
+      },
+      body: JSON.stringify({ amount, days })
+    });
+
+    const orderData = await orderRes.json();
+
+    if (!orderData.orderId) {
+      alert(orderData.message || "Order creation failed");
+      return;
+    }
+
+    const options = {
+      key: keyData.key,
+      amount: orderData.amount,
+      currency: orderData.currency,
+      name: "GymPro Membership",
+      description: "Membership Renewal",
+      order_id: orderData.orderId,
+      handler: async function (response) {
+        const verifyRes = await fetch(API + "/verify-payment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token
+          },
+          body: JSON.stringify(response)
+        });
+
+        const verifyData = await verifyRes.json();
+        alert(verifyData.message);
+        loadMemberDashboard();
+        showSection("overview");
+      },
+      prefill: {
+        name: currentMember?.name || "",
+        contact: currentMember?.phone || ""
+      },
+      theme: {
+        color: "#4f46e5"
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+
+  } catch (err) {
+    alert("Payment error. Try again.");
+  }
 }
 
-if (window.location.pathname.includes("member-dashboard.html")) {
-  loadMemberDashboard();
+function logout() {
+  localStorage.removeItem("memberToken");
+  window.location.href = "member-login.html";
 }
