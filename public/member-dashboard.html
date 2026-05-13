@@ -4,7 +4,24 @@
   <title>Member Dashboard - GymPro</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <style>
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .sidebar button {
+      display: block;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+  </style>
 </head>
+
 <body onload="loadMemberDashboard()">
 
 <div class="dashboard-layout">
@@ -49,6 +66,7 @@
 
     <section id="diet" class="section">
       <h1>Diet Plan</h1>
+
       <div class="card">
         <p id="dietPlan">No diet plan assigned yet.</p>
       </div>
@@ -65,7 +83,7 @@
 
       <div class="card">
         <h2>Diet Logs</h2>
-        <div id="dietLogs">Loading...</div>
+        <div id="dietLogs">No diet logs yet.</div>
       </div>
     </section>
 
