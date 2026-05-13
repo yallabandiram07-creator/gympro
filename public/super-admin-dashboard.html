@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Super Admin Dashboard - GymPro</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body onload="loadSuperAdminDashboard()">
+
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <h2>👑 Super Admin</h2>
+    <p>GymPro Control Panel</p>
+
+    <button onclick="loadSuperAdminDashboard()">Dashboard</button>
+    <button onclick="superAdminLogout()">Logout</button>
+  </aside>
+
+  <main class="main-content">
+    <h1>Super Admin Dashboard</h1>
+
+    <div class="stats-grid">
+      <div class="card">
+        <h2>Total Gyms</h2>
+        <p id="totalOwners">0</p>
+      </div>
+
+      <div class="card">
+        <h2>Total Members</h2>
+        <p id="totalMembers">0</p>
+      </div>
+
+      <div class="card">
+        <h2>Total Trainers</h2>
+        <p id="totalTrainers">0</p>
+      </div>
+
+      <div class="card">
+        <h2>Total Revenue</h2>
+        <p>₹<span id="totalRevenue">0</span></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Registered Gyms</h2>
+      <div id="ownersList">Loading...</div>
+    </div>
+  </main>
+</div>
+
+<script src="super-admin.js"></script>
+</body>
+</html>

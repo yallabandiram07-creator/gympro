@@ -19,6 +19,7 @@ const Payment = require("./models/Payment");
 const DietLog = require("./models/DietLog");
 const WhatsAppSetting = require("./models/WhatsAppSetting");
 const subscriptionRoutes = require("./routes/subscriptionRoutes");
+const superAdminRoutes = require("./routes/superAdminRoutes");
 
 const app = express();
 
@@ -98,11 +99,19 @@ app.post("/register", async (req, res) => {
 app.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
+
     const user = await User.findOne({ username });
     if (!user) return res.json({ message: "User not found" });
+
+    if (user.blocked) {
+      return res.json({ message: "Your gym account is blocked. Contact admin." });
+    }
+
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.json({ message: "Wrong password" });
+
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || "secret");
+
     res.json({ message: "Login successful", token });
   } catch (err) {
     console.log("Login error:", err);
@@ -612,6 +621,7 @@ app.post("/send-expiry-reminders", auth, async (req, res) => {
 });
 
 app.use("/", subscriptionRoutes);
+app.use("/", superAdminRoutes);
 
 app.get("/test-route", (req, res) => {
   res.json({ message: "Server route working" });
