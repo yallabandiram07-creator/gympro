@@ -28,6 +28,7 @@
 
     <nav>
       <button onclick="showSection('dashboard', this)" class="nav-btn active">📊 Dashboard</button>
+      <button onclick="showSection('gymProfile', this)" class="nav-btn">🏋️ Gym Profile</button>
       <button onclick="showSection('attendance', this)" class="nav-btn">✅ Attendance</button>
       <button onclick="showSection('qr', this)" class="nav-btn">🔐 Dynamic QR</button>
       <button onclick="showSection('trainers', this)" class="nav-btn">👨‍🏫 Trainers</button>
@@ -87,6 +88,43 @@
         <div class="panel">
           <h2>Members List</h2>
           <ul id="memberList" class="modern-list"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="gymProfileSection" style="display:none;">
+      <div class="page-header">
+        <h1>Gym Profile</h1>
+        <p>Set gym details and custom membership plans.</p>
+      </div>
+
+      <div class="content-grid">
+        <div class="panel">
+          <h2>Gym Details</h2>
+
+          <input id="gymName" placeholder="Gym Name">
+          <input id="ownerName" placeholder="Owner Name">
+          <input id="gymPhone" placeholder="Phone Number">
+          <input id="gymAddress" placeholder="Address">
+          <input id="gymTimings" placeholder="Gym Timings">
+
+          <button class="primary-btn" onclick="saveGymProfile()">Save Gym Profile</button>
+        </div>
+
+        <div class="panel">
+          <h2>Membership Plans</h2>
+
+          <input id="plan1Name" placeholder="Plan 1 Name">
+          <input id="plan1Price" type="number" placeholder="Plan 1 Price">
+          <input id="plan1Days" type="number" placeholder="Plan 1 Days">
+
+          <input id="plan2Name" placeholder="Plan 2 Name">
+          <input id="plan2Price" type="number" placeholder="Plan 2 Price">
+          <input id="plan2Days" type="number" placeholder="Plan 2 Days">
+
+          <input id="plan3Name" placeholder="Plan 3 Name">
+          <input id="plan3Price" type="number" placeholder="Plan 3 Price">
+          <input id="plan3Days" type="number" placeholder="Plan 3 Days">
         </div>
       </div>
     </section>
@@ -174,42 +212,88 @@
         <ul id="rewardList" class="modern-list"></ul>
       </div>
     </section>
-    
-<section id="whatsappSection" style="display:none;">
-  <div class="page-header">
-    <h1>WhatsApp Reminder Settings</h1>
-    <p>Save Meta WhatsApp Cloud API details and send expiry reminders.</p>
-  </div>
 
-  <div class="content-grid">
-    <div class="panel">
-      <h2>WhatsApp Settings</h2>
+    <section id="whatsappSection" style="display:none;">
+      <div class="page-header">
+        <h1>WhatsApp Reminder Settings</h1>
+        <p>Save Meta WhatsApp Cloud API details and send expiry reminders.</p>
+      </div>
 
-      <input type="text" id="waPhoneNumberId" placeholder="WhatsApp Phone Number ID">
-      <input type="password" id="waAccessToken" placeholder="Access Token">
-      <input type="text" id="waTemplateName" placeholder="Template Name e.g. hello_world">
-      <input type="text" id="waLanguageCode" placeholder="Language Code e.g. en_US">
+      <div class="content-grid">
+        <div class="panel">
+          <h2>WhatsApp Settings</h2>
 
-      <button class="primary-btn" onclick="saveWhatsAppSettings()">Save WhatsApp Settings</button>
+          <input type="text" id="waPhoneNumberId" placeholder="WhatsApp Phone Number ID">
+          <input type="password" id="waAccessToken" placeholder="Access Token">
+          <input type="text" id="waTemplateName" placeholder="Template Name e.g. hello_world">
+          <input type="text" id="waLanguageCode" placeholder="Language Code e.g. en_US">
 
-      <p id="waSettingsStatus"></p>
-    </div>
+          <button class="primary-btn" onclick="saveWhatsAppSettings()">Save WhatsApp Settings</button>
 
-    <div class="panel">
-      <h2>Expiry Reminders</h2>
-      <p>This will send reminders to members expiring within 3 days.</p>
+          <p id="waSettingsStatus"></p>
+        </div>
 
-      <button class="primary-btn" onclick="sendExpiryReminders()">Send Expiry Reminders</button>
+        <div class="panel">
+          <h2>Expiry Reminders</h2>
+          <p>This will send reminders to members expiring within 3 days.</p>
 
-      <p id="waReminderResult"></p>
-    </div>
-  </div>
-</section>
+          <button class="primary-btn" onclick="sendExpiryReminders()">Send Expiry Reminders</button>
+
+          <p id="waReminderResult"></p>
+        </div>
+      </div>
+    </section>
 
   </main>
-
 </div>
 
 <script src="owner-script.js"></script>
+
+<script>
+async function saveGymProfile() {
+  const token = localStorage.getItem("token");
+  const apiBase = typeof API !== "undefined" ? API : "https://gympro-mzx0.onrender.com";
+
+  const plans = [
+    {
+      name: document.getElementById("plan1Name").value,
+      price: Number(document.getElementById("plan1Price").value),
+      days: Number(document.getElementById("plan1Days").value)
+    },
+    {
+      name: document.getElementById("plan2Name").value,
+      price: Number(document.getElementById("plan2Price").value),
+      days: Number(document.getElementById("plan2Days").value)
+    },
+    {
+      name: document.getElementById("plan3Name").value,
+      price: Number(document.getElementById("plan3Price").value),
+      days: Number(document.getElementById("plan3Days").value)
+    }
+  ].filter(plan => plan.name && plan.price && plan.days);
+
+  const body = {
+    gymName: document.getElementById("gymName").value,
+    ownerName: document.getElementById("ownerName").value,
+    phone: document.getElementById("gymPhone").value,
+    address: document.getElementById("gymAddress").value,
+    timings: document.getElementById("gymTimings").value,
+    plans
+  };
+
+  const res = await fetch(apiBase + "/gym-profile", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token
+    },
+    body: JSON.stringify(body)
+  });
+
+  const data = await res.json();
+  alert(data.message);
+}
+</script>
+
 </body>
 </html>
