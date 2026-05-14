@@ -78,14 +78,19 @@
           <p id="memberLimitInfo"></p>
 
           <form id="memberForm">
-            <input type="text" id="name" placeholder="Member Name" required>
-            <input type="text" id="phone" placeholder="Phone Number without +91" required>
-            <input type="password" id="memberPass" placeholder="Member Login Password" required>
-            <input type="number" id="plan" placeholder="Plan Duration in Days" required>
-            <input type="number" id="fees" placeholder="Fees Amount" required>
-            <button type="submit" class="primary-btn">Add Member</button>
-          </form>
-        </div>
+  <input type="text" id="name" placeholder="Member Name" required>
+  <input type="text" id="phone" placeholder="Phone Number without +91" required>
+  <input type="password" id="memberPass" placeholder="Member Login Password" required>
+
+  <select id="memberPlanSelect" onchange="applySelectedPlan()">
+    <option value="">Select Membership Plan</option>
+  </select>
+
+  <input type="number" id="plan" placeholder="Plan Duration in Days" required>
+  <input type="number" id="fees" placeholder="Fees Amount" required>
+
+  <button type="submit" class="primary-btn">Add Member</button>
+</form>
 
         <div class="panel">
           <h2>Members List</h2>
