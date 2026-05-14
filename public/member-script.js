@@ -244,3 +244,42 @@ function checkMembershipStatus(member) {
     if (dietBtn) dietBtn.disabled = true;
   }
 }
+let qrScannerStarted = false;
+
+function startQRScanner() {
+  if (qrScannerStarted) return;
+
+  const scanner = new Html5Qrcode("qr-reader");
+
+  scanner.start(
+    { facingMode: "environment" },
+    {
+      fps: 10,
+      qrbox: 250
+    },
+    async (decodedText) => {
+      qrScannerStarted = true;
+
+      const token = localStorage.getItem("memberToken");
+
+      const res = await fetch(API + "/member-qr-attendance", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token
+        },
+        body: JSON.stringify({ qrData: decodedText })
+      });
+
+      const data = await res.json();
+
+      document.getElementById("qrScanResult").innerText = data.message;
+
+      await scanner.stop();
+      qrScannerStarted = false;
+    },
+    () => {}
+  ).catch(() => {
+    document.getElementById("qrScanResult").innerText = "Camera permission denied or scanner error.";
+  });
+}

@@ -20,6 +20,7 @@
       margin-bottom: 10px;
     }
   </style>
+  <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 
 <body onload="loadMemberDashboard()">
@@ -34,6 +35,7 @@
     <button onclick="showSection('workout')">💪 Workout</button>
     <button onclick="showSection('diet')">🥗 Diet</button>
     <button onclick="showSection('payment')">💳 Payment</button>
+    <button onclick="showSection('qrscan')">📷 QR Attendance</button>
 
     <button class="logout-btn" onclick="logout()">Logout</button>
   </aside>
@@ -108,6 +110,19 @@
         <div id="paymentHistory">No payments yet.</div>
       </div>
     </section>
+<section id="qrscan" class="section">
+  <h1>QR Attendance Scanner</h1>
+
+  <div class="card">
+    <div id="qr-reader" style="width:300px;"></div>
+
+    <button onclick="startQRScanner()">
+      Start Scanner
+    </button>
+
+    <p id="qrScanResult"></p>
+  </div>
+</section>
 
   </main>
 </div>

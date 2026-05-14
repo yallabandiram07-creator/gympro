@@ -729,3 +729,43 @@ async function loadRecentPayments() {
     console.log("Recent payments load error:", err);
   }
 }
+let qrInterval;
+let qrCountdown = 10;
+
+async function loadDynamicQR() {
+  clearInterval(qrInterval);
+
+  const token = localStorage.getItem("token");
+  const qrBox = document.getElementById("dynamicQrBox");
+  const timer = document.getElementById("qrTimer");
+
+  async function fetchQR() {
+    const res = await fetch(API + "/dynamic-qr", {
+      headers: {
+        Authorization: token
+      }
+    });
+
+    const data = await res.json();
+
+    if (data.qr) {
+      qrBox.innerHTML = `<img src="${data.qr}" style="width:250px;height:250px;">`;
+    } else {
+      qrBox.innerHTML = `<p>${data.message || "QR loading failed"}</p>`;
+    }
+
+    qrCountdown = 10;
+  }
+
+  await fetchQR();
+
+  qrInterval = setInterval(async () => {
+    qrCountdown--;
+
+    if (timer) timer.innerText = qrCountdown;
+
+    if (qrCountdown <= 0) {
+      await fetchQR();
+    }
+  }, 1000);
+}
