@@ -20,6 +20,7 @@ const DietLog = require("./models/DietLog");
 const WhatsAppSetting = require("./models/WhatsAppSetting");
 const subscriptionRoutes = require("./routes/subscriptionRoutes");
 const superAdminRoutes = require("./routes/superAdminRoutes");
+const GymProfile = require("./models/GymProfile");
 
 const app = express();
 
@@ -621,6 +622,54 @@ app.post("/send-expiry-reminders", auth, async (req, res) => {
     res.json({ message: `${eligibleCount} expiring members found. ${sentCount} sent, ${failedCount} failed.` });
   } catch (err) {
     console.log("Reminder error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+app.get("/gym-profile", auth, async (req, res) => {
+  try {
+    let profile = await GymProfile.findOne({ userId: req.user.id });
+
+    if (!profile) {
+      profile = await new GymProfile({
+        userId: req.user.id,
+        gymName: "",
+        ownerName: "",
+        phone: "",
+        address: "",
+        timings: "",
+        plans: []
+      }).save();
+    }
+
+    res.json(profile);
+  } catch (err) {
+    console.log("Gym profile get error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.post("/gym-profile", auth, async (req, res) => {
+  try {
+    const { gymName, ownerName, phone, address, timings, plans } = req.body;
+
+    let profile = await GymProfile.findOne({ userId: req.user.id });
+
+    if (!profile) {
+      profile = new GymProfile({ userId: req.user.id });
+    }
+
+    profile.gymName = gymName;
+    profile.ownerName = ownerName;
+    profile.phone = phone;
+    profile.address = address;
+    profile.timings = timings;
+    profile.plans = plans || [];
+
+    await profile.save();
+
+    res.json({ message: "Gym profile saved successfully" });
+  } catch (err) {
+    console.log("Gym profile save error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
