@@ -362,33 +362,68 @@ app.get("/dynamic-qr", auth, async (req, res) => {
 app.post("/member-qr-attendance", memberAuth, async (req, res) => {
   try {
     const { qrData } = req.body;
+
     let parsedQR;
     try {
       parsedQR = JSON.parse(qrData);
     } catch {
       return res.json({ message: "Invalid QR code" });
     }
+
     const { gymOwnerId, token } = parsedQR;
     const savedToken = dynamicTokens[gymOwnerId];
+
     if (!savedToken) return res.json({ message: "QR expired. Please scan latest QR." });
     if (savedToken.token !== token) return res.json({ message: "Invalid or old QR. Please scan latest QR." });
     if (Date.now() > savedToken.expiresAt) return res.json({ message: "QR expired. Please scan again." });
-    const member = await Member.findOne({ _id: req.member.id, userId: gymOwnerId });
-    if (!member) return res.json({ message: "Member not found" });
-    const today = new Date().toDateString();
-    const alreadyMarked = await Attendance.findOne({ userId: gymOwnerId, memberId: member._id.toString(), date: today });
-    if (alreadyMarked) return res.json({ message: "Attendance already marked today" });
+
+    const member = await Member.findOne({
+      _id: req.member.id,
+      userId: gymOwnerId
+    });
+
+    if (!member) return res.json({ message: "Member not found in this gym" });
+
+    const now = new Date();
+
+    const today = now.toLocaleDateString("en-IN", {
+      timeZone: "Asia/Kolkata"
+    });
+
+    const time = now.toLocaleTimeString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    });
+
+    const alreadyMarked = await Attendance.findOne({
+      userId: gymOwnerId,
+      memberId: member._id.toString(),
+      date: today
+    });
+
+    if (alreadyMarked) {
+      return res.json({ message: "Attendance already marked today" });
+    }
+
     await new Attendance({
       userId: gymOwnerId,
       memberId: member._id.toString(),
       memberName: member.name,
       date: today,
-      time: new Date().toLocaleTimeString()
+      time
     }).save();
+
     member.points = Number(member.points || 0) + 5;
     await member.save();
-    res.json({ message: `${member.name} attendance marked successfully. +5 reward points added` });
-  } catch {
+
+    res.json({
+      message: `${member.name} attendance marked successfully. +5 reward points added`
+    });
+
+  } catch (err) {
+    console.log("QR attendance error:", err);
     res.status(500).json({ message: "QR attendance error" });
   }
 });

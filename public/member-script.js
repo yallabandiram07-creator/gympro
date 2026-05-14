@@ -245,41 +245,64 @@ function checkMembershipStatus(member) {
   }
 }
 let qrScannerStarted = false;
+let qrScanProcessing = false;
+let html5QrCode;
 
 function startQRScanner() {
   if (qrScannerStarted) return;
 
-  const scanner = new Html5Qrcode("qr-reader");
+  qrScannerStarted = true;
+  qrScanProcessing = false;
 
-  scanner.start(
+  html5QrCode = new Html5Qrcode("qr-reader");
+
+  html5QrCode.start(
     { facingMode: "environment" },
     {
-      fps: 10,
+      fps: 5,
       qrbox: 250
     },
     async (decodedText) => {
-      qrScannerStarted = true;
+      if (qrScanProcessing) return;
 
-      const token = localStorage.getItem("memberToken");
+      qrScanProcessing = true;
 
-      const res = await fetch(API + "/member-qr-attendance", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token
-        },
-        body: JSON.stringify({ qrData: decodedText })
-      });
+      document.getElementById("qrScanResult").innerText = "Processing attendance...";
 
-      const data = await res.json();
+      try {
+        await html5QrCode.stop();
+        qrScannerStarted = false;
 
-      document.getElementById("qrScanResult").innerText = data.message;
+        const token = localStorage.getItem("memberToken");
 
-      await scanner.stop();
-      qrScannerStarted = false;
+        const res = await fetch(API + "/member-qr-attendance", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token
+          },
+          body: JSON.stringify({ qrData: decodedText })
+        });
+
+        const data = await res.json();
+
+        document.getElementById("qrScanResult").innerText = data.message;
+
+        if (typeof loadMemberDashboard === "function") {
+          loadMemberDashboard();
+        }
+
+      } catch (err) {
+        document.getElementById("qrScanResult").innerText = "QR scan failed. Try again.";
+        qrScannerStarted = false;
+        qrScanProcessing = false;
+      }
     },
     () => {}
   ).catch(() => {
-    document.getElementById("qrScanResult").innerText = "Camera permission denied or scanner error.";
+    document.getElementById("qrScanResult").innerText =
+      "Camera permission denied or scanner error.";
+    qrScannerStarted = false;
+    qrScanProcessing = false;
   });
 }
