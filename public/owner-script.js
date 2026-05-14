@@ -576,3 +576,38 @@ function sendExpiryReminders() {
       result.textContent = "Failed to send reminders";
   });
 }
+async function loadGymProfileOnDashboard() {
+  const token = localStorage.getItem("token");
+
+  try {
+    const res = await fetch(API + "/gym-profile", {
+      headers: {
+        Authorization: token
+      }
+    });
+
+    const profile = await res.json();
+
+    if (profile.gymName) {
+      document.getElementById("dashboardGymName").innerText = "Welcome to " + profile.gymName;
+    }
+
+    if (profile.ownerName) {
+      document.getElementById("dashboardOwnerInfo").innerText = "Owner: " + profile.ownerName;
+    }
+
+    let info = "";
+
+    if (profile.phone) info += "Phone: " + profile.phone + " | ";
+    if (profile.timings) info += "Timings: " + profile.timings + " | ";
+    if (profile.address) info += "Address: " + profile.address;
+
+    document.getElementById("dashboardGymInfo").innerText = info;
+
+  } catch (err) {
+    console.log("Gym profile load error:", err);
+  }
+}
+window.addEventListener("load", () => {
+  loadGymProfileOnDashboard();
+});
