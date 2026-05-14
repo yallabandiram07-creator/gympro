@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gym Payment</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="payment-container">
+    <h1>Renew Membership</h1>
+    <p>Pay using UPI, PhonePe, Google Pay, Paytm, Card or Net Banking</p>
+
+    <div class="plans">
+      <div class="plan-card">
+        <h2>Monthly Plan</h2>
+        <h1>₹1500</h1>
+        <p>30 Days</p>
+        <button onclick="payNow('Monthly Plan', 1500, 30)">Pay Now</button>
+      </div>
+
+      <div class="plan-card">
+        <h2>Quarterly Plan</h2>
+        <h1>₹4000</h1>
+        <p>90 Days</p>
+        <button onclick="payNow('Quarterly Plan', 4000, 90)">Pay Now</button>
+      </div>
+
+      <div class="plan-card">
+        <h2>Half Yearly Plan</h2>
+        <h1>₹7500</h1>
+        <p>180 Days</p>
+        <button onclick="payNow('Half Yearly Plan', 7500, 180)">Pay Now</button>
+      </div>
+
+      <div class="plan-card">
+        <h2>Yearly Plan</h2>
+        <h1>₹14000</h1>
+        <p>365 Days</p>
+        <button onclick="payNow('Yearly Plan', 14000, 365)">Pay Now</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="payment.js"></script>
+</body>
+</html>

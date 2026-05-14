@@ -20,7 +20,7 @@ const DietLog = require("./models/DietLog");
 const WhatsAppSetting = require("./models/WhatsAppSetting");
 const subscriptionRoutes = require("./routes/subscriptionRoutes");
 const superAdminRoutes = require("./routes/superAdminRoutes");
-const GymProfile = require("./models/GymProfile");
+const GymProfile = require("./models/GymProfile");app.use("/", subscriptionRoutes);
 
 const app = express();
 
@@ -670,6 +670,19 @@ app.post("/gym-profile", auth, async (req, res) => {
     res.json({ message: "Gym profile saved successfully" });
   } catch (err) {
     console.log("Gym profile save error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+app.get("/recent-payments", auth, async (req, res) => {
+  try {
+    const payments = await Payment.find({
+      userId: req.user.id,
+      status: "paid"
+    }).sort({ _id: -1 }).limit(5);
+
+    res.json(payments);
+  } catch (err) {
+    console.log("Recent payments error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });

@@ -610,7 +610,10 @@ async function loadGymProfileOnDashboard() {
 }
 window.addEventListener("load", () => {
   loadGymProfileOnDashboard();
+  loadGymPlansForMemberForm();
+  loadGymPlansForMemberForm();
   loadDashboardAlerts();
+  loadRecentPayments();
 });
 let savedGymPlans = [];
 
@@ -692,5 +695,37 @@ async function loadDashboardAlerts() {
 
   } catch (err) {
     console.log("Dashboard alerts error:", err);
+  }
+}
+async function loadRecentPayments() {
+  const token = localStorage.getItem("token");
+
+  try {
+    const res = await fetch(API + "/recent-payments", {
+      headers: {
+        Authorization: token
+      }
+    });
+
+    const payments = await res.json();
+    const box = document.getElementById("recentPaymentsList");
+
+    if (!box) return;
+
+    if (!payments.length) {
+      box.innerHTML = "<li>No recent payments yet.</li>";
+      return;
+    }
+
+    box.innerHTML = payments.map(p => `
+      <li>
+        <b>${p.memberName}</b><br>
+        ₹${p.amount} - ${p.days} days<br>
+        Status: ${p.status}
+      </li>
+    `).join("");
+
+  } catch (err) {
+    console.log("Recent payments load error:", err);
   }
 }
