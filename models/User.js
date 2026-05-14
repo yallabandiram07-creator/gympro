@@ -1,6 +1,14 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
+  gymName: {
+    type: String,
+    default: ""
+  },
+  ownerName: {
+    type: String,
+    default: ""
+  },
   username: {
     type: String,
     required: true

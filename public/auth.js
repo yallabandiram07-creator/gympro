@@ -41,8 +41,15 @@ async function login() {
 }
 
 async function register() {
+  const gymName = document.getElementById("gymName").value.trim();
+  const ownerName = document.getElementById("ownerName").value.trim();
   const username = document.getElementById("ruser").value.trim();
   const password = document.getElementById("rpass").value.trim();
+
+  if (!gymName || !ownerName || !username || !password) {
+    alert("Please fill all fields");
+    return;
+  }
 
   const btn = document.querySelector("button");
   btn.innerText = "Connecting... please wait";
@@ -53,7 +60,12 @@ async function register() {
   fetch(API + "/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password })
+    body: JSON.stringify({
+      gymName,
+      ownerName,
+      username,
+      password
+    })
   })
   .then(res => res.json())
   .then(data => {

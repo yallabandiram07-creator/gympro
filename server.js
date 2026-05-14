@@ -84,11 +84,16 @@ app.get("/cors-test", (req, res) => {
 
 app.post("/register", async (req, res) => {
   try {
-    const { username, password } = req.body;
+const { username, password, gymName, ownerName } = req.body;
     const exist = await User.findOne({ username });
     if (exist) return res.json({ message: "User already exists" });
     const hashedPassword = await bcrypt.hash(password, 10);
-    await new User({ username, password: hashedPassword }).save();
+   await new User({
+  gymName: gymName || username + " Gym",
+  ownerName: ownerName || username,
+  username,
+  password: hashedPassword
+}).save();
     res.json({ message: "Registered successfully" });
   } catch (err) {
     console.log("Register error:", err);
