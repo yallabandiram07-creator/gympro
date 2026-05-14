@@ -37,48 +37,62 @@ function logout() {
 }
 
 function showSection(section, btn) {
-  stopQRAutoRefresh();
-  setActive(btn);
+  const sections = [
+    "dashboardSection",
+    "gymProfileSection",
+    "attendanceSection",
+    "qrSection",
+    "trainersSection",
+    "paymentsSection",
+    "whatsappSection",
+    "rewardsSection"
+  ];
 
-  if (section === "dashboard") {
-    showOnly("dashboardSection");
-    loadMembers();
-    loadAttendance();
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = "none";
+  });
+
+  const activeSection = document.getElementById(section + "Section");
+  if (activeSection) {
+    activeSection.style.display = "block";
   }
 
-  if (section === "analytics") {
-    showOnly("analyticsSection");
-    loadAnalytics();
+  document.querySelectorAll(".nav-btn").forEach(button => {
+    button.classList.remove("active");
+  });
+
+  if (btn) {
+    btn.classList.add("active");
+  }
+
+  if (section === "dashboard") {
+    loadMembers();
   }
 
   if (section === "attendance") {
-    showOnly("attendanceSection");
-    loadMembers();
-    loadAttendance();
+    loadAttendanceMembers();
+    loadTodayAttendance();
   }
 
   if (section === "qr") {
-    showOnly("qrSection");
-    startQRAutoRefresh();
+    loadDynamicQR();
   }
 
   if (section === "trainers") {
-    showOnly("trainersSection");
     loadTrainers();
   }
 
   if (section === "payments") {
-    showOnly("paymentsSection");
     loadOwnerPaymentSettings();
   }
+
   if (section === "whatsapp") {
-  showOnly("whatsappSection");
-  loadWhatsAppSettings();
-}
+    loadWhatsAppSettings();
+  }
 
   if (section === "rewards") {
-    showOnly("rewardsSection");
-    loadMembers();
+    loadRewards();
   }
 }
 
