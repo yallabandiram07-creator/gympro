@@ -24,6 +24,23 @@ const GymProfile = require("./models/GymProfile");
 
 const app = express();
 
+function getISTDateTime() {
+  const now = new Date();
+
+  const date = now.toLocaleDateString("en-IN", {
+    timeZone: "Asia/Kolkata"
+  });
+
+  const time = now.toLocaleTimeString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
+  });
+
+  return { date, time };
+}
+
 // ✅ CORS - Allow all origins (fixes CORS error)
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
@@ -284,22 +301,39 @@ app.post("/trainer/update-member-plan/:memberId", trainerAuth, async (req, res) 
 
 app.post("/attendance/:memberId", auth, async (req, res) => {
   try {
-    const member = await Member.findOne({ _id: req.params.memberId, userId: req.user.id });
+    const member = await Member.findOne({
+      _id: req.params.memberId,
+      userId: req.user.id
+    });
+
     if (!member) return res.json({ message: "Member not found" });
-    const today = new Date().toDateString();
-    const alreadyMarked = await Attendance.findOne({ userId: req.user.id, memberId: member._id.toString(), date: today });
-    if (alreadyMarked) return res.json({ message: "Attendance already marked today" });
+
+    const { date, time } = getISTDateTime();
+
+    const alreadyMarked = await Attendance.findOne({
+      userId: req.user.id,
+      memberId: member._id.toString(),
+      date
+    });
+
+    if (alreadyMarked) {
+      return res.json({ message: "Attendance already marked today" });
+    }
+
     await new Attendance({
       userId: req.user.id,
       memberId: member._id.toString(),
       memberName: member.name,
-      date: today,
-      time: new Date().toLocaleTimeString()
+      date,
+      time
     }).save();
+
     member.points = Number(member.points || 0) + 5;
     await member.save();
+
     res.json({ message: "Attendance marked successfully. +5 points added" });
-  } catch {
+  } catch (err) {
+    console.log("Attendance error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -328,10 +362,16 @@ app.post("/trainer/attendance/:memberId", trainerAuth, async (req, res) => {
 
 app.get("/attendance/today", auth, async (req, res) => {
   try {
-    const today = new Date().toDateString();
-    const attendance = await Attendance.find({ userId: req.user.id, date: today });
+    const { date } = getISTDateTime();
+
+    const attendance = await Attendance.find({
+      userId: req.user.id,
+      date
+    }).sort({ _id: -1 });
+
     res.json(attendance);
-  } catch {
+  } catch (err) {
+    console.log("Today attendance error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -364,6 +404,7 @@ app.post("/member-qr-attendance", memberAuth, async (req, res) => {
     const { qrData } = req.body;
 
     let parsedQR;
+
     try {
       parsedQR = JSON.parse(qrData);
     } catch {
@@ -373,14 +414,59 @@ app.post("/member-qr-attendance", memberAuth, async (req, res) => {
     const { gymOwnerId, token } = parsedQR;
     const savedToken = dynamicTokens[gymOwnerId];
 
-    if (!savedToken) return res.json({ message: "QR expired. Please scan latest QR." });
-    if (savedToken.token !== token) return res.json({ message: "Invalid or old QR. Please scan latest QR." });
-    if (Date.now() > savedToken.expiresAt) return res.json({ message: "QR expired. Please scan again." });
+    if (!savedToken) {
+      return res.json({ message: "QR expired. Please scan latest QR." });
+    }
+
+    if (savedToken.token !== token) {
+      return res.json({ message: "Invalid or old QR. Please scan latest QR." });
+    }
+
+    if (Date.now() > savedToken.expiresAt) {
+      return res.json({ message: "QR expired. Please scan again." });
+    }
 
     const member = await Member.findOne({
       _id: req.member.id,
       userId: gymOwnerId
     });
+
+    if (!member) {
+      return res.json({ message: "Member not found in this gym" });
+    }
+
+    const { date, time } = getISTDateTime();
+
+    const alreadyMarked = await Attendance.findOne({
+      userId: gymOwnerId,
+      memberId: member._id.toString(),
+      date
+    });
+
+    if (alreadyMarked) {
+      return res.json({ message: "Attendance already marked today" });
+    }
+
+    await new Attendance({
+      userId: gymOwnerId,
+      memberId: member._id.toString(),
+      memberName: member.name,
+      date,
+      time
+    }).save();
+
+    member.points = Number(member.points || 0) + 5;
+    await member.save();
+
+    res.json({
+      message: `${member.name} attendance marked successfully. +5 reward points added`
+    });
+
+  } catch (err) {
+    console.log("QR attendance error:", err);
+    res.status(500).json({ message: "QR attendance error" });
+  }
+});
 
     if (!member) return res.json({ message: "Member not found in this gym" });
 
