@@ -20,7 +20,7 @@ const DietLog = require("./models/DietLog");
 const WhatsAppSetting = require("./models/WhatsAppSetting");
 const subscriptionRoutes = require("./routes/subscriptionRoutes");
 const superAdminRoutes = require("./routes/superAdminRoutes");
-const GymProfile = require("./models/GymProfile");app.use("/", subscriptionRoutes);
+const GymProfile = require("./models/GymProfile");
 
 const app = express();
 
@@ -35,6 +35,7 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/", subscriptionRoutes);
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
