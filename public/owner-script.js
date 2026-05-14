@@ -1,34 +1,16 @@
-const API = "https://gympro-mzx0.onrender.com"
+const API = "https://gympro-mzx0.onrender.com";
 
 let qrInterval = null;
 let qrCountdown = 10;
+let savedGymPlans = [];
 
-function hideAllSections() {
-  [
-    "dashboardSection",
-    "analyticsSection",
-    "attendanceSection",
-    "qrSection",
-    "trainersSection",
-    "paymentsSection",
-    "whatsappSection",
-    "rewardsSection"
-    
-  ].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = "none";
-  });
-}
-
-function showOnly(id) {
-  hideAllSections();
-  const el = document.getElementById(id);
-  if (el) el.style.display = "block";
-}
-
-function setActive(btn) {
-  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
-  if (btn) btn.classList.add("active");
+function tokenOrLogin() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    window.location.href = "index.html";
+    return null;
+  }
+  return token;
 }
 
 function logout() {
@@ -53,56 +35,38 @@ function showSection(section, btn) {
     if (el) el.style.display = "none";
   });
 
+  if (section !== "qr") stopQRAutoRefresh();
+
   const activeSection = document.getElementById(section + "Section");
-  if (activeSection) {
-    activeSection.style.display = "block";
-  }
+  if (activeSection) activeSection.style.display = "block";
 
   document.querySelectorAll(".nav-btn").forEach(button => {
     button.classList.remove("active");
   });
 
-  if (btn) {
-    btn.classList.add("active");
-  }
+  if (btn) btn.classList.add("active");
 
   if (section === "dashboard") {
     loadMembers();
+    loadAttendance();
+    loadDashboardAlerts();
+    loadRecentPayments();
   }
 
   if (section === "attendance") {
-    loadAttendanceMembers();
-    loadTodayAttendance();
+    loadMembers();
+    loadAttendance();
   }
 
   if (section === "qr") {
-    loadDynamicQR();
+    stopQRAutoRefresh();
+    startQRAutoRefresh();
   }
 
-  if (section === "trainers") {
-    loadTrainers();
-  }
-
-  if (section === "payments") {
-    loadOwnerPaymentSettings();
-  }
-
-  if (section === "whatsapp") {
-    loadWhatsAppSettings();
-  }
-
-  if (section === "rewards") {
-    loadRewards();
-  }
-}
-
-function tokenOrLogin() {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    window.location.href = "index.html";
-    return null;
-  }
-  return token;
+  if (section === "trainers") loadTrainers();
+  if (section === "payments") loadOwnerPaymentSettings();
+  if (section === "whatsapp") loadWhatsAppSettings();
+  if (section === "rewards") loadMembers();
 }
 
 function loadMembers() {
@@ -158,11 +122,13 @@ function loadMembers() {
         }
       });
 
-      const totalMembers = document.getElementById("totalMembers");
-      const totalRevenue = document.getElementById("totalRevenue");
+      if (document.getElementById("totalMembers")) {
+        document.getElementById("totalMembers").textContent = members.length;
+      }
 
-      if (totalMembers) totalMembers.textContent = members.length;
-      if (totalRevenue) totalRevenue.textContent = revenue;
+      if (document.getElementById("totalRevenue")) {
+        document.getElementById("totalRevenue").textContent = revenue;
+      }
     });
 }
 
@@ -196,6 +162,12 @@ function loadAttendance() {
 
       if (list) {
         list.innerHTML = "";
+
+        if (!attendance.length) {
+          list.innerHTML = "<li>No attendance marked today.</li>";
+          return;
+        }
+
         attendance.forEach(a => {
           list.innerHTML += `
             <li>
@@ -221,6 +193,11 @@ function loadTrainers() {
 
       list.innerHTML = "";
 
+      if (!trainers.length) {
+        list.innerHTML = "<li>No trainers added yet.</li>";
+        return;
+      }
+
       trainers.forEach(t => {
         list.innerHTML += `
           <li>
@@ -233,39 +210,52 @@ function loadTrainers() {
     });
 }
 
-function loadAnalytics() {
+function startQRAutoRefresh() {
+  generateDynamicQR();
+  qrCountdown = 10;
+  updateTimer();
+
+  qrInterval = setInterval(() => {
+    qrCountdown--;
+    updateTimer();
+
+    if (qrCountdown <= 0) {
+      generateDynamicQR();
+      qrCountdown = 10;
+      updateTimer();
+    }
+  }, 1000);
+}
+
+function stopQRAutoRefresh() {
+  if (qrInterval) {
+    clearInterval(qrInterval);
+    qrInterval = null;
+  }
+}
+
+function updateTimer() {
+  const timer = document.getElementById("qrTimer");
+  if (timer) timer.textContent = qrCountdown;
+}
+
+function generateDynamicQR() {
   const token = tokenOrLogin();
   if (!token) return;
 
-  fetch(API + "/admin-analytics", { headers: { Authorization: token } })
+  fetch(API + "/dynamic-qr", { headers: { Authorization: token } })
     .then(res => res.json())
     .then(data => {
-      const active = document.getElementById("activeMembers");
-      const expired = document.getElementById("expiredMembers");
-      const soon = document.getElementById("expiringSoon");
-      const list = document.getElementById("expiringMembersList");
+      const box = document.getElementById("dynamicQrBox");
+      if (!box) return;
 
-      if (active) active.textContent = data.activeMembers || 0;
-      if (expired) expired.textContent = data.expiredMembers || 0;
-      if (soon) soon.textContent = data.expiringSoon || 0;
-
-      if (list) {
-        list.innerHTML = "";
-
-        if (!data.expiringMembers || data.expiringMembers.length === 0) {
-          list.innerHTML = "<li>No members expiring soon.</li>";
-        } else {
-          data.expiringMembers.forEach(m => {
-            list.innerHTML += `
-              <li>
-                <strong>${m.name}</strong>
-                <span>Phone: ${m.phone}</span>
-                <span>Expiry: ${m.expiry}</span>
-                <span>Days Left: ${m.daysLeft}</span>
-              </li>
-            `;
-          });
-        }
+      if (data.qr) {
+        box.innerHTML = `
+          <img src="${data.qr}" class="qr-img" style="width:250px;height:250px;">
+          <p>This QR is valid for 10 seconds only.</p>
+        `;
+      } else {
+        box.innerHTML = `<p>${data.message || "QR loading failed"}</p>`;
       }
     });
 }
@@ -308,50 +298,291 @@ function saveOwnerPaymentSettings() {
     });
 }
 
-function startQRAutoRefresh() {
-  generateDynamicQR();
-  qrCountdown = 10;
-  updateTimer();
-
-  qrInterval = setInterval(() => {
-    qrCountdown--;
-    updateTimer();
-
-    if (qrCountdown <= 0) {
-      generateDynamicQR();
-      qrCountdown = 10;
-      updateTimer();
-    }
-  }, 1000);
-}
-
-function stopQRAutoRefresh() {
-  if (qrInterval) {
-    clearInterval(qrInterval);
-    qrInterval = null;
-  }
-}
-
-function updateTimer() {
-  const timer = document.getElementById("qrTimer");
-  if (timer) timer.textContent = qrCountdown;
-}
-
-function generateDynamicQR() {
+function loadWhatsAppSettings() {
   const token = tokenOrLogin();
   if (!token) return;
 
-  fetch(API + "/dynamic-qr", { headers: { Authorization: token } })
+  fetch(API + "/whatsapp-settings", {
+    headers: { Authorization: token }
+  })
     .then(res => res.json())
     .then(data => {
-      const box = document.getElementById("dynamicQrBox");
-      if (box) {
-        box.innerHTML = `
-          <img src="${data.qr}" class="qr-img">
-          <p>This QR is valid for 10 seconds only.</p>
-        `;
+      if (document.getElementById("waPhoneNumberId")) {
+        document.getElementById("waPhoneNumberId").value = data.phoneNumberId || "";
+      }
+
+      if (document.getElementById("waTemplateName")) {
+        document.getElementById("waTemplateName").value = data.templateName || "hello_world";
+      }
+
+      if (document.getElementById("waLanguageCode")) {
+        document.getElementById("waLanguageCode").value = data.languageCode || "en_US";
+      }
+
+      if (document.getElementById("waSettingsStatus")) {
+        document.getElementById("waSettingsStatus").textContent = data.hasToken
+          ? "Access token saved."
+          : "Access token not added yet.";
       }
     });
+}
+
+function saveWhatsAppSettings() {
+  const token = tokenOrLogin();
+  if (!token) return;
+
+  const body = {
+    phoneNumberId: document.getElementById("waPhoneNumberId").value,
+    accessToken: document.getElementById("waAccessToken").value,
+    templateName: document.getElementById("waTemplateName").value,
+    languageCode: document.getElementById("waLanguageCode").value
+  };
+
+  fetch(API + "/whatsapp-settings", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token
+    },
+    body: JSON.stringify(body)
+  })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.message);
+      document.getElementById("waAccessToken").value = "";
+      loadWhatsAppSettings();
+    });
+}
+
+function sendExpiryReminders() {
+  const token = tokenOrLogin();
+  if (!token) return;
+
+  const result = document.getElementById("waReminderResult");
+  if (result) result.textContent = "Sending reminders...";
+
+  fetch(API + "/send-expiry-reminders", {
+    method: "POST",
+    headers: { Authorization: token }
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (result) result.textContent = data.message;
+      alert(data.message);
+    })
+    .catch(() => {
+      if (result) result.textContent = "Failed to send reminders";
+    });
+}
+
+async function saveGymProfile() {
+  const token = tokenOrLogin();
+  if (!token) return;
+
+  const plans = [
+    {
+      name: document.getElementById("plan1Name").value,
+      price: Number(document.getElementById("plan1Price").value),
+      days: Number(document.getElementById("plan1Days").value)
+    },
+    {
+      name: document.getElementById("plan2Name").value,
+      price: Number(document.getElementById("plan2Price").value),
+      days: Number(document.getElementById("plan2Days").value)
+    },
+    {
+      name: document.getElementById("plan3Name").value,
+      price: Number(document.getElementById("plan3Price").value),
+      days: Number(document.getElementById("plan3Days").value)
+    }
+  ].filter(p => p.name && p.price && p.days);
+
+  const body = {
+    gymName: document.getElementById("gymName").value,
+    ownerName: document.getElementById("ownerName").value,
+    phone: document.getElementById("gymPhone").value,
+    address: document.getElementById("gymAddress").value,
+    timings: document.getElementById("gymTimings").value,
+    plans
+  };
+
+  const res = await fetch(API + "/gym-profile", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token
+    },
+    body: JSON.stringify(body)
+  });
+
+  const data = await res.json();
+  alert(data.message);
+
+  loadGymProfileOnDashboard();
+  loadGymPlansForMemberForm();
+}
+
+async function loadGymProfileOnDashboard() {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  try {
+    const res = await fetch(API + "/gym-profile", {
+      headers: { Authorization: token }
+    });
+
+    const profile = await res.json();
+
+    if (document.getElementById("dashboardGymName") && profile.gymName) {
+      document.getElementById("dashboardGymName").innerText = "Welcome to " + profile.gymName;
+    }
+
+    if (document.getElementById("dashboardOwnerInfo") && profile.ownerName) {
+      document.getElementById("dashboardOwnerInfo").innerText = "Owner: " + profile.ownerName;
+    }
+
+    let info = "";
+    if (profile.phone) info += "Phone: " + profile.phone + " | ";
+    if (profile.timings) info += "Timings: " + profile.timings + " | ";
+    if (profile.address) info += "Address: " + profile.address;
+
+    if (document.getElementById("dashboardGymInfo")) {
+      document.getElementById("dashboardGymInfo").innerText = info;
+    }
+
+    if (document.getElementById("gymName")) document.getElementById("gymName").value = profile.gymName || "";
+    if (document.getElementById("ownerName")) document.getElementById("ownerName").value = profile.ownerName || "";
+    if (document.getElementById("gymPhone")) document.getElementById("gymPhone").value = profile.phone || "";
+    if (document.getElementById("gymAddress")) document.getElementById("gymAddress").value = profile.address || "";
+    if (document.getElementById("gymTimings")) document.getElementById("gymTimings").value = profile.timings || "";
+
+    const plans = profile.plans || [];
+
+    if (plans[0]) {
+      document.getElementById("plan1Name").value = plans[0].name || "";
+      document.getElementById("plan1Price").value = plans[0].price || "";
+      document.getElementById("plan1Days").value = plans[0].days || "";
+    }
+
+    if (plans[1]) {
+      document.getElementById("plan2Name").value = plans[1].name || "";
+      document.getElementById("plan2Price").value = plans[1].price || "";
+      document.getElementById("plan2Days").value = plans[1].days || "";
+    }
+
+    if (plans[2]) {
+      document.getElementById("plan3Name").value = plans[2].name || "";
+      document.getElementById("plan3Price").value = plans[2].price || "";
+      document.getElementById("plan3Days").value = plans[2].days || "";
+    }
+
+  } catch (err) {
+    console.log("Gym profile load error:", err);
+  }
+}
+
+async function loadGymPlansForMemberForm() {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  try {
+    const res = await fetch(API + "/gym-profile", {
+      headers: { Authorization: token }
+    });
+
+    const profile = await res.json();
+    savedGymPlans = profile.plans || [];
+
+    const select = document.getElementById("memberPlanSelect");
+    if (!select) return;
+
+    select.innerHTML = `<option value="">Select Membership Plan</option>`;
+
+    savedGymPlans.forEach((plan, index) => {
+      select.innerHTML += `
+        <option value="${index}">
+          ${plan.name} - ₹${plan.price} / ${plan.days} days
+        </option>
+      `;
+    });
+
+  } catch (err) {
+    console.log("Plan loading error:", err);
+  }
+}
+
+function applySelectedPlan() {
+  const index = document.getElementById("memberPlanSelect").value;
+  if (index === "") return;
+
+  const selectedPlan = savedGymPlans[index];
+
+  document.getElementById("plan").value = selectedPlan.days;
+  document.getElementById("fees").value = selectedPlan.price;
+}
+
+async function loadDashboardAlerts() {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  try {
+    const res = await fetch(API + "/admin-analytics", {
+      headers: { Authorization: token }
+    });
+
+    const data = await res.json();
+    const expiringBox = document.getElementById("expiringMembersList");
+
+    if (!expiringBox) return;
+
+    if (!data.expiringMembers || data.expiringMembers.length === 0) {
+      expiringBox.innerHTML = "<li>No members expiring soon.</li>";
+    } else {
+      expiringBox.innerHTML = data.expiringMembers.map(m => `
+        <li>
+          <b>${m.name}</b><br>
+          Phone: ${m.phone}<br>
+          Expiry: ${m.expiry}<br>
+          Days left: ${m.daysLeft}
+        </li>
+      `).join("");
+    }
+
+  } catch (err) {
+    console.log("Dashboard alerts error:", err);
+  }
+}
+
+async function loadRecentPayments() {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  try {
+    const res = await fetch(API + "/recent-payments", {
+      headers: { Authorization: token }
+    });
+
+    const payments = await res.json();
+    const box = document.getElementById("recentPaymentsList");
+
+    if (!box) return;
+
+    if (!payments.length) {
+      box.innerHTML = "<li>No recent payments yet.</li>";
+      return;
+    }
+
+    box.innerHTML = payments.map(p => `
+      <li>
+        <b>${p.memberName}</b><br>
+        ₹${p.amount} - ${p.days} days<br>
+        Status: ${p.status}
+      </li>
+    `).join("");
+
+  } catch (err) {
+    console.log("Recent payments load error:", err);
+  }
 }
 
 const memberForm = document.getElementById("memberForm");
@@ -383,6 +614,7 @@ if (memberForm) {
         memberForm.reset();
         loadMembers();
         loadAttendance();
+        loadGymPlansForMemberForm();
       });
   });
 }
@@ -418,354 +650,48 @@ if (trainerForm) {
   });
 }
 
-if (window.location.pathname.includes("dashboard.html")) {
-  showOnly("dashboardSection");
-  checkOwnerSubscription();
-  loadMembers();
-  loadAttendance();
-}
 function checkOwnerSubscription() {
   const token = localStorage.getItem("token");
+  if (!token) return;
 
   fetch(API + "/owner-subscription", {
-    headers: {
-      Authorization: token
-    }
+    headers: { Authorization: token }
   })
-  .then(res => res.json())
-  .then(data => {
-    const info = document.getElementById("subscriptionInfo");
-    const limitInfo = document.getElementById("memberLimitInfo");
-    const app = document.getElementById("dashboardApp");
-    const lock = document.getElementById("dashboardLock");
+    .then(res => res.json())
+    .then(data => {
+      const info = document.getElementById("subscriptionInfo");
+      const limitInfo = document.getElementById("memberLimitInfo");
+      const app = document.getElementById("dashboardApp");
+      const lock = document.getElementById("dashboardLock");
 
-    if (data.locked) {
-      if (app) app.style.display = "none";
-      if (lock) lock.style.display = "flex";
-      return;
-    }
+      if (data.locked) {
+        if (app) app.style.display = "none";
+        if (lock) lock.style.display = "flex";
+        return;
+      }
 
-    if (app) app.style.display = "flex";
-    if (lock) lock.style.display = "none";
+      if (app) app.style.display = "flex";
+      if (lock) lock.style.display = "none";
 
-    if (info) {
-      info.textContent =
-        `Current Plan: ${data.planName} | Members: ${data.memberCount}/${data.memberLimit}`;
-    }
+      if (info) {
+        info.textContent = `Current Plan: ${data.planName} | Members: ${data.memberCount}/${data.memberLimit}`;
+      }
 
-    if (limitInfo) {
-      limitInfo.textContent =
-        `Member Limit: ${data.memberCount}/${data.memberLimit}`;
-    }
-  })
-  .catch(err => {
-    console.log(err);
-  });
-}
-function loadWhatsAppSettings() {
-  const token = tokenOrLogin();
-  if (!token) return;
-
-  fetch(API + "/whatsapp-settings", {
-    headers: {
-      Authorization: token
-    }
-  })
-  .then(res => res.json())
-  .then(data => {
-
-    const phoneInput =
-      document.getElementById("waPhoneNumberId");
-
-    const templateInput =
-      document.getElementById("waTemplateName");
-
-    const langInput =
-      document.getElementById("waLanguageCode");
-
-    const status =
-      document.getElementById("waSettingsStatus");
-
-    if (phoneInput)
-      phoneInput.value = data.phoneNumberId || "";
-
-    if (templateInput)
-      templateInput.value = data.templateName || "hello_world";
-
-    if (langInput)
-      langInput.value = data.languageCode || "en_US";
-
-    if (status) {
-      status.textContent = data.hasToken
-        ? "Access token saved."
-        : "Access token not added yet.";
-    }
-  });
-}
-
-function saveWhatsAppSettings() {
-  const token = tokenOrLogin();
-  if (!token) return;
-
-  const phoneNumberId =
-    document.getElementById("waPhoneNumberId").value;
-
-  const accessToken =
-    document.getElementById("waAccessToken").value;
-
-  const templateName =
-    document.getElementById("waTemplateName").value;
-
-  const languageCode =
-    document.getElementById("waLanguageCode").value;
-
-  fetch(API + "/whatsapp-settings", {
-    method: "POST",
-
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token
-    },
-
-    body: JSON.stringify({
-      phoneNumberId,
-      accessToken,
-      templateName,
-      languageCode
-    })
-  })
-  .then(res => res.json())
-  .then(data => {
-    alert(data.message);
-
-    document.getElementById("waAccessToken").value = "";
-
-    loadWhatsAppSettings();
-  });
-}
-
-function sendExpiryReminders() {
-  const token = tokenOrLogin();
-  if (!token) return;
-
-  const result =
-    document.getElementById("waReminderResult");
-
-  if (result)
-    result.textContent = "Sending reminders...";
-
-  fetch(API + "/send-expiry-reminders", {
-    method: "POST",
-
-    headers: {
-      Authorization: token
-    }
-  })
-  .then(res => res.json())
-  .then(data => {
-
-    if (result)
-      result.textContent = data.message;
-
-    alert(data.message);
-  })
-  .catch(err => {
-    console.log(err);
-
-    if (result)
-      result.textContent = "Failed to send reminders";
-  });
-}
-async function loadGymProfileOnDashboard() {
-  const token = localStorage.getItem("token");
-
-  try {
-    const res = await fetch(API + "/gym-profile", {
-      headers: {
-        Authorization: token
+      if (limitInfo) {
+        limitInfo.textContent = `Member Limit: ${data.memberCount}/${data.memberLimit}`;
       }
     });
-
-    const profile = await res.json();
-
-    if (profile.gymName) {
-      document.getElementById("dashboardGymName").innerText = "Welcome to " + profile.gymName;
-    }
-
-    if (profile.ownerName) {
-      document.getElementById("dashboardOwnerInfo").innerText = "Owner: " + profile.ownerName;
-    }
-
-    let info = "";
-
-    if (profile.phone) info += "Phone: " + profile.phone + " | ";
-    if (profile.timings) info += "Timings: " + profile.timings + " | ";
-    if (profile.address) info += "Address: " + profile.address;
-
-    document.getElementById("dashboardGymInfo").innerText = info;
-
-  } catch (err) {
-    console.log("Gym profile load error:", err);
-  }
 }
+
 window.addEventListener("load", () => {
-  loadGymProfileOnDashboard();
-  loadGymPlansForMemberForm();
-  loadGymPlansForMemberForm();
-  loadDashboardAlerts();
-  loadRecentPayments();
+  if (window.location.pathname.includes("dashboard.html")) {
+    showSection("dashboard", document.querySelector(".nav-btn"));
+    checkOwnerSubscription();
+    loadGymProfileOnDashboard();
+    loadGymPlansForMemberForm();
+    loadDashboardAlerts();
+    loadRecentPayments();
+    loadMembers();
+    loadAttendance();
+  }
 });
-let savedGymPlans = [];
-
-async function loadGymPlansForMemberForm() {
-  const token = localStorage.getItem("token");
-
-  try {
-    const res = await fetch(API + "/gym-profile", {
-      headers: {
-        Authorization: token
-      }
-    });
-
-    const profile = await res.json();
-    savedGymPlans = profile.plans || [];
-
-    const select = document.getElementById("memberPlanSelect");
-    if (!select) return;
-
-    select.innerHTML = `<option value="">Select Membership Plan</option>`;
-
-    savedGymPlans.forEach((plan, index) => {
-      select.innerHTML += `
-        <option value="${index}">
-          ${plan.name} - ₹${plan.price} / ${plan.days} days
-        </option>
-      `;
-    });
-
-  } catch (err) {
-    console.log("Plan loading error:", err);
-  }
-}
-
-function applySelectedPlan() {
-  const index = document.getElementById("memberPlanSelect").value;
-
-  if (index === "") return;
-
-  const selectedPlan = savedGymPlans[index];
-
-  document.getElementById("plan").value = selectedPlan.days;
-  document.getElementById("fees").value = selectedPlan.price;
-}
-window.addEventListener("load", () => {
-  loadGymPlansForMemberForm();
-});
-async function loadDashboardAlerts() {
-  const token = localStorage.getItem("token");
-
-  try {
-    const res = await fetch(API + "/admin-analytics", {
-      headers: { Authorization: token }
-    });
-
-    const data = await res.json();
-
-    const expiringBox = document.getElementById("expiringMembersList");
-    const paymentBox = document.getElementById("recentPaymentsList");
-
-    if (expiringBox) {
-      if (!data.expiringMembers || data.expiringMembers.length === 0) {
-        expiringBox.innerHTML = "<li>No members expiring soon.</li>";
-      } else {
-        expiringBox.innerHTML = data.expiringMembers.map(m => `
-          <li>
-            <b>${m.name}</b><br>
-            Phone: ${m.phone}<br>
-            Expiry: ${m.expiry}<br>
-            Days left: ${m.daysLeft}
-          </li>
-        `).join("");
-      }
-    }
-
-    if (paymentBox) {
-      paymentBox.innerHTML = "<li>Recent payment list coming next.</li>";
-    }
-
-  } catch (err) {
-    console.log("Dashboard alerts error:", err);
-  }
-}
-async function loadRecentPayments() {
-  const token = localStorage.getItem("token");
-
-  try {
-    const res = await fetch(API + "/recent-payments", {
-      headers: {
-        Authorization: token
-      }
-    });
-
-    const payments = await res.json();
-    const box = document.getElementById("recentPaymentsList");
-
-    if (!box) return;
-
-    if (!payments.length) {
-      box.innerHTML = "<li>No recent payments yet.</li>";
-      return;
-    }
-
-    box.innerHTML = payments.map(p => `
-      <li>
-        <b>${p.memberName}</b><br>
-        ₹${p.amount} - ${p.days} days<br>
-        Status: ${p.status}
-      </li>
-    `).join("");
-
-  } catch (err) {
-    console.log("Recent payments load error:", err);
-  }
-}
-let qrInterval;
-let qrCountdown = 10;
-
-async function loadDynamicQR() {
-  clearInterval(qrInterval);
-
-  const token = localStorage.getItem("token");
-  const qrBox = document.getElementById("dynamicQrBox");
-  const timer = document.getElementById("qrTimer");
-
-  async function fetchQR() {
-    const res = await fetch(API + "/dynamic-qr", {
-      headers: {
-        Authorization: token
-      }
-    });
-
-    const data = await res.json();
-
-    if (data.qr) {
-      qrBox.innerHTML = `<img src="${data.qr}" style="width:250px;height:250px;">`;
-    } else {
-      qrBox.innerHTML = `<p>${data.message || "QR loading failed"}</p>`;
-    }
-
-    qrCountdown = 10;
-  }
-
-  await fetchQR();
-
-  qrInterval = setInterval(async () => {
-    qrCountdown--;
-
-    if (timer) timer.innerText = qrCountdown;
-
-    if (qrCountdown <= 0) {
-      await fetchQR();
-    }
-  }, 1000);
-}
