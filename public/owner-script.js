@@ -610,6 +610,7 @@ async function loadGymProfileOnDashboard() {
 }
 window.addEventListener("load", () => {
   loadGymProfileOnDashboard();
+  loadDashboardAlerts();
 });
 let savedGymPlans = [];
 
@@ -657,3 +658,39 @@ function applySelectedPlan() {
 window.addEventListener("load", () => {
   loadGymPlansForMemberForm();
 });
+async function loadDashboardAlerts() {
+  const token = localStorage.getItem("token");
+
+  try {
+    const res = await fetch(API + "/admin-analytics", {
+      headers: { Authorization: token }
+    });
+
+    const data = await res.json();
+
+    const expiringBox = document.getElementById("expiringMembersList");
+    const paymentBox = document.getElementById("recentPaymentsList");
+
+    if (expiringBox) {
+      if (!data.expiringMembers || data.expiringMembers.length === 0) {
+        expiringBox.innerHTML = "<li>No members expiring soon.</li>";
+      } else {
+        expiringBox.innerHTML = data.expiringMembers.map(m => `
+          <li>
+            <b>${m.name}</b><br>
+            Phone: ${m.phone}<br>
+            Expiry: ${m.expiry}<br>
+            Days left: ${m.daysLeft}
+          </li>
+        `).join("");
+      }
+    }
+
+    if (paymentBox) {
+      paymentBox.innerHTML = "<li>Recent payment list coming next.</li>";
+    }
+
+  } catch (err) {
+    console.log("Dashboard alerts error:", err);
+  }
+}
