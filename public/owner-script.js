@@ -89,18 +89,23 @@ function loadMembers() {
       members.forEach(m => {
         revenue += Number(m.fees || 0);
 
-        if (memberList) {
-          memberList.innerHTML += `
-            <li>
-              <strong>${m.name}</strong>
-              <span>Phone: ${m.phone}</span>
-              <span>Plan: ${m.plan} days</span>
-              <span>Fees: ₹${m.fees}</span>
-              <span>Expiry: ${m.expiry}</span>
-              <span>Points: ${m.points || 0}</span>
-            </li>
-          `;
-        }
+        memberList.innerHTML += `
+  <li class="member-card">
+    <strong>${m.name}</strong>
+
+    <span>Phone: ${m.phone}</span>
+    <span>Plan: ${m.plan} days</span>
+    <span>Fees: ₹${m.fees}</span>
+    <span>Expiry: ${m.expiry}</span>
+    <span>Points: ${m.points || 0}</span>
+
+    <div style="display:flex;gap:10px;margin-top:10px;">
+      <button onclick="deleteMember('${m._id}')" class="danger-btn">
+        Delete
+      </button>
+    </div>
+  </li>
+`;
 
         if (attendanceList) {
           attendanceList.innerHTML += `
@@ -713,4 +718,29 @@ async function clearTodayAttendance() {
 
   loadAttendance();
   loadMembers();
+}
+async function deleteMember(memberId) {
+  const confirmDelete = confirm("Delete this member?");
+  if (!confirmDelete) return;
+
+  const token = localStorage.getItem("token");
+
+  try {
+    const res = await fetch(API + "/members/" + memberId, {
+      method: "DELETE",
+      headers: {
+        Authorization: token
+      }
+    });
+
+    const data = await res.json();
+
+    alert(data.message);
+
+    loadMembers();
+    loadAttendance();
+
+  } catch (err) {
+    alert("Delete failed");
+  }
 }

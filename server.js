@@ -977,6 +977,33 @@ app.delete("/attendance/clear-today", auth, async (req, res) => {
   }
 });
 
+app.delete("/members/:id", auth, async (req, res) => {
+  try {
+    const member = await Member.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user.id
+    });
+
+    if (!member) {
+      return res.json({ message: "Member not found" });
+    }
+
+    await Attendance.deleteMany({
+      memberId: member._id.toString()
+    });
+
+    await Payment.deleteMany({
+      memberId: member._id.toString()
+    });
+
+    res.json({ message: "Member deleted successfully" });
+
+  } catch (err) {
+    console.log("Delete member error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 app.use("/", subscriptionRoutes);
 app.use("/", superAdminRoutes);
 
