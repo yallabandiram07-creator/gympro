@@ -100,6 +100,9 @@ function loadMembers() {
     <span>Points: ${m.points || 0}</span>
 
     <div style="display:flex;gap:10px;margin-top:10px;">
+    <button onclick="editMember('${m._id}', '${m.name}', '${m.phone}', '${m.plan}', '${m.fees}', '${m.expiry}')" class="primary-btn">
+  Edit
+</button>
       <button onclick="deleteMember('${m._id}')" class="danger-btn">
         Delete
       </button>
@@ -743,4 +746,43 @@ async function deleteMember(memberId) {
   } catch (err) {
     alert("Delete failed");
   }
+}
+async function editMember(id, oldName, oldPhone, oldPlan, oldFees, oldExpiry) {
+  const name = prompt("Member name:", oldName);
+  if (name === null) return;
+
+  const phone = prompt("Phone:", oldPhone);
+  if (phone === null) return;
+
+  const plan = prompt("Plan days:", oldPlan);
+  if (plan === null) return;
+
+  const fees = prompt("Fees:", oldFees);
+  if (fees === null) return;
+
+  const expiry = prompt("Expiry date:", oldExpiry);
+  if (expiry === null) return;
+
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(API + "/members/" + id, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token
+    },
+    body: JSON.stringify({
+      name,
+      phone,
+      plan,
+      fees,
+      expiry
+    })
+  });
+
+  const data = await res.json();
+  alert(data.message);
+
+  loadMembers();
+  loadAttendance();
 }

@@ -1004,6 +1004,38 @@ app.delete("/members/:id", auth, async (req, res) => {
   }
 });
 
+app.put("/members/:id", auth, async (req, res) => {
+  try {
+    const { name, phone, plan, fees, expiry } = req.body;
+
+    const member = await Member.findOne({
+      _id: req.params.id,
+      userId: req.user.id
+    });
+
+    if (!member) {
+      return res.json({ message: "Member not found" });
+    }
+
+    member.name = name || member.name;
+    member.phone = phone || member.phone;
+    member.plan = Number(plan) || member.plan;
+    member.fees = Number(fees) || member.fees;
+
+    if (expiry) {
+      member.expiry = expiry;
+      member.expiryDate = new Date(expiry);
+    }
+
+    await member.save();
+
+    res.json({ message: "Member updated successfully" });
+  } catch (err) {
+    console.log("Edit member error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 app.use("/", subscriptionRoutes);
 app.use("/", superAdminRoutes);
 
