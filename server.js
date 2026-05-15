@@ -18,9 +18,10 @@ const Trainer = require("./models/Trainer");
 const Payment = require("./models/Payment");
 const DietLog = require("./models/DietLog");
 const WhatsAppSetting = require("./models/WhatsAppSetting");
+const GymProfile = require("./models/GymProfile");
+
 const subscriptionRoutes = require("./routes/subscriptionRoutes");
 const superAdminRoutes = require("./routes/superAdminRoutes");
-const GymProfile = require("./models/GymProfile");
 
 const app = express();
 
@@ -41,7 +42,6 @@ function getISTDateTime() {
   return { date, time };
 }
 
-// ✅ CORS - Allow all origins (fixes CORS error)
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
@@ -52,7 +52,6 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
-app.use("/", subscriptionRoutes);
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
@@ -63,6 +62,7 @@ const dynamicTokens = {};
 function auth(req, res, next) {
   const token = req.headers.authorization;
   if (!token) return res.status(401).json({ message: "No token" });
+
   try {
     req.user = jwt.verify(token, process.env.JWT_SECRET || "secret");
     next();
@@ -74,6 +74,7 @@ function auth(req, res, next) {
 function memberAuth(req, res, next) {
   const token = req.headers.authorization;
   if (!token) return res.status(401).json({ message: "No member token" });
+
   try {
     req.member = jwt.verify(token, process.env.MEMBER_JWT_SECRET || "membersecret");
     next();
@@ -85,6 +86,7 @@ function memberAuth(req, res, next) {
 function trainerAuth(req, res, next) {
   const token = req.headers.authorization;
   if (!token) return res.status(401).json({ message: "No trainer token" });
+
   try {
     req.trainer = jwt.verify(token, process.env.TRAINER_JWT_SECRET || "trainersecret");
     next();
@@ -103,16 +105,20 @@ app.get("/cors-test", (req, res) => {
 
 app.post("/register", async (req, res) => {
   try {
-const { username, password, gymName, ownerName } = req.body;
+    const { username, password, gymName, ownerName } = req.body;
+
     const exist = await User.findOne({ username });
     if (exist) return res.json({ message: "User already exists" });
+
     const hashedPassword = await bcrypt.hash(password, 10);
-   await new User({
-  gymName: gymName || username + " Gym",
-  ownerName: ownerName || username,
-  username,
-  password: hashedPassword
-}).save();
+
+    await new User({
+      gymName: gymName || username + " Gym",
+      ownerName: ownerName || username,
+      username,
+      password: hashedPassword
+    }).save();
+
     res.json({ message: "Registered successfully" });
   } catch (err) {
     console.log("Register error:", err);
@@ -146,9 +152,12 @@ app.post("/login", async (req, res) => {
 app.post("/members", auth, async (req, res) => {
   try {
     const { name, phone, password, plan, fees } = req.body;
+
     const expiryDate = new Date();
     expiryDate.setDate(expiryDate.getDate() + Number(plan));
+
     const hashedPassword = await bcrypt.hash(password, 10);
+
     await new Member({
       userId: req.user.id,
       name,
@@ -162,6 +171,7 @@ app.post("/members", auth, async (req, res) => {
       workoutPlan: "",
       dietPlan: ""
     }).save();
+
     res.json({ message: "Member added successfully" });
   } catch (err) {
     console.log("Add member error:", err);
@@ -181,14 +191,18 @@ app.get("/members", auth, async (req, res) => {
 app.post("/member-login", async (req, res) => {
   try {
     const { phone, password } = req.body;
+
     const member = await Member.findOne({ phone });
     if (!member) return res.json({ message: "Member not found" });
+
     const match = await bcrypt.compare(password, member.password);
     if (!match) return res.json({ message: "Wrong password" });
+
     const token = jwt.sign(
       { id: member._id, userId: member.userId },
       process.env.MEMBER_JWT_SECRET || "membersecret"
     );
+
     res.json({ message: "Member login successful", token });
   } catch {
     res.status(500).json({ message: "Server error" });
@@ -198,9 +212,20 @@ app.post("/member-login", async (req, res) => {
 app.get("/member-profile", memberAuth, async (req, res) => {
   try {
     const member = await Member.findById(req.member.id);
-    const attendance = await Attendance.find({ memberId: member._id.toString() }).sort({ _id: -1 });
-    const payments = await Payment.find({ memberId: member._id.toString(), status: "paid" }).sort({ _id: -1 });
-    const dietLogs = await DietLog.find({ memberId: member._id.toString() }).sort({ _id: -1 });
+
+    const attendance = await Attendance.find({
+      memberId: member._id.toString()
+    }).sort({ _id: -1 });
+
+    const payments = await Payment.find({
+      memberId: member._id.toString(),
+      status: "paid"
+    }).sort({ _id: -1 });
+
+    const dietLogs = await DietLog.find({
+      memberId: member._id.toString()
+    }).sort({ _id: -1 });
+
     res.json({ member, attendance, payments, dietLogs });
   } catch {
     res.status(500).json({ message: "Server error" });
@@ -211,16 +236,20 @@ app.post("/member-diet-log", memberAuth, async (req, res) => {
   try {
     const member = await Member.findById(req.member.id);
     const { weight, calories, protein, water, notes } = req.body;
+
+    const { date } = getISTDateTime();
+
     await new DietLog({
       userId: member.userId,
       memberId: member._id.toString(),
-      date: new Date().toDateString(),
+      date,
       weight: Number(weight),
       calories: Number(calories),
       protein: Number(protein),
       water: Number(water),
       notes
     }).save();
+
     res.json({ message: "Diet log added successfully" });
   } catch {
     res.status(500).json({ message: "Server error" });
@@ -239,10 +268,20 @@ app.get("/member-diet-logs", memberAuth, async (req, res) => {
 app.post("/trainers", auth, async (req, res) => {
   try {
     const { name, phone, email, password } = req.body;
+
     const exist = await Trainer.findOne({ userId: req.user.id, phone });
     if (exist) return res.json({ message: "Trainer already exists" });
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    await new Trainer({ userId: req.user.id, name, phone, email, password: hashedPassword }).save();
+
+    await new Trainer({
+      userId: req.user.id,
+      name,
+      phone,
+      email,
+      password: hashedPassword
+    }).save();
+
     res.json({ message: "Trainer added successfully" });
   } catch {
     res.status(500).json({ message: "Server error" });
@@ -261,14 +300,18 @@ app.get("/trainers", auth, async (req, res) => {
 app.post("/trainer-login", async (req, res) => {
   try {
     const { phone, password } = req.body;
+
     const trainer = await Trainer.findOne({ phone });
     if (!trainer) return res.json({ message: "Trainer not found" });
+
     const match = await bcrypt.compare(password, trainer.password);
     if (!match) return res.json({ message: "Wrong password" });
+
     const token = jwt.sign(
       { id: trainer._id, userId: trainer.userId },
       process.env.TRAINER_JWT_SECRET || "trainersecret"
     );
+
     res.json({ message: "Trainer login successful", token });
   } catch {
     res.status(500).json({ message: "Server error" });
@@ -279,6 +322,7 @@ app.get("/trainer-profile", trainerAuth, async (req, res) => {
   try {
     const trainer = await Trainer.findById(req.trainer.id);
     const members = await Member.find({ userId: req.trainer.userId });
+
     res.json({ trainer, members });
   } catch {
     res.status(500).json({ message: "Server error" });
@@ -288,11 +332,19 @@ app.get("/trainer-profile", trainerAuth, async (req, res) => {
 app.post("/trainer/update-member-plan/:memberId", trainerAuth, async (req, res) => {
   try {
     const { workoutPlan, dietPlan } = req.body;
-    const member = await Member.findOne({ _id: req.params.memberId, userId: req.trainer.userId });
+
+    const member = await Member.findOne({
+      _id: req.params.memberId,
+      userId: req.trainer.userId
+    });
+
     if (!member) return res.json({ message: "Member not found" });
+
     member.workoutPlan = workoutPlan;
     member.dietPlan = dietPlan;
+
     await member.save();
+
     res.json({ message: "Workout and diet plan updated successfully" });
   } catch {
     res.status(500).json({ message: "Server error" });
@@ -340,20 +392,36 @@ app.post("/attendance/:memberId", auth, async (req, res) => {
 
 app.post("/trainer/attendance/:memberId", trainerAuth, async (req, res) => {
   try {
-    const member = await Member.findOne({ _id: req.params.memberId, userId: req.trainer.userId });
+    const member = await Member.findOne({
+      _id: req.params.memberId,
+      userId: req.trainer.userId
+    });
+
     if (!member) return res.json({ message: "Member not found" });
-    const today = new Date().toDateString();
-    const alreadyMarked = await Attendance.findOne({ userId: req.trainer.userId, memberId: member._id.toString(), date: today });
-    if (alreadyMarked) return res.json({ message: "Attendance already marked today" });
+
+    const { date, time } = getISTDateTime();
+
+    const alreadyMarked = await Attendance.findOne({
+      userId: req.trainer.userId,
+      memberId: member._id.toString(),
+      date
+    });
+
+    if (alreadyMarked) {
+      return res.json({ message: "Attendance already marked today" });
+    }
+
     await new Attendance({
       userId: req.trainer.userId,
       memberId: member._id.toString(),
       memberName: member.name,
-      date: today,
-      time: new Date().toLocaleTimeString()
+      date,
+      time
     }).save();
+
     member.points = Number(member.points || 0) + 5;
     await member.save();
+
     res.json({ message: "Attendance marked by trainer. +5 points added" });
   } catch {
     res.status(500).json({ message: "Server error" });
@@ -378,8 +446,13 @@ app.get("/attendance/today", auth, async (req, res) => {
 
 app.get("/trainer/today-attendance", trainerAuth, async (req, res) => {
   try {
-    const today = new Date().toDateString();
-    const attendance = await Attendance.find({ userId: req.trainer.userId, date: today });
+    const { date } = getISTDateTime();
+
+    const attendance = await Attendance.find({
+      userId: req.trainer.userId,
+      date
+    }).sort({ _id: -1 });
+
     res.json(attendance);
   } catch {
     res.status(500).json({ message: "Server error" });
@@ -389,10 +462,17 @@ app.get("/trainer/today-attendance", trainerAuth, async (req, res) => {
 app.get("/dynamic-qr", auth, async (req, res) => {
   try {
     const gymOwnerId = req.user.id;
+
     const token = Math.random().toString(36).substring(2, 10) + Date.now();
-    dynamicTokens[gymOwnerId] = { token, expiresAt: Date.now() + 10000 };
+
+    dynamicTokens[gymOwnerId] = {
+      token,
+      expiresAt: Date.now() + 10000
+    };
+
     const qrData = JSON.stringify({ gymOwnerId, token });
     const qrImage = await QRCode.toDataURL(qrData);
+
     res.json({ qr: qrImage, expiresIn: 10 });
   } catch {
     res.status(500).json({ message: "Dynamic QR error" });
@@ -461,53 +541,6 @@ app.post("/member-qr-attendance", memberAuth, async (req, res) => {
     res.json({
       message: `${member.name} attendance marked successfully. +5 reward points added`
     });
-
-  } catch (err) {
-    console.log("QR attendance error:", err);
-    res.status(500).json({ message: "QR attendance error" });
-  }
-});
-
-    if (!member) return res.json({ message: "Member not found in this gym" });
-
-    const now = new Date();
-
-    const today = now.toLocaleDateString("en-IN", {
-      timeZone: "Asia/Kolkata"
-    });
-
-    const time = now.toLocaleTimeString("en-IN", {
-      timeZone: "Asia/Kolkata",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit"
-    });
-
-    const alreadyMarked = await Attendance.findOne({
-      userId: gymOwnerId,
-      memberId: member._id.toString(),
-      date: today
-    });
-
-    if (alreadyMarked) {
-      return res.json({ message: "Attendance already marked today" });
-    }
-
-    await new Attendance({
-      userId: gymOwnerId,
-      memberId: member._id.toString(),
-      memberName: member.name,
-      date: today,
-      time
-    }).save();
-
-    member.points = Number(member.points || 0) + 5;
-    await member.save();
-
-    res.json({
-      message: `${member.name} attendance marked successfully. +5 reward points added`
-    });
-
   } catch (err) {
     console.log("QR attendance error:", err);
     res.status(500).json({ message: "QR attendance error" });
@@ -517,7 +550,11 @@ app.post("/member-qr-attendance", memberAuth, async (req, res) => {
 app.get("/owner-payment-settings", auth, async (req, res) => {
   try {
     const owner = await User.findById(req.user.id);
-    res.json({ razorpayKeyId: owner.razorpayKeyId || "", hasSecret: Boolean(owner.razorpayKeySecret) });
+
+    res.json({
+      razorpayKeyId: owner.razorpayKeyId || "",
+      hasSecret: Boolean(owner.razorpayKeySecret)
+    });
   } catch {
     res.status(500).json({ message: "Server error" });
   }
@@ -526,10 +563,17 @@ app.get("/owner-payment-settings", auth, async (req, res) => {
 app.post("/owner-payment-settings", auth, async (req, res) => {
   try {
     const { razorpayKeyId, razorpayKeySecret } = req.body;
+
     const owner = await User.findById(req.user.id);
+
     owner.razorpayKeyId = razorpayKeyId || "";
-    if (razorpayKeySecret) owner.razorpayKeySecret = razorpayKeySecret;
+
+    if (razorpayKeySecret) {
+      owner.razorpayKeySecret = razorpayKeySecret;
+    }
+
     await owner.save();
+
     res.json({ message: "Razorpay settings saved successfully" });
   } catch {
     res.status(500).json({ message: "Server error" });
@@ -540,9 +584,11 @@ app.get("/razorpay-key", memberAuth, async (req, res) => {
   try {
     const member = await Member.findById(req.member.id);
     const owner = await User.findById(member.userId);
+
     if (!owner.razorpayKeyId || !owner.razorpayKeySecret) {
       return res.json({ message: "Gym owner has not added Razorpay keys" });
     }
+
     res.json({ key: owner.razorpayKeyId });
   } catch {
     res.status(500).json({ message: "Server error" });
@@ -552,17 +598,25 @@ app.get("/razorpay-key", memberAuth, async (req, res) => {
 app.post("/create-renewal-order", memberAuth, async (req, res) => {
   try {
     const { amount, days } = req.body;
+
     const member = await Member.findById(req.member.id);
     const owner = await User.findById(member.userId);
+
     if (!owner.razorpayKeyId || !owner.razorpayKeySecret) {
       return res.json({ message: "Gym owner has not added Razorpay keys" });
     }
-    const ownerRazorpay = new Razorpay({ key_id: owner.razorpayKeyId, key_secret: owner.razorpayKeySecret });
+
+    const ownerRazorpay = new Razorpay({
+      key_id: owner.razorpayKeyId,
+      key_secret: owner.razorpayKeySecret
+    });
+
     const order = await ownerRazorpay.orders.create({
       amount: Number(amount) * 100,
       currency: "INR",
       receipt: "gympro_" + Date.now()
     });
+
     await new Payment({
       userId: member.userId,
       memberId: member._id.toString(),
@@ -573,7 +627,14 @@ app.post("/create-renewal-order", memberAuth, async (req, res) => {
       razorpayOrderId: order.id,
       status: "created"
     }).save();
-    res.json({ orderId: order.id, amount: order.amount, currency: order.currency, name: member.name, phone: member.phone });
+
+    res.json({
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      name: member.name,
+      phone: member.phone
+    });
   } catch (err) {
     console.log("Create payment order error:", err);
     res.status(500).json({ message: "Payment order error" });
@@ -583,30 +644,45 @@ app.post("/create-renewal-order", memberAuth, async (req, res) => {
 app.post("/verify-payment", memberAuth, async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
     const member = await Member.findById(req.member.id);
     const owner = await User.findById(member.userId);
+
     const body = razorpay_order_id + "|" + razorpay_payment_id;
+
     const expectedSignature = crypto
       .createHmac("sha256", owner.razorpayKeySecret)
       .update(body.toString())
       .digest("hex");
+
     if (expectedSignature !== razorpay_signature) {
       return res.json({ message: "Payment verification failed" });
     }
-    const payment = await Payment.findOne({ razorpayOrderId: razorpay_order_id, memberId: req.member.id });
+
+    const payment = await Payment.findOne({
+      razorpayOrderId: razorpay_order_id,
+      memberId: req.member.id
+    });
+
     if (!payment) return res.json({ message: "Payment record not found" });
+
     payment.razorpayPaymentId = razorpay_payment_id;
     payment.status = "paid";
     await payment.save();
+
     const currentExpiry = new Date(member.expiryDate || member.expiry);
     const today = new Date();
+
     let newExpiry = currentExpiry > today ? currentExpiry : today;
     newExpiry.setDate(newExpiry.getDate() + Number(payment.days));
+
     member.expiryDate = newExpiry;
     member.expiry = newExpiry.toDateString();
     member.plan = Number(payment.days);
     member.fees = Number(payment.amount);
+
     await member.save();
+
     res.json({ message: "Payment successful. Membership renewed." });
   } catch {
     res.status(500).json({ message: "Payment verification error" });
@@ -618,30 +694,66 @@ app.get("/admin-analytics", auth, async (req, res) => {
     const members = await Member.find({ userId: req.user.id });
     const trainers = await Trainer.find({ userId: req.user.id });
     const payments = await Payment.find({ userId: req.user.id, status: "paid" });
+
+    const { date } = getISTDateTime();
+
+    const todayAttendance = await Attendance.find({
+      userId: req.user.id,
+      date
+    });
+
     const today = new Date();
-    const todayString = today.toDateString();
-    const todayAttendance = await Attendance.find({ userId: req.user.id, date: todayString });
-    let activeMembers = 0, expiredMembers = 0, expiringSoon = 0, totalRevenue = 0;
+
+    let activeMembers = 0;
+    let expiredMembers = 0;
+    let expiringSoon = 0;
+    let totalRevenue = 0;
+
     const expiringMembers = [];
+
     members.forEach(member => {
       totalRevenue += Number(member.fees || 0);
+
       const expiryDate = new Date(member.expiryDate || member.expiry);
       const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+
       if (daysLeft > 0) activeMembers++;
       if (daysLeft <= 0) expiredMembers++;
+
       if (daysLeft > 0 && daysLeft <= 3) {
         expiringSoon++;
-        expiringMembers.push({ name: member.name, phone: member.phone, expiry: member.expiry, daysLeft });
+
+        expiringMembers.push({
+          name: member.name,
+          phone: member.phone,
+          expiry: member.expiry,
+          daysLeft
+        });
       }
     });
+
     let renewalRevenue = 0;
-    payments.forEach(payment => { renewalRevenue += Number(payment.amount || 0); });
-    const attendancePercentage = members.length ? Math.round((todayAttendance.length / members.length) * 100) : 0;
+
+    payments.forEach(payment => {
+      renewalRevenue += Number(payment.amount || 0);
+    });
+
+    const attendancePercentage = members.length
+      ? Math.round((todayAttendance.length / members.length) * 100)
+      : 0;
+
     res.json({
-      totalMembers: members.length, activeMembers, expiredMembers, expiringSoon,
-      totalTrainers: trainers.length, totalRevenue, renewalRevenue,
-      totalPaidRenewals: payments.length, todayAttendance: todayAttendance.length,
-      attendancePercentage, expiringMembers
+      totalMembers: members.length,
+      activeMembers,
+      expiredMembers,
+      expiringSoon,
+      totalTrainers: trainers.length,
+      totalRevenue,
+      renewalRevenue,
+      totalPaidRenewals: payments.length,
+      todayAttendance: todayAttendance.length,
+      attendancePercentage,
+      expiringMembers
     });
   } catch {
     res.status(500).json({ message: "Analytics error" });
@@ -651,10 +763,17 @@ app.get("/admin-analytics", auth, async (req, res) => {
 app.post("/admin/update-member-workout/:memberId", auth, async (req, res) => {
   try {
     const { workoutPlan } = req.body;
-    const member = await Member.findOne({ _id: req.params.memberId, userId: req.user.id });
+
+    const member = await Member.findOne({
+      _id: req.params.memberId,
+      userId: req.user.id
+    });
+
     if (!member) return res.json({ message: "Member not found" });
+
     member.workoutPlan = workoutPlan;
     await member.save();
+
     res.json({ message: "AI workout plan saved to member dashboard" });
   } catch {
     res.status(500).json({ message: "Server error" });
@@ -664,9 +783,16 @@ app.post("/admin/update-member-workout/:memberId", auth, async (req, res) => {
 app.get("/whatsapp-settings", auth, async (req, res) => {
   try {
     const setting = await WhatsAppSetting.findOne({ userId: req.user.id });
+
     if (!setting) {
-      return res.json({ phoneNumberId: "", templateName: "hello_world", languageCode: "en_US", hasToken: false });
+      return res.json({
+        phoneNumberId: "",
+        templateName: "hello_world",
+        languageCode: "en_US",
+        hasToken: false
+      });
     }
+
     res.json({
       phoneNumberId: setting.phoneNumberId || "",
       templateName: setting.templateName || "hello_world",
@@ -681,13 +807,23 @@ app.get("/whatsapp-settings", auth, async (req, res) => {
 app.post("/whatsapp-settings", auth, async (req, res) => {
   try {
     const { phoneNumberId, accessToken, templateName, languageCode } = req.body;
+
     let setting = await WhatsAppSetting.findOne({ userId: req.user.id });
-    if (!setting) setting = new WhatsAppSetting({ userId: req.user.id });
+
+    if (!setting) {
+      setting = new WhatsAppSetting({ userId: req.user.id });
+    }
+
     setting.phoneNumberId = phoneNumberId || "";
     setting.templateName = templateName || "hello_world";
     setting.languageCode = languageCode || "en_US";
-    if (accessToken) setting.accessToken = accessToken;
+
+    if (accessToken) {
+      setting.accessToken = accessToken;
+    }
+
     await setting.save();
+
     res.json({ message: "WhatsApp settings saved successfully" });
   } catch {
     res.status(500).json({ message: "Server error" });
@@ -714,6 +850,7 @@ async function sendWhatsAppTemplate(setting, phone) {
         }
       }
     );
+
     return true;
   } catch (err) {
     console.log("WhatsApp error:", err.response?.data || err.message);
@@ -724,29 +861,43 @@ async function sendWhatsAppTemplate(setting, phone) {
 app.post("/send-expiry-reminders", auth, async (req, res) => {
   try {
     const setting = await WhatsAppSetting.findOne({ userId: req.user.id });
+
     if (!setting || !setting.phoneNumberId || !setting.accessToken) {
       return res.json({ message: "Add WhatsApp settings first" });
     }
+
     const members = await Member.find({ userId: req.user.id });
     const today = new Date();
-    let eligibleCount = 0, sentCount = 0, failedCount = 0;
+
+    let eligibleCount = 0;
+    let sentCount = 0;
+    let failedCount = 0;
+
     for (const member of members) {
       const expiryDate = new Date(member.expiryDate || member.expiry);
       if (isNaN(expiryDate.getTime())) continue;
+
       const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+
       if (daysLeft >= 0 && daysLeft <= 3) {
         eligibleCount++;
+
         const sent = await sendWhatsAppTemplate(setting, member.phone);
+
         if (sent) sentCount++;
         else failedCount++;
       }
     }
-    res.json({ message: `${eligibleCount} expiring members found. ${sentCount} sent, ${failedCount} failed.` });
+
+    res.json({
+      message: `${eligibleCount} expiring members found. ${sentCount} sent, ${failedCount} failed.`
+    });
   } catch (err) {
     console.log("Reminder error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
+
 app.get("/gym-profile", auth, async (req, res) => {
   try {
     let profile = await GymProfile.findOne({ userId: req.user.id });
@@ -795,6 +946,7 @@ app.post("/gym-profile", auth, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
 app.get("/recent-payments", auth, async (req, res) => {
   try {
     const payments = await Payment.find({
@@ -818,11 +970,10 @@ app.get("/test-route", (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-// ✅ Keep-alive ping - prevents Render free tier from sleeping
 setInterval(() => {
-  https.get("https://gympro-mzx0.onrender.com/", (res) => {
+  https.get("https://gympro-mzx0.onrender.com/", () => {
     console.log("Keep-alive ping sent ✅");
-  }).on("error", (err) => {
+  }).on("error", err => {
     console.log("Keep-alive ping failed:", err.message);
   });
 }, 14 * 60 * 1000);
