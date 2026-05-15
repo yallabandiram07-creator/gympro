@@ -401,3 +401,13 @@ button:hover, .primary-btn:hover {
   color: #ef4444;
  }
 }
+.search-input{
+  width:100%;
+  padding:12px;
+  margin:15px 0;
+  border-radius:10px;
+  border:none;
+  background:#1e293b;
+  color:white;
+  font-size:15px;
+}

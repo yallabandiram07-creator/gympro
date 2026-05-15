@@ -3,6 +3,7 @@ const API = "https://gympro-mzx0.onrender.com";
 let qrInterval = null;
 let qrCountdown = 10;
 let savedGymPlans = [];
+let allMembersData = [];
 
 function tokenOrLogin() {
   const token = localStorage.getItem("token");
@@ -87,6 +88,7 @@ function loadMembers() {
       let revenue = 0;
 
       members.forEach(m => {
+        allMembersData = members;
         revenue += Number(m.fees || 0);
 
         memberList.innerHTML += `
@@ -785,4 +787,43 @@ async function editMember(id, oldName, oldPhone, oldPlan, oldFees, oldExpiry) {
 
   loadMembers();
   loadAttendance();
+}
+function filterMembers() {
+  const search = document
+    .getElementById("memberSearch")
+    .value
+    .toLowerCase();
+
+  const filtered = allMembersData.filter(m =>
+    m.name.toLowerCase().includes(search) ||
+    m.phone.toLowerCase().includes(search)
+  );
+
+  const memberList = document.getElementById("memberList");
+
+  memberList.innerHTML = "";
+
+  filtered.forEach(m => {
+    memberList.innerHTML += `
+      <li class="member-card">
+        <strong>${m.name}</strong>
+
+        <span>Phone: ${m.phone}</span>
+        <span>Plan: ${m.plan} days</span>
+        <span>Fees: ₹${m.fees}</span>
+        <span>Expiry: ${m.expiry}</span>
+        <span>Points: ${m.points || 0}</span>
+
+        <div style="display:flex;gap:10px;margin-top:10px;">
+          <button onclick="editMember('${m._id}', '${m.name}', '${m.phone}', '${m.plan}', '${m.fees}', '${m.expiry}')" class="primary-btn">
+            Edit
+          </button>
+
+          <button onclick="deleteMember('${m._id}')" class="danger-btn">
+            Delete
+          </button>
+        </div>
+      </li>
+    `;
+  });
 }
