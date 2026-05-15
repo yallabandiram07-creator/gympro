@@ -961,6 +961,22 @@ app.get("/recent-payments", auth, async (req, res) => {
   }
 });
 
+app.delete("/attendance/clear-today", auth, async (req, res) => {
+  try {
+    const { date } = getISTDateTime();
+
+    await Attendance.deleteMany({
+      userId: req.user.id,
+      date
+    });
+
+    res.json({ message: "Today attendance cleared successfully" });
+  } catch (err) {
+    console.log("Clear attendance error:", err);
+    res.status(500).json({ message: "Failed to clear attendance" });
+  }
+});
+
 app.use("/", subscriptionRoutes);
 app.use("/", superAdminRoutes);
 

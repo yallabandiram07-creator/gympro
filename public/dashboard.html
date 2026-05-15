@@ -160,8 +160,12 @@
         </div>
 
         <div class="panel">
-          <h2>Today Present Members</h2>
-          <ul id="todayAttendanceList" class="modern-list"></ul>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+  <h2>Today Present Members</h2>
+  <button class="danger-btn" onclick="clearTodayAttendance()">Clear Today</button>
+</div>
+
+<ul id="todayAttendanceList" class="modern-list"></ul>
         </div>
       </div>
     </section>

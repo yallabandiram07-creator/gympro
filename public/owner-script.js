@@ -695,3 +695,22 @@ window.addEventListener("load", () => {
     loadAttendance();
   }
 });
+async function clearTodayAttendance() {
+  const confirmClear = confirm("Are you sure you want to clear today attendance?");
+  if (!confirmClear) return;
+
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(API + "/attendance/clear-today", {
+    method: "DELETE",
+    headers: {
+      Authorization: token
+    }
+  });
+
+  const data = await res.json();
+  alert(data.message);
+
+  loadAttendance();
+  loadMembers();
+}
