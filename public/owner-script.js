@@ -90,7 +90,7 @@ function loadMembers() {
       members.forEach(m => {
         allMembersData = members;
         revenue += Number(m.fees || 0);
-        
+
         const expiryDate = new Date(m.expiryDate || m.expiry);
 
 const today = new Date();
@@ -128,6 +128,12 @@ else if (daysLeft <= 3) {
     <div style="display:flex;gap:10px;margin-top:10px;">
     <button onclick="editMember('${m._id}', '${m.name}', '${m.phone}', '${m.plan}', '${m.fees}', '${m.expiry}')" class="primary-btn">
   Edit
+  </button>
+
+  <button onclick="manualPayment('${m._id}', '${m.name}')" class="primary-btn">
+  Mark Paid
+</button>
+
 </button>
       <button onclick="deleteMember('${m._id}')" class="danger-btn">
         Delete
@@ -850,4 +856,32 @@ function filterMembers() {
       </li>
     `;
   });
+}
+async function manualPayment(memberId, memberName) {
+  const amount = prompt("Enter payment amount for " + memberName);
+  if (!amount) return;
+
+  const days = prompt("Enter membership days to add");
+  if (!days) return;
+
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(API + "/manual-payment/" + memberId, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token
+    },
+    body: JSON.stringify({
+      amount,
+      days
+    })
+  });
+
+  const data = await res.json();
+  alert(data.message);
+
+  loadMembers();
+  loadRecentPayments();
+  loadDashboardAlerts();
 }

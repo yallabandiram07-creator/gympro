@@ -1036,6 +1036,52 @@ app.put("/members/:id", auth, async (req, res) => {
   }
 });
 
+app.post("/manual-payment/:memberId", auth, async (req, res) => {
+  try {
+    const { amount, days } = req.body;
+
+    const member = await Member.findOne({
+      _id: req.params.memberId,
+      userId: req.user.id
+    });
+
+    if (!member) {
+      return res.json({ message: "Member not found" });
+    }
+
+    await new Payment({
+      userId: req.user.id,
+      memberId: member._id.toString(),
+      memberName: member.name,
+      phone: member.phone,
+      amount: Number(amount),
+      days: Number(days),
+      status: "paid",
+      razorpayOrderId: "manual_" + Date.now(),
+      razorpayPaymentId: "manual_cash_upi"
+    }).save();
+
+    const currentExpiry = new Date(member.expiryDate || member.expiry);
+    const today = new Date();
+
+    let newExpiry = currentExpiry > today ? currentExpiry : today;
+    newExpiry.setDate(newExpiry.getDate() + Number(days));
+
+    member.expiryDate = newExpiry;
+    member.expiry = newExpiry.toDateString();
+    member.plan = Number(days);
+    member.fees = Number(amount);
+
+    await member.save();
+
+    res.json({ message: "Manual payment added and membership renewed" });
+
+  } catch (err) {
+    console.log("Manual payment error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 app.use("/", subscriptionRoutes);
 app.use("/", superAdminRoutes);
 
