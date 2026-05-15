@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>GymPro Dashboard</title>
+  <title>GymPro Owner Dashboard</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="dashboard-page">
+
+<body class="dashboard-page premium-dashboard">
 
 <div id="dashboardLock" class="lock-screen" style="display:none;">
   <div class="lock-card">
@@ -17,12 +20,12 @@
 
 <div class="app-layout" id="dashboardApp">
 
-  <aside class="sidebar">
+  <aside class="sidebar premium-sidebar">
     <div class="brand">
       <div class="brand-icon">🏋️</div>
       <div>
         <h2>GymPro</h2>
-        <p>Management System</p>
+        <p>Elite Gym SaaS</p>
       </div>
     </div>
 
@@ -34,90 +37,99 @@
       <button onclick="showSection('trainers', this)" class="nav-btn">👨‍🏫 Trainers</button>
       <button onclick="showSection('payments', this)" class="nav-btn">💳 Payment Settings</button>
       <button onclick="showSection('whatsapp', this)" class="nav-btn">📲 WhatsApp</button>
-      <button onclick="showSection('rewards', this)" class="nav-btn">🎁 Reward Points</button>
+      <button onclick="showSection('rewards', this)" class="nav-btn">🎁 Rewards</button>
     </nav>
 
-    <a class="member-login-link" href="member-login.html">Member Login Page</a>
-    <a class="member-login-link" href="trainer-login.html">Trainer Login Page</a>
-    <a class="member-login-link" href="ai-workout.html">AI Workout Generator</a>
-    <a class="member-login-link" href="subscription.html">Subscription Plans</a>
+    <div class="sidebar-links">
+      <a href="member-login.html">Member Login</a>
+      <a href="trainer-login.html">Trainer Login</a>
+      <a href="ai-workout.html">AI Workout</a>
+      <a href="subscription.html">Subscription</a>
+    </div>
 
     <button class="logout-btn" onclick="logout()">Logout</button>
   </aside>
 
-  <main class="main-content">
+  <main class="main-content premium-main">
 
     <section id="dashboardSection">
-      <div class="page-header">
-        <h1 id="dashboardGymName">Gym Dashboard</h1>
-<p id="dashboardOwnerInfo">Owner details loading...</p>
-<p id="dashboardGymInfo">Gym details loading...</p>
-<p id="subscriptionInfo">Checking subscription...</p>
+      <div class="hero-card">
+        <div>
+          <h1 id="dashboardGymName">Welcome to GymPro</h1>
+          <p id="dashboardOwnerInfo">Owner details loading...</p>
+          <p id="dashboardGymInfo">Gym details loading...</p>
+          <p id="subscriptionInfo">Checking subscription...</p>
+        </div>
+        <div class="hero-emoji">💪</div>
       </div>
 
-      <div class="dashboard-cards">
+      <div class="dashboard-cards premium-stats">
         <div class="stat-card blue">
           <h3>Total Members</h3>
           <p id="totalMembers">0</p>
+          <span>Members registered</span>
         </div>
 
         <div class="stat-card green">
           <h3>Total Revenue</h3>
           <p>₹<span id="totalRevenue">0</span></p>
+          <span>Overall earnings</span>
         </div>
 
         <div class="stat-card orange">
           <h3>Today Attendance</h3>
           <p id="todayAttendance">0</p>
+          <span>Present today</span>
         </div>
       </div>
-      <div class="content-grid">
-  <div class="panel">
-    <h2>Expiring Soon</h2>
-    <ul id="expiringMembersList" class="modern-list"></ul>
-  </div>
-
-  <div class="panel">
-    <h2>Recent Payments</h2>
-    <ul id="recentPaymentsList" class="modern-list"></ul>
-  </div>
-</div>
 
       <div class="content-grid">
-        <div class="panel">
+        <div class="panel glass-panel">
+          <h2>Expiring Soon</h2>
+          <ul id="expiringMembersList" class="modern-list"></ul>
+        </div>
+
+        <div class="panel glass-panel">
+          <h2>Recent Payments</h2>
+          <ul id="recentPaymentsList" class="modern-list"></ul>
+        </div>
+      </div>
+
+      <div class="content-grid">
+        <div class="panel glass-panel">
           <h2>Add New Member</h2>
           <p id="memberLimitInfo"></p>
 
           <form id="memberForm">
-  <input type="text" id="name" placeholder="Member Name" required>
-  <input type="text" id="phone" placeholder="Phone Number without +91" required>
-  <input type="password" id="memberPass" placeholder="Member Login Password" required>
+            <input type="text" id="name" placeholder="Member Name" required>
+            <input type="text" id="phone" placeholder="Phone Number without +91" required>
+            <input type="password" id="memberPass" placeholder="Member Login Password" required>
 
-  <select id="memberPlanSelect" onchange="applySelectedPlan()">
-    <option value="">Select Membership Plan</option>
-  </select>
+            <select id="memberPlanSelect" onchange="applySelectedPlan()">
+              <option value="">Select Membership Plan</option>
+            </select>
 
-  <input type="number" id="plan" placeholder="Plan Duration in Days" required>
-  <input type="number" id="fees" placeholder="Fees Amount" required>
+            <input type="number" id="plan" placeholder="Plan Duration in Days" required>
+            <input type="number" id="fees" placeholder="Fees Amount" required>
 
-  <button type="submit" class="primary-btn">Add Member</button>
-</form>
+            <button type="submit" class="primary-btn">Add Member</button>
+          </form>
+        </div>
 
-        <div class="panel">
-          <h2>All Members</h2>
-          
-<button onclick="exportMembersCSV()" class="primary-btn">
-  Export Members CSV
-</button>
+        <div class="panel glass-panel">
+          <div class="panel-header-row">
+            <h2>All Members</h2>
+            <button onclick="exportMembersCSV()" class="primary-btn small-btn">Export CSV</button>
+          </div>
 
-<input
-  type="text"
-  id="memberSearch"
-  placeholder="Search member by name or phone"
-  onkeyup="filterMembers()"
-  class="search-input"
-/>
-          <h2>Members List</h2>
+          <input
+            type="text"
+            id="memberSearch"
+            placeholder="Search member by name or phone"
+            onkeyup="filterMembers()"
+            class="search-input"
+          />
+
           <ul id="memberList" class="modern-list"></ul>
         </div>
       </div>
@@ -130,21 +142,18 @@
       </div>
 
       <div class="content-grid">
-        <div class="panel">
+        <div class="panel glass-panel">
           <h2>Gym Details</h2>
-
           <input id="gymName" placeholder="Gym Name">
           <input id="ownerName" placeholder="Owner Name">
           <input id="gymPhone" placeholder="Phone Number">
           <input id="gymAddress" placeholder="Address">
           <input id="gymTimings" placeholder="Gym Timings">
-
           <button class="primary-btn" onclick="saveGymProfile()">Save Gym Profile</button>
         </div>
 
-        <div class="panel">
+        <div class="panel glass-panel">
           <h2>Membership Plans</h2>
-
           <input id="plan1Name" placeholder="Plan 1 Name">
           <input id="plan1Price" type="number" placeholder="Plan 1 Price">
           <input id="plan1Days" type="number" placeholder="Plan 1 Days">
@@ -163,22 +172,21 @@
     <section id="attendanceSection" style="display:none;">
       <div class="page-header">
         <h1>Attendance</h1>
-        <p>Mark attendance manually.</p>
+        <p>Mark attendance manually or through QR scan.</p>
       </div>
 
       <div class="content-grid">
-        <div class="panel">
+        <div class="panel glass-panel">
           <h2>Mark Attendance</h2>
           <ul id="attendanceMemberList" class="modern-list"></ul>
         </div>
 
-        <div class="panel">
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-  <h2>Today Present Members</h2>
-  <button class="danger-btn" onclick="clearTodayAttendance()">Clear Today</button>
-</div>
-
-<ul id="todayAttendanceList" class="modern-list"></ul>
+        <div class="panel glass-panel">
+          <div class="panel-header-row">
+            <h2>Today Present Members</h2>
+            <button class="danger-btn small-btn" onclick="clearTodayAttendance()">Clear Today</button>
+          </div>
+          <ul id="todayAttendanceList" class="modern-list"></ul>
         </div>
       </div>
     </section>
@@ -189,8 +197,8 @@
         <p>This QR refreshes every 10 seconds.</p>
       </div>
 
-      <div class="panel">
-        <h2>Live Gym QR</h2>
+      <div class="panel glass-panel qr-panel">
+        <h2>Scan to Mark Attendance</h2>
         <div id="dynamicQrBox" class="qr-preview">
           <p>Click Dynamic QR to load QR.</p>
         </div>
@@ -205,7 +213,7 @@
       </div>
 
       <div class="content-grid">
-        <div class="panel">
+        <div class="panel glass-panel">
           <h2>Add Trainer</h2>
           <form id="trainerForm">
             <input type="text" id="trainerNameInput" placeholder="Trainer Name" required>
@@ -216,7 +224,7 @@
           </form>
         </div>
 
-        <div class="panel">
+        <div class="panel glass-panel">
           <h2>Trainer List</h2>
           <ul id="trainerList" class="modern-list"></ul>
         </div>
@@ -229,7 +237,7 @@
         <p>Add Razorpay keys for this owner.</p>
       </div>
 
-      <div class="panel">
+      <div class="panel glass-panel">
         <input type="text" id="ownerRazorpayKeyId" placeholder="Razorpay Key ID">
         <input type="password" id="ownerRazorpayKeySecret" placeholder="Razorpay Key Secret">
         <button class="primary-btn" onclick="saveOwnerPaymentSettings()">Save Razorpay Settings</button>
@@ -243,7 +251,7 @@
         <p>Member reward tracking.</p>
       </div>
 
-      <div class="panel">
+      <div class="panel glass-panel">
         <ul id="rewardList" class="modern-list"></ul>
       </div>
     </section>
@@ -255,25 +263,20 @@
       </div>
 
       <div class="content-grid">
-        <div class="panel">
+        <div class="panel glass-panel">
           <h2>WhatsApp Settings</h2>
-
           <input type="text" id="waPhoneNumberId" placeholder="WhatsApp Phone Number ID">
           <input type="password" id="waAccessToken" placeholder="Access Token">
           <input type="text" id="waTemplateName" placeholder="Template Name e.g. hello_world">
           <input type="text" id="waLanguageCode" placeholder="Language Code e.g. en_US">
-
           <button class="primary-btn" onclick="saveWhatsAppSettings()">Save WhatsApp Settings</button>
-
           <p id="waSettingsStatus"></p>
         </div>
 
-        <div class="panel">
+        <div class="panel glass-panel">
           <h2>Expiry Reminders</h2>
           <p>This will send reminders to members expiring within 3 days.</p>
-
           <button class="primary-btn" onclick="sendExpiryReminders()">Send Expiry Reminders</button>
-
           <p id="waReminderResult"></p>
         </div>
       </div>
@@ -283,52 +286,5 @@
 </div>
 
 <script src="owner-script.js"></script>
-
-<script>
-async function saveGymProfile() {
-  const token = localStorage.getItem("token");
-  const apiBase = typeof API !== "undefined" ? API : "https://gympro-mzx0.onrender.com";
-
-  const plans = [
-    {
-      name: document.getElementById("plan1Name").value,
-      price: Number(document.getElementById("plan1Price").value),
-      days: Number(document.getElementById("plan1Days").value)
-    },
-    {
-      name: document.getElementById("plan2Name").value,
-      price: Number(document.getElementById("plan2Price").value),
-      days: Number(document.getElementById("plan2Days").value)
-    },
-    {
-      name: document.getElementById("plan3Name").value,
-      price: Number(document.getElementById("plan3Price").value),
-      days: Number(document.getElementById("plan3Days").value)
-    }
-  ].filter(plan => plan.name && plan.price && plan.days);
-
-  const body = {
-    gymName: document.getElementById("gymName").value,
-    ownerName: document.getElementById("ownerName").value,
-    phone: document.getElementById("gymPhone").value,
-    address: document.getElementById("gymAddress").value,
-    timings: document.getElementById("gymTimings").value,
-    plans
-  };
-
-  const res = await fetch(apiBase + "/gym-profile", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token
-    },
-    body: JSON.stringify(body)
-  });
-
-  const data = await res.json();
-  alert(data.message);
-}
-</script>
-
 </body>
 </html>
