@@ -60,7 +60,7 @@ function showSection(section, btn) {
   }
 
   if (section === "qr") {
-    stopQRAutoRefresh();
+    stopQRAutoRefresh(); 
     startQRAutoRefresh();
   }
 
@@ -90,10 +90,34 @@ function loadMembers() {
       members.forEach(m => {
         allMembersData = members;
         revenue += Number(m.fees || 0);
+        
+        const expiryDate = new Date(m.expiryDate || m.expiry);
+
+const today = new Date();
+
+const daysLeft = Math.ceil(
+  (expiryDate - today) / (1000 * 60 * 60 * 24)
+);
+
+let statusText = "Active";
+let statusClass = "active-status";
+
+if (daysLeft <= 0) {
+  statusText = "Expired";
+  statusClass = "expired-status";
+}
+else if (daysLeft <= 3) {
+  statusText = "Expiring Soon";
+  statusClass = "soon-status";
+}
 
         memberList.innerHTML += `
   <li class="member-card">
     <strong>${m.name}</strong>
+
+    <span class="${statusClass}">
+  ${statusText}
+</span>
 
     <span>Phone: ${m.phone}</span>
     <span>Plan: ${m.plan} days</span>

@@ -411,3 +411,29 @@ button:hover, .primary-btn:hover {
   color:white;
   font-size:15px;
 }
+.active-status,
+.soon-status,
+.expired-status {
+  display: inline-block;
+  width: fit-content;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  margin: 6px 0;
+}
+
+.active-status {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.soon-status {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.expired-status {
+  background: #fee2e2;
+  color: #991b1b;
+}
