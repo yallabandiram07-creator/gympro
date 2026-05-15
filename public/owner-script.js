@@ -885,3 +885,28 @@ async function manualPayment(memberId, memberName) {
   loadRecentPayments();
   loadDashboardAlerts();
 }
+function exportMembersCSV() {
+  if (!allMembersData || allMembersData.length === 0) {
+    alert("No members to export");
+    return;
+  }
+
+  let csv = "Name,Phone,Plan Days,Fees,Expiry,Points\n";
+
+  allMembersData.forEach(m => {
+    csv += `${m.name},${m.phone},${m.plan},${m.fees},${m.expiry},${m.points || 0}\n`;
+  });
+
+  const blob = new Blob([csv], {
+    type: "text/csv"
+  });
+
+  const url = window.URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "gympro-members.csv";
+  a.click();
+
+  window.URL.revokeObjectURL(url);
+}
