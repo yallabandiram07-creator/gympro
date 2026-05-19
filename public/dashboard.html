@@ -4,7 +4,9 @@
   <title>GymPro Owner Dashboard</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body class="dashboard-page premium-dashboard">
@@ -17,10 +19,9 @@
     <button onclick="logout()" class="danger-btn">Logout</button>
   </div>
 </div>
-
 <div class="app-layout" id="dashboardApp">
 
-  <aside class="sidebar premium-sidebar">
+  <aside class="sidebar premium-sidebar" id="mobileSidebar">
     <div class="brand">
       <div class="brand-icon">🏋️</div>
       <div>
@@ -30,17 +31,47 @@
     </div>
 
     <nav>
-      <button onclick="showSection('dashboard', this)" class="nav-btn active">📊 Dashboard</button>
-      <button onclick="showSection('gymProfile', this)" class="nav-btn">🏋️ Gym Profile</button>
-      <button onclick="showSection('attendance', this)" class="nav-btn">✅ Attendance</button>
-      <button onclick="showSection('qr', this)" class="nav-btn">🔐 Dynamic QR</button>
-      <button onclick="showSection('trainers', this)" class="nav-btn">👨‍🏫 Trainers</button>
-      <button onclick="showSection('payments', this)" class="nav-btn">💳 Payment Settings</button>
-      <button onclick="showSection('whatsapp', this)" class="nav-btn">📲 WhatsApp</button>
-      <button onclick="showSection('rewards', this)" class="nav-btn">🎁 Rewards</button>
+      <button onclick="showSection('dashboard', this)" class="nav-btn active">
+        <span class="nav-icon">📊</span> Dashboard
+      </button>
+
+      <button onclick="showSection('gymProfile', this)" class="nav-btn">
+        <span class="nav-icon">🏋️</span> Gym Profile
+      </button>
+
+      <button onclick="showSection('attendance', this)" class="nav-btn">
+        <span class="nav-icon">✅</span> Attendance
+      </button>
+
+      <button onclick="showSection('qr', this)" class="nav-btn">
+        <span class="nav-icon">▣</span> Dynamic QR
+      </button>
+
+      <button onclick="showSection('trainers', this)" class="nav-btn">
+        <span class="nav-icon">👥</span> Trainers
+      </button>
+
+      <button onclick="showSection('payments', this)" class="nav-btn">
+        <span class="nav-icon">💳</span> Payment Settings
+      </button>
+
+      <button onclick="showSection('whatsapp', this)" class="nav-btn">
+        <span class="nav-icon">📲</span> WhatsApp
+      </button>
+
+      <button onclick="showSection('rewards', this)" class="nav-btn">
+        <span class="nav-icon">🎁</span> Rewards
+      </button>
+
+      <button onclick="showSection('reports', this)" class="nav-btn">
+        <span class="nav-icon">📈</span> Reports
+      </button>
     </nav>
 
+    <div class="sidebar-divider"></div>
+
     <div class="sidebar-links">
+      <p class="sidebar-section-label">OTHER</p>
       <a href="member-login.html">Member Login</a>
       <a href="trainer-login.html">Trainer Login</a>
       <a href="ai-workout.html">AI Workout</a>
@@ -50,55 +81,220 @@
     <button class="logout-btn" onclick="logout()">Logout</button>
   </aside>
 
+  <div class="sidebar-divider"></div>
+
+  <div class="sidebar-links">
+    <p class="sidebar-section-label">OTHER</p>
+    <a href="member-login.html">Member Login</a>
+    <a href="trainer-login.html">Trainer Login</a>
+    <a href="ai-workout.html">AI Workout</a>
+    <a href="subscription.html">Subscription</a>
+  </div>
+
+  <button class="logout-btn" onclick="logout()">Logout</button>
+</aside>
+
   <main class="main-content premium-main">
 
     <section id="dashboardSection">
-      <div class="hero-card">
-        <div>
-          <h1 id="dashboardGymName">Welcome to GymPro</h1>
-          <p id="dashboardOwnerInfo">Owner details loading...</p>
-          <p id="dashboardGymInfo">Gym details loading...</p>
-          <p id="subscriptionInfo">Checking subscription...</p>
-        </div>
-        <div class="hero-emoji">💪</div>
+
+<div class="dash-hero">
+  <div class="hero-bg-shape"></div>
+
+  <div class="dash-hero-top">
+    <div class="dash-topbar-left">
+      <h1 id="dashboardGymName">Welcome back, Star Gym 👋</h1>
+      <p>Here's what's happening with your gym today.</p>
+    </div>
+
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">
+  ☰
+</button>
+    <div class="dash-topbar-right">
+      <div class="search-wrap">
+        <input id="memberSearch" oninput="filterMembers()" placeholder="Search members, payments, plans..." class="topbar-search">
+        <span class="search-icon">⌕</span>
       </div>
 
-      <div class="dashboard-cards premium-stats">
-        <div class="stat-card blue">
-          <h3>Total Members</h3>
-          <p id="totalMembers">0</p>
-          <span>Members registered</span>
+      <button class="topbar-btn quick-btn" onclick="scrollToAddMember()">⚡ Quick Actions⌄</button>
+      <button class="topbar-btn date-btn">
+  📅 <span id="todayDate"></span>
+  •
+  <span id="liveTime"></span>
+</button>
+<button class="bell-btn" onclick="toggleNotifications()">
+  🔔
+  <span id="notificationCount" style="display:none;">0</span>
+</button>
+<div class="profile-bubble" id="profileBubble" onclick="toggleProfileMenu()">
+  SG
+</div>
+      <span class="profile-arrow">⌄</span>
+    </div>
+  </div>
+
+  <div style="display:none;">
+    <p id="dashboardOwnerInfo"></p>
+    <p id="dashboardGymInfo"></p>
+    <p id="subscriptionInfo">Checking subscription...</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-icon blue-icon">👥</div>
+      <div class="kpi-info">
+        <span>Total Members</span>
+        <h2><span id="totalMembers">0</span> <small>↑ 12%</small></h2>
+        <p>vs last month</p>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon green-icon">💳</div>
+      <div class="kpi-info">
+        <span>Monthly Revenue</span>
+        <h2>₹<span id="totalRevenue">0</span> <small>↑ 18.6%</small></h2>
+        <p>vs last month</p>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon teal-icon">✅</div>
+      <div class="kpi-info">
+        <span>Today Attendance</span>
+        <h2><span id="todayAttendance">0</span> <small>↑ 8%</small></h2>
+        <p>vs yesterday</p>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon orange-icon">🕘</div>
+      <div class="kpi-info">
+        <span>Expiring Soon</span>
+        <h2><span id="expiringSoonCount">0</span> <em>Members</em></h2>
+        <p>in next 7 days</p>
+      </div>
+    </div>
+
+    <div class="kpi-card small-plan-card">
+      <div class="kpi-icon purple-icon">▣</div>
+      <div class="kpi-info">
+        <span>Active Plans</span>
+        <h2>3 <em>Plans</em></h2>
+        <p>available</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+     <div class="charts-row">
+  <div class="chart-card revenue-chart-card">
+    <div class="chart-card-header">
+      <h2>Revenue Overview</h2>
+      <select class="chart-select">
+        <option>This Month</option>
+        <option>Last Month</option>
+      </select>
+    </div>
+    <div class="revenue-big">₹<span id="totalRevenueBig">0</span></div>
+    <p class="revenue-sub">Total Revenue <span class="trend-up">↑ 18.6% from last month</span></p>
+    <canvas id="revenueChart"></canvas>
+  </div>
+
+  <div class="chart-card donut-card">
+    <div class="chart-card-header">
+      <h2>Attendance Overview</h2>
+      <select class="chart-select">
+        <option>This Week</option>
+        <option>Last Week</option>
+      </select>
+    </div>
+    <div class="donut-wrap">
+      <canvas id="attendanceChart"></canvas>
+      <div class="donut-center" id="attendanceDonutLabel">0%<br><small>Avg. Attendance</small></div>
+    </div>
+    <div class="donut-legend">
+      <div class="legend-item"><span class="dot green-dot"></span> Present <strong id="presentCount">0</strong></div>
+      <div class="legend-item"><span class="dot red-dot"></span> Absent <strong id="absentCount">0</strong></div>
+      <div class="legend-item">Total <strong id="totalLegend">0</strong></div>
+    </div>
+  </div>
+
+  <div class="chart-card donut-card">
+    <div class="chart-card-header">
+      <h2>Members Overview</h2>
+      <select class="chart-select">
+        <option>This Month</option>
+        <option>Last Month</option>
+      </select>
+    </div>
+    <div class="donut-wrap">
+      <canvas id="membersChart"></canvas>
+      <div class="donut-center" id="membersDonutLabel">0<br><small>Total Members</small></div>
+    </div>
+    <div class="donut-legend">
+      <div class="legend-item"><span class="dot green-dot"></span> Active <strong id="activeCount">0</strong></div>
+      <div class="legend-item"><span class="dot red-dot"></span> Expired <strong id="expiredCount">0</strong></div>
+      <div class="legend-item"><span class="dot yellow-dot"></span> Paused <strong>0</strong></div>
+    </div>
+  </div>
+</div>
+
+      <div class="bottom-row">
+        <div class="bottom-card">
+          <div class="bottom-card-header">
+            <h2>Expiring Soon</h2>
+            <button class="view-all-btn">View All</button>
+          </div>
+          <ul id="expiringMembersList" class="dash-list"></ul>
         </div>
 
-        <div class="stat-card green">
-          <h3>Total Revenue</h3>
-          <p>₹<span id="totalRevenue">0</span></p>
-          <span>Overall earnings</span>
+        <div class="bottom-card">
+          <div class="bottom-card-header">
+            <h2>Recent Payments</h2>
+            <button class="view-all-btn">View All</button>
+          </div>
+          <ul id="recentPaymentsList" class="dash-list"></ul>
         </div>
 
-        <div class="stat-card orange">
-          <h3>Today Attendance</h3>
-          <p id="todayAttendance">0</p>
-          <span>Present today</span>
+        <div class="bottom-card">
+          <h2>Quick Actions</h2>
+          <div class="qa-grid">
+            <button class="qa-btn" onclick="document.getElementById('name').focus(); showSection('dashboard', document.querySelector('.nav-btn'))">
+              <span class="qa-icon blue-qa">👤</span><span>Add Member</span>
+            </button>
+            <button class="qa-btn" onclick="showSection('attendance', this)">
+              <span class="qa-icon green-qa">✅</span><span>Mark Attendance</span>
+            </button>
+            <button class="qa-btn" onclick="showSection('qr', this)">
+              <span class="qa-icon purple-qa">▦</span><span>Generate QR</span>
+            </button>
+            <button class="qa-btn" onclick="showSection('trainers', this)">
+              <span class="qa-icon orange-qa">👥</span><span>Add Trainer</span>
+            </button>
+            <button class="qa-btn" onclick="showSection('whatsapp', this)">
+              <span class="qa-icon teal-qa">🟢</span><span>Send Reminder</span>
+            </button>
+            <button class="qa-btn" onclick="exportMembersCSV()">
+              <span class="qa-icon blue-qa">📊</span><span>View Reports</span>
+            </button>
+            <button class="qa-btn" onclick="showSection('payments', this)">
+              <span class="qa-icon yellow-qa">💳</span><span>Payment Settings</span>
+            </button>
+            <button class="qa-btn" onclick="showSection('rewards', this)">
+              <span class="qa-icon pink-qa">🎁</span><span>Rewards</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <div class="content-grid">
-        <div class="panel glass-panel">
-          <h2>Expiring Soon</h2>
-          <ul id="expiringMembersList" class="modern-list"></ul>
-        </div>
-
-        <div class="panel glass-panel">
-          <h2>Recent Payments</h2>
-          <ul id="recentPaymentsList" class="modern-list"></ul>
-        </div>
-      </div>
-
-      <div class="content-grid">
-        <div class="panel glass-panel">
-          <h2>Add New Member</h2>
-          <p id="memberLimitInfo"></p>
+      <div class="members-row">
+        <div class="bottom-card">
+          <div class="card-title-row">
+  <h2>Add New Member</h2>
+  <span class="mini-badge">Quick Add</span>
+</div>
+          <p id="memberLimitInfo" style="color:#94a3b8;font-size:13px;"></p>
 
           <form id="memberForm">
             <input type="text" id="name" placeholder="Member Name" required>
@@ -112,27 +308,35 @@
             <input type="number" id="plan" placeholder="Plan Duration in Days" required>
             <input type="number" id="fees" placeholder="Fees Amount" required>
 
-            <button type="submit" class="primary-btn">Add Member</button>
+            <button type="submit" class="primary-btn" style="width:100%;margin-top:8px;">Add Member</button>
           </form>
         </div>
 
-        <div class="panel glass-panel">
-          <div class="panel-header-row">
+        <div class="bottom-card members-wide-card">
+          <div class="bottom-card-header">
             <h2>All Members</h2>
-            <button onclick="exportMembersCSV()" class="primary-btn small-btn">Export CSV</button>
+            <button onclick="exportMembersCSV()" class="view-all-btn">Export CSV</button>
           </div>
+          <div class="member-table-wrap">
+  <table class="member-table">
+    <thead>
+      <tr>
+        <th>Member</th>
+        <th>Status</th>
+        <th>Plan</th>
+        <th>Fees</th>
+        <th>Expiry</th>
+        <th>Points</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
 
-          <input
-            type="text"
-            id="memberSearch"
-            placeholder="Search member by name or phone"
-            onkeyup="filterMembers()"
-            class="search-input"
-          />
-
-          <ul id="memberList" class="modern-list"></ul>
+    <tbody id="memberList"></tbody>
+  </table>
+</div>
         </div>
       </div>
+
     </section>
 
     <section id="gymProfileSection" style="display:none;">
@@ -157,14 +361,13 @@
           <input id="plan1Name" placeholder="Plan 1 Name">
           <input id="plan1Price" type="number" placeholder="Plan 1 Price">
           <input id="plan1Days" type="number" placeholder="Plan 1 Days">
-
           <input id="plan2Name" placeholder="Plan 2 Name">
           <input id="plan2Price" type="number" placeholder="Plan 2 Price">
           <input id="plan2Days" type="number" placeholder="Plan 2 Days">
-
           <input id="plan3Name" placeholder="Plan 3 Name">
           <input id="plan3Price" type="number" placeholder="Plan 3 Price">
           <input id="plan3Days" type="number" placeholder="Plan 3 Days">
+          <button class="primary-btn" onclick="saveGymProfile()">Save Plans</button>
         </div>
       </div>
     </section>
@@ -241,18 +444,7 @@
         <input type="text" id="ownerRazorpayKeyId" placeholder="Razorpay Key ID">
         <input type="password" id="ownerRazorpayKeySecret" placeholder="Razorpay Key Secret">
         <button class="primary-btn" onclick="saveOwnerPaymentSettings()">Save Razorpay Settings</button>
-        <p id="paymentSettingsStatus"></p>
-      </div>
-    </section>
-
-    <section id="rewardsSection" style="display:none;">
-      <div class="page-header">
-        <h1>Reward Points</h1>
-        <p>Member reward tracking.</p>
-      </div>
-
-      <div class="panel glass-panel">
-        <ul id="rewardList" class="modern-list"></ul>
+        <p id="paymentSettingsStatus" style="color:#94a3b8;margin-top:10px;"></p>
       </div>
     </section>
 
@@ -270,21 +462,213 @@
           <input type="text" id="waTemplateName" placeholder="Template Name e.g. hello_world">
           <input type="text" id="waLanguageCode" placeholder="Language Code e.g. en_US">
           <button class="primary-btn" onclick="saveWhatsAppSettings()">Save WhatsApp Settings</button>
-          <p id="waSettingsStatus"></p>
+          <p id="waSettingsStatus" style="color:#94a3b8;margin-top:10px;"></p>
         </div>
 
         <div class="panel glass-panel">
           <h2>Expiry Reminders</h2>
-          <p>This will send reminders to members expiring within 3 days.</p>
+          <p style="color:#94a3b8;">This will send reminders to members expiring within 3 days.</p>
           <button class="primary-btn" onclick="sendExpiryReminders()">Send Expiry Reminders</button>
-          <p id="waReminderResult"></p>
+          <p id="waReminderResult" style="color:#94a3b8;margin-top:10px;"></p>
         </div>
       </div>
     </section>
 
+    <section id="rewardsSection" style="display:none;">
+      <div class="page-header">
+        <h1>Reward Points</h1>
+        <p>Member reward tracking.</p>
+      </div>
+
+      <div class="panel glass-panel">
+        <ul id="rewardList" class="modern-list"></ul>
+      </div>
+    </section>
+
+    <section id="reportsSection" style="display:none;">
+  <div class="page-header">
+    <h1>Reports</h1>
+    <p>Export and view gym performance reports.</p>
+  </div>
+
+  <div class="content-grid">
+    <div class="panel glass-panel">
+      <h2>Member Report</h2>
+      <button class="primary-btn" onclick="exportMembersCSV()">Export Members CSV</button>
+    </div>
+
+    <div class="panel glass-panel">
+      <h2>Revenue Summary</h2>
+      <h1>₹<span id="reportRevenue">0</span></h1>
+    </div>
+
+    <div class="panel glass-panel">
+      <h2>Member Summary</h2>
+      <p>Total: <strong id="reportTotalMembers">0</strong></p>
+      <p>Active: <strong id="reportActiveMembers">0</strong></p>
+      <p>Expired: <strong id="reportExpiredMembers">0</strong></p>
+    </div>
+
+    <div class="panel glass-panel">
+      <h2>Attendance Summary</h2>
+      <p>Present Today: <strong id="reportTodayAttendance">0</strong></p>
+    </div>
+  </div>
+</section>
+
+    <section id="settingsSection" style="display:none;">
+  <div class="page-header">
+    <h1>Settings</h1>
+    <p>Manage your app preferences and account settings.</p>
+  </div>
+
+  <div class="content-grid">
+    <div class="panel glass-panel">
+      <h2>Account Settings</h2>
+      <input type="text" placeholder="Owner Name">
+      <input type="email" placeholder="Owner Email">
+      <input type="text" placeholder="Phone Number">
+      <button class="primary-btn">Save Account</button>
+    </div>
+
+    <div class="panel glass-panel">
+      <h2>Security</h2>
+      <input type="password" placeholder="Current Password">
+      <input type="password" placeholder="New Password">
+      <input type="password" placeholder="Confirm Password">
+      <button class="primary-btn">Update Password</button>
+    </div>
+
+    <div class="panel glass-panel">
+      <h2>Notification Settings</h2>
+      <label class="settings-option">
+        <span>WhatsApp Reminders</span>
+        <input type="checkbox" checked>
+      </label>
+      <label class="settings-option">
+        <span>Payment Alerts</span>
+        <input type="checkbox" checked>
+      </label>
+      <label class="settings-option">
+        <span>Expiry Alerts</span>
+        <input type="checkbox" checked>
+      </label>
+    </div>
+
+    <div class="panel glass-panel">
+      <h2>App Preferences</h2>
+      <select>
+        <option>Dark Theme</option>
+        <option>Light Theme</option>
+      </select>
+      <select>
+        <option>₹ INR Currency</option>
+      </select>
+      <button class="primary-btn">Save Preferences</button>
+    </div>
+  </div>
+</section>
+
   </main>
 </div>
 
+<div id="notificationDropdown" class="top-dropdown hidden">
+  <div class="dropdown-title">Notifications</div>
+
+  <div class="dropdown-item">
+    <strong>Membership Alert</strong>
+    <span>3 members expiring soon</span>
+  </div>
+
+  <div class="dropdown-item">
+    <strong>Payment Update</strong>
+    <span>Recent payments updated</span>
+  </div>
+
+  <div class="dropdown-item">
+    <strong>Attendance</strong>
+    <span>Today attendance synced</span>
+  </div>
+</div>
+
+<div id="profileDropdown" class="top-dropdown hidden">
+  <div class="dropdown-title">Account</div>
+
+  <div class="dropdown-item" onclick="showOwnerProfile()">
+    <strong>My Profile</strong>
+    <span>View owner and gym details</span>
+  </div>
+
+  <div class="dropdown-item" onclick="showSettings()">
+    <strong>Settings</strong>
+    <span>App preferences and security</span>
+  </div>
+
+  <div class="dropdown-item logout-dropdown" onclick="logout()">
+    <strong>Logout</strong>
+    <span>Sign out from GymPro</span>
+  </div>
+</div>
+<div id="toastBox" class="toast-box"></div>
+<div id="globalLoader" class="global-loader hidden">
+  <div class="loader-spinner"></div>
+</div>
+<div id="editMemberModal" class="modal-overlay hidden">
+  <div class="app-modal">
+    <h2>Edit Member</h2>
+
+    <input id="editMemberId" type="hidden">
+    <input id="editName" placeholder="Member Name">
+    <input id="editPhone" placeholder="Phone Number">
+    <input id="editPlan" type="number" placeholder="Plan Days">
+    <input id="editFees" type="number" placeholder="Fees">
+    <input id="editExpiry" placeholder="Expiry Date">
+
+    <div class="modal-actions">
+      <button class="view-all-btn" onclick="closeEditMemberModal()">Cancel</button>
+      <button class="primary-btn" onclick="saveEditedMember()">Save Changes</button>
+    </div>
+  </div>
+</div>
+<div id="paymentModal" class="modal-overlay hidden">
+  <div class="app-modal">
+    <h2>Collect Payment</h2>
+
+    <input id="paymentMemberId" type="hidden">
+    <input id="paymentMemberName" readonly>
+    <input id="paymentAmount" type="number" placeholder="Payment Amount">
+    <input id="paymentDays" type="number" placeholder="Membership Days to Add">
+
+    <div class="modal-actions">
+      <button class="view-all-btn" onclick="closePaymentModal()">Cancel</button>
+      <button class="primary-btn" onclick="saveManualPayment()">Mark Paid</button>
+    </div>
+  </div>
+</div>
 <script src="owner-script.js"></script>
+<div id="appModal" class="modal-overlay hidden">
+  <div class="app-modal">
+    <h2 id="modalTitle">Confirm Action</h2>
+    <p id="modalMessage">Are you sure?</p>
+
+    <div class="modal-actions">
+      <button class="view-all-btn" onclick="closeModal()">Cancel</button>
+      <button class="danger-btn" id="modalConfirmBtn" onclick="runModalAction()">Delete</button>
+    </div>
+  </div>
+</div>
+<script>
+  document.getElementById("todayDate").textContent =
+    new Date().toLocaleDateString("en-IN", {
+      month: "short",
+      day: "numeric",
+      year: "numeric"
+    });
+</script>
+
+<script>
+  lucide.createIcons();
+</script>
+
 </body>
 </html>
