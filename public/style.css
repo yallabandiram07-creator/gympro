@@ -1845,3 +1845,109 @@ button:active,
 #notificationDropdown {
   z-index: 100000 !important;
 }
+.ai-insights-card {
+  margin: 20px 0;
+  padding: 24px;
+  border-radius: 24px;
+  background: linear-gradient(145deg, rgba(18,24,48,0.92), rgba(10,18,38,0.96));
+  border: 1px solid rgba(124,60,255,0.18);
+  box-shadow: 0 22px 55px rgba(0,0,0,0.32);
+  backdrop-filter: blur(18px);
+}
+
+.ai-insights-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.ai-insights-header h3 {
+  color: white;
+  font-size: 18px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.ai-insights-header p {
+  color: #94a3b8;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.ai-badge {
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #7c3cff, #2563eb);
+  color: white;
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: 0 0 22px rgba(124,60,255,0.35);
+}
+
+.ai-insights-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.ai-insight-item {
+  padding: 15px;
+  border-radius: 17px;
+  background: rgba(255,255,255,0.035);
+  border: 1px solid rgba(255,255,255,0.065);
+  animation: aiInsightIn 0.25s ease;
+}
+
+.ai-insight-item strong {
+  display: block;
+  color: #f8fafc;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.ai-insight-item span {
+  display: block;
+  color: #94a3b8;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.ai-insight-good {
+  border-color: rgba(34,197,94,0.25);
+}
+
+.ai-insight-warning {
+  border-color: rgba(249,115,22,0.3);
+}
+
+.ai-insight-danger {
+  border-color: rgba(239,68,68,0.3);
+}
+
+.ai-insight-info {
+  border-color: rgba(59,130,246,0.28);
+}
+
+@keyframes aiInsightIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .ai-insights-list {
+    grid-template-columns: 1fr;
+  }
+
+  .ai-insights-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

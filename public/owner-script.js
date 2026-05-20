@@ -157,6 +157,7 @@ function loadMembers() {
       if (document.getElementById("totalLegend")) document.getElementById("totalLegend").textContent = members.length;
  
       updateMembersChart(activeCount, expiredCount);
+generateAIInsights();
     });
 }
  
@@ -205,6 +206,7 @@ function loadAttendance() {
         });
       }
       updateAttendanceChart(present, absent);
+generateAIInsights();
     });
 }
  
@@ -1559,3 +1561,104 @@ function clearNotifications() {
 
 document.addEventListener("DOMContentLoaded", renderNotifications);
 setInterval(renderNotifications, 60000);
+function generateAIInsights() {
+  const box = document.getElementById("aiInsightsList");
+  if (!box) return;
+
+  const members = allMembersData || [];
+  const totalMembers = members.length;
+
+  let revenue = 0;
+  let active = 0;
+  let expired = 0;
+  let expiringSoon = 0;
+
+  members.forEach(m => {
+    revenue += Number(m.fees || 0);
+
+    const expiryDate = new Date(m.expiryDate || m.expiry);
+    const daysLeft = Math.ceil((expiryDate - new Date()) / (1000 * 60 * 60 * 24));
+
+    if (daysLeft <= 0) expired++;
+    else {
+      active++;
+      if (daysLeft <= 3) expiringSoon++;
+    }
+  });
+
+  const todayAttendance = Number(document.getElementById("todayAttendance")?.innerText || 0);
+  const attendanceRate = totalMembers > 0 ? Math.round((todayAttendance / totalMembers) * 100) : 0;
+
+  const insights = [];
+
+  if (totalMembers === 0) {
+    insights.push({
+      title: "Start by adding members",
+      message: "Your dashboard is ready. Add your first member to activate insights.",
+      type: "ai-insight-info"
+    });
+  }
+
+  if (revenue > 0) {
+    insights.push({
+      title: "Revenue tracking active",
+      message: "Your current tracked revenue is ₹" + revenue.toLocaleString("en-IN") + ".",
+      type: "ai-insight-good"
+    });
+  }
+
+  if (expiringSoon > 0) {
+    insights.push({
+      title: "Membership renewals needed",
+      message: expiringSoon + " member(s) are expiring soon. Send reminders today.",
+      type: "ai-insight-warning"
+    });
+  }
+
+  if (expired > 0) {
+    insights.push({
+      title: "Expired members detected",
+      message: expired + " member(s) have expired memberships. Follow up for renewal.",
+      type: "ai-insight-danger"
+    });
+  }
+
+  if (totalMembers > 0 && attendanceRate < 30) {
+    insights.push({
+      title: "Attendance looks low",
+      message: "Today attendance is only " + attendanceRate + "%. Consider sending motivation reminders.",
+      type: "ai-insight-warning"
+    });
+  }
+
+  if (totalMembers > 0 && attendanceRate >= 60) {
+    insights.push({
+      title: "Strong attendance today",
+      message: "Attendance is at " + attendanceRate + "%. Your gym engagement looks healthy.",
+      type: "ai-insight-good"
+    });
+  }
+
+  if (active > expired && totalMembers > 0) {
+    insights.push({
+      title: "Active member ratio is healthy",
+      message: active + " active members out of " + totalMembers + " total members.",
+      type: "ai-insight-good"
+    });
+  }
+
+  if (insights.length === 0) {
+    insights.push({
+      title: "Insights loading",
+      message: "Add more member, attendance, and payment data to improve insights.",
+      type: "ai-insight-info"
+    });
+  }
+
+  box.innerHTML = insights.slice(0, 6).map(item => `
+    <div class="ai-insight-item ${item.type}">
+      <strong>${item.title}</strong>
+      <span>${item.message}</span>
+    </div>
+  `).join("");
+}
