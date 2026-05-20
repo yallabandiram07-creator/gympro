@@ -2499,3 +2499,23 @@ body {
 .mobile-menu-btn {
   display: none !important;
 }
+.filter-select {
+  height: 48px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(15,23,42,0.9);
+  color: white;
+  padding: 0 16px;
+  font-size: 14px;
+  outline: none;
+}
+.filter-select {
+  background: #111936;
+  color: white;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 10px 14px;
+  min-width: 170px;
+  height: 42px;
+  outline: none;
+}

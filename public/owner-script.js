@@ -727,13 +727,21 @@ function filterMembers() {
 
   const search = input.value.trim().toLowerCase();
 
+  const status = document.getElementById("statusFilter")?.value || "all";
   const filtered = allMembersData.filter(m => {
     const name = String(m.name || "").toLowerCase();
     const phone = String(m.phone || "").toLowerCase();
     const plan = String(m.plan || "").toLowerCase();
     const fees = String(m.fees || "").toLowerCase();
     const expiry = String(m.expiry || "").toLowerCase();
+const expiryDate = new Date(m.expiryDate || m.expiry);
+const daysLeft = Math.ceil((expiryDate - new Date()) / (1000 * 60 * 60 * 24));
 
+if (status === "active" && daysLeft <= 3) return false;
+
+if (status === "expiring" && !(daysLeft > 0 && daysLeft <= 3)) return false;
+
+if (status === "expired" && daysLeft > 0) return false;
     return (
       name.includes(search) ||
       phone.includes(search) ||

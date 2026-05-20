@@ -113,6 +113,12 @@
     <div class="dash-topbar-right">
       <div class="search-wrap">
         <input id="memberSearch" oninput="filterMembers()" placeholder="Search members, payments, plans..." class="topbar-search">
+        <select id="statusFilter" onchange="filterMembers()" class="filter-select">
+  <option value="all">All Members</option>
+  <option value="active">Active</option>
+  <option value="expiring">Expiring Soon</option>
+  <option value="expired">Expired</option>
+</select>
         <span class="search-icon">⌕</span>
       </div>
 
@@ -275,9 +281,9 @@
             <button class="qa-btn" onclick="showSection('whatsapp', this)">
               <span class="qa-icon teal-qa">🟢</span><span>Send Reminder</span>
             </button>
-            <button class="qa-btn" onclick="exportMembersCSV()">
-              <span class="qa-icon blue-qa">📊</span><span>View Reports</span>
-            </button>
+           <button class="qa-btn" onclick="showSection('reports', this); updateReports();">
+             <span class="qa-icon blue-qa">📊</span><span>View Reports</span>
+           </button>
             <button class="qa-btn" onclick="showSection('payments', this)">
               <span class="qa-icon yellow-qa">💳</span><span>Payment Settings</span>
             </button>
@@ -312,11 +318,20 @@
           </form>
         </div>
 
-        <div class="bottom-card members-wide-card">
-          <div class="bottom-card-header">
-            <h2>All Members</h2>
-            <button onclick="exportMembersCSV()" class="view-all-btn">Export CSV</button>
-          </div>
+        <div class="bottom-card-header">
+  <h2>All Members</h2>
+
+  <div style="display:flex; gap:10px; align-items:center;">
+    <select id="statusFilter" onchange="filterMembers()" class="filter-select">
+      <option value="all">All Members</option>
+      <option value="active">Active</option>
+      <option value="expiring">Expiring Soon</option>
+      <option value="expired">Expired</option>
+    </select>
+
+    <button onclick="exportMembersCSV()" class="view-all-btn">Export CSV</button>
+  </div>
+</div>
           <div class="member-table-wrap">
   <table class="member-table">
     <thead>
