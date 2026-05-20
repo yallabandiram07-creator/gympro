@@ -165,7 +165,12 @@ function markAttendance(memberId) {
   if (!token) return;
   fetch(API + "/attendance/" + memberId, { method: "POST", headers: { Authorization: token } })
     .then(res => res.json())
-    .then(data => { showToast(data.message); loadMembers(); loadAttendance(); });
+    .then(data => {
+  showToast(data.message);
+  logActivity("attendance", "Attendance Marked", "Member attendance was updated");
+  loadMembers();
+  loadAttendance();
+});
 }
  
 function loadAttendance() {
@@ -320,7 +325,11 @@ function sendExpiryReminders() {
   if (result) result.textContent = "Sending reminders...";
   fetch(API + "/send-expiry-reminders", { method: "POST", headers: { Authorization: token } })
     .then(res => res.json())
-    .then(data => { if (result) result.textContent = data.message; showToast(data.message); })
+    .then(data => {
+  if (result) result.textContent = data.message;
+  showToast(data.message);
+  logActivity("reminder", "Reminder Sent", "WhatsApp expiry reminder was sent");
+})
     .catch(() => { if (result) result.textContent = "Failed to send reminders"; });
 }
  
@@ -527,7 +536,14 @@ if (memberForm) {
       })
     }).then(res => res.json()).then(data => {
       showToast(data.message);
-      memberForm.reset();
+
+logActivity(
+  "member_added",
+  "Member Added",
+  document.getElementById("name").value + " was added successfully"
+);
+
+memberForm.reset();
       loadMembers(); loadAttendance(); loadGymPlansForMemberForm();
     });
   });
@@ -551,7 +567,14 @@ if (trainerForm) {
       })
     }).then(res => res.json()).then(data => {
       showToast(data.message);
-      trainerForm.reset();
+
+logActivity(
+  "trainer_added",
+  "Trainer Added",
+  document.getElementById("trainerNameInput").value + " was added successfully"
+);
+
+trainerForm.reset();
       loadTrainers();
     });
   });
@@ -640,6 +663,7 @@ async function deleteMember(memberId) {
         }
 
         showToast(data.message || "Member deleted successfully", "success");
+        logActivity("member_deleted", "Member Deleted", "A member was deleted from the system");
 
         await loadMembers();
         await loadAttendance();
@@ -860,6 +884,7 @@ async function saveManualPayment() {
 
     closePaymentModal();
     showToast(data.message || "Payment marked successfully", "success");
+    logActivity("payment", "Payment Collected", "₹" + amount + " payment was recorded");
 
     loadMembers();
     loadRecentPayments();
@@ -1308,3 +1333,93 @@ function toggleSidebar() {
 
   sidebar.classList.toggle("mobile-sidebar-open");
 }
+const ACTIVITY_KEY = "gympro_recent_activity";
+
+function getActivityLogs() {
+  return JSON.parse(localStorage.getItem(ACTIVITY_KEY)) || [];
+}
+
+function saveActivityLogs(logs) {
+  localStorage.setItem(ACTIVITY_KEY, JSON.stringify(logs.slice(0, 20)));
+}
+
+function logActivity(type, title, message) {
+  const logs = getActivityLogs();
+
+  logs.unshift({
+    id: Date.now(),
+    type,
+    title,
+    message,
+    time: new Date().toISOString()
+  });
+
+  saveActivityLogs(logs);
+  renderActivityLog();
+}
+
+function getActivityIcon(type) {
+  const icons = {
+    member_added: "👤",
+    member_deleted: "🗑️",
+    attendance: "✅",
+    payment: "💳",
+    trainer_added: "🏋️",
+    reminder: "📲"
+  };
+
+  return icons[type] || "🔔";
+}
+
+function formatActivityTime(time) {
+  const activityDate = new Date(time);
+  const now = new Date();
+  const diffMins = Math.floor((now - activityDate) / 60000);
+
+  if (diffMins < 1) return "just now";
+  if (diffMins < 60) return diffMins + " mins ago";
+
+  if (activityDate.toDateString() === now.toDateString()) {
+    return "today " + activityDate.toLocaleTimeString("en-IN", {
+      hour: "numeric",
+      minute: "2-digit"
+    });
+  }
+
+  return activityDate.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short"
+  });
+}
+
+function renderActivityLog() {
+  const list = document.getElementById("recentActivityList");
+  if (!list) return;
+
+  const logs = getActivityLogs();
+
+  if (!logs.length) {
+    list.innerHTML = `<p class="activity-empty">No recent activity yet</p>`;
+    return;
+  }
+
+  list.innerHTML = logs.slice(0, 20).map(log => `
+    <div class="activity-item">
+      <div class="activity-icon">${getActivityIcon(log.type)}</div>
+      <div class="activity-content">
+        <strong>${log.title}</strong>
+        <span>${log.message}</span>
+      </div>
+      <div class="activity-time">${formatActivityTime(log.time)}</div>
+    </div>
+  `).join("");
+}
+
+function clearActivityLog() {
+  localStorage.removeItem(ACTIVITY_KEY);
+  renderActivityLog();
+  showToast("Activity log cleared", "success");
+}
+
+document.addEventListener("DOMContentLoaded", renderActivityLog);
+setInterval(renderActivityLog, 60000);
