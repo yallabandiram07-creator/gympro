@@ -226,22 +226,33 @@
     <p class="activity-empty">No recent activity yet</p>
   </div>
 </div>
-
+ 
+<!--AI INSIGHTS-->
 <div class="ai-insights-card">
   <div class="ai-insights-header">
     <div>
       <h3>AI Business Insights</h3>
-      <p>Smart suggestions based on your gym data</p>
+      <p>Advanced gym performance intelligence</p>
     </div>
-    <span class="ai-badge">AI</span>
+    <span class="ai-badge">AI V2</span>
   </div>
 
-  <div id="aiInsightsList" class="ai-insights-list">
-    <div class="ai-insight-item">
-      <strong>Analyzing dashboard...</strong>
-      <span>Insights will appear here automatically.</span>
+  <div class="ai-health-box">
+    <div>
+      <span>Gym Health Score</span>
+      <h2><span id="gymHealthScore">0</span>/100</h2>
+      <p id="gymHealthLabel">Analyzing...</p>
+    </div>
+    <div class="health-ring">
+      <span id="healthRingValue">0%</span>
     </div>
   </div>
+
+  <div id="aiSummaryBox" class="ai-summary-box">
+    Analyzing your gym performance...
+  </div>
+
+  <div id="aiInsightsList" class="ai-insights-list"></div>
 </div>
 
       <!-- BOTTOM ROW -->

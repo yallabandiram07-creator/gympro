@@ -1561,8 +1561,15 @@ function clearNotifications() {
 
 document.addEventListener("DOMContentLoaded", renderNotifications);
 setInterval(renderNotifications, 60000);
+
 function generateAIInsights() {
   const box = document.getElementById("aiInsightsList");
+  const summaryBox = document.getElementById("aiSummaryBox");
+  const scoreEl = document.getElementById("gymHealthScore");
+  const labelEl = document.getElementById("gymHealthLabel");
+  const ring = document.querySelector(".health-ring");
+  const ringValue = document.getElementById("healthRingValue");
+
   if (!box) return;
 
   const members = allMembersData || [];
@@ -1579,8 +1586,9 @@ function generateAIInsights() {
     const expiryDate = new Date(m.expiryDate || m.expiry);
     const daysLeft = Math.ceil((expiryDate - new Date()) / (1000 * 60 * 60 * 24));
 
-    if (daysLeft <= 0) expired++;
-    else {
+    if (daysLeft <= 0) {
+      expired++;
+    } else {
       active++;
       if (daysLeft <= 3) expiringSoon++;
     }
@@ -1588,77 +1596,132 @@ function generateAIInsights() {
 
   const todayAttendance = Number(document.getElementById("todayAttendance")?.innerText || 0);
   const attendanceRate = totalMembers > 0 ? Math.round((todayAttendance / totalMembers) * 100) : 0;
+  const activeRate = totalMembers > 0 ? Math.round((active / totalMembers) * 100) : 0;
+  const expiryRisk = totalMembers > 0 ? Math.round(((expired + expiringSoon) / totalMembers) * 100) : 0;
+
+  let healthScore = 50;
+
+  healthScore += Math.min(activeRate * 0.3, 30);
+  healthScore += Math.min(attendanceRate * 0.25, 25);
+  healthScore += revenue > 0 ? 15 : 0;
+  healthScore -= Math.min(expiryRisk * 0.4, 25);
+
+  healthScore = Math.max(0, Math.min(100, Math.round(healthScore)));
+
+  let healthLabel = "Needs Attention";
+  if (healthScore >= 80) healthLabel = "Excellent Performance";
+  else if (healthScore >= 65) healthLabel = "Healthy Business";
+  else if (healthScore >= 45) healthLabel = "Needs Improvement";
+  else healthLabel = "Critical Attention Needed";
+
+  if (scoreEl) scoreEl.textContent = healthScore;
+  if (labelEl) labelEl.textContent = healthLabel;
+  if (ringValue) ringValue.textContent = healthScore + "%";
+  if (ring) {
+    const degree = Math.round((healthScore / 100) * 360);
+    ring.style.background = `conic-gradient(#7c3cff ${degree}deg, rgba(255,255,255,0.08) ${degree}deg)`;
+  }
+
+  let summary = "Your gym performance is being analyzed.";
+
+  if (totalMembers === 0) {
+    summary = "Your dashboard is ready. Add members to unlock full business intelligence.";
+  } else if (healthScore >= 80) {
+    summary = "Your gym is performing strongly. Active member ratio, revenue, and attendance signals look healthy.";
+  } else if (healthScore >= 65) {
+    summary = "Your gym is stable. Focus on renewals and attendance consistency to improve growth.";
+  } else if (healthScore >= 45) {
+    summary = "Your gym needs attention. Expired memberships or low attendance may affect revenue.";
+  } else {
+    summary = "Critical business risk detected. Focus on renewals, attendance recovery, and member follow-ups immediately.";
+  }
+
+  if (summaryBox) summaryBox.textContent = summary;
 
   const insights = [];
 
-  if (totalMembers === 0) {
-    insights.push({
-      title: "Start by adding members",
-      message: "Your dashboard is ready. Add your first member to activate insights.",
-      type: "ai-insight-info"
-    });
-  }
+  insights.push({
+    title: "Health Score Analysis",
+    message: "Current business health score is " + healthScore + "/100 based on members, attendance, revenue, and expiry risk.",
+    action: "Track this score daily to monitor gym growth.",
+    type: healthScore >= 70 ? "ai-insight-good" : "ai-insight-warning",
+    score: healthScore
+  });
 
   if (revenue > 0) {
     insights.push({
-      title: "Revenue tracking active",
-      message: "Your current tracked revenue is ₹" + revenue.toLocaleString("en-IN") + ".",
-      type: "ai-insight-good"
+      title: "Revenue Performance",
+      message: "Your tracked revenue is ₹" + revenue.toLocaleString("en-IN") + ".",
+      action: "Add payment history regularly for better forecasting.",
+      type: "ai-insight-good",
+      score: 85
+    });
+  } else {
+    insights.push({
+      title: "Revenue Data Missing",
+      message: "No revenue data is available yet.",
+      action: "Collect or mark payments to activate revenue intelligence.",
+      type: "ai-insight-warning",
+      score: 45
     });
   }
 
   if (expiringSoon > 0) {
     insights.push({
-      title: "Membership renewals needed",
-      message: expiringSoon + " member(s) are expiring soon. Send reminders today.",
-      type: "ai-insight-warning"
+      title: "Renewal Opportunity",
+      message: expiringSoon + " member(s) are expiring soon.",
+      action: "Send WhatsApp reminders today to improve renewals.",
+      type: "ai-insight-warning",
+      score: 60
     });
   }
 
   if (expired > 0) {
     insights.push({
-      title: "Expired members detected",
-      message: expired + " member(s) have expired memberships. Follow up for renewal.",
-      type: "ai-insight-danger"
+      title: "Churn Risk Detected",
+      message: expired + " member(s) have expired memberships.",
+      action: "Call expired members or offer a renewal discount.",
+      type: "ai-insight-danger",
+      score: 35
     });
   }
 
   if (totalMembers > 0 && attendanceRate < 30) {
     insights.push({
-      title: "Attendance looks low",
-      message: "Today attendance is only " + attendanceRate + "%. Consider sending motivation reminders.",
-      type: "ai-insight-warning"
+      title: "Low Attendance Warning",
+      message: "Today attendance is only " + attendanceRate + "%.",
+      action: "Send motivational reminders or start a weekly challenge.",
+      type: "ai-insight-warning",
+      score: 50
     });
   }
 
   if (totalMembers > 0 && attendanceRate >= 60) {
     insights.push({
-      title: "Strong attendance today",
-      message: "Attendance is at " + attendanceRate + "%. Your gym engagement looks healthy.",
-      type: "ai-insight-good"
+      title: "Strong Attendance",
+      message: "Attendance is at " + attendanceRate + "% today.",
+      action: "Maintain engagement with consistency rewards.",
+      type: "ai-insight-good",
+      score: 90
     });
   }
 
-  if (active > expired && totalMembers > 0) {
+  if (activeRate >= 75) {
     insights.push({
-      title: "Active member ratio is healthy",
-      message: active + " active members out of " + totalMembers + " total members.",
-      type: "ai-insight-good"
-    });
-  }
-
-  if (insights.length === 0) {
-    insights.push({
-      title: "Insights loading",
-      message: "Add more member, attendance, and payment data to improve insights.",
-      type: "ai-insight-info"
+      title: "Strong Member Base",
+      message: activeRate + "% of your members are active.",
+      action: "Use referral offers to grow faster.",
+      type: "ai-insight-good",
+      score: 88
     });
   }
 
   box.innerHTML = insights.slice(0, 6).map(item => `
     <div class="ai-insight-item ${item.type}">
+      <span class="ai-insight-score">Score ${item.score}/100</span>
       <strong>${item.title}</strong>
       <span>${item.message}</span>
+      <span class="ai-insight-action">Recommended: ${item.action}</span>
     </div>
   `).join("");
 }
