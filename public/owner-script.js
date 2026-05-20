@@ -1160,9 +1160,13 @@ function scrollToAddMember() {
     }
   }, 200);
 }
+
 function toggleNotifications() {
   const dropdown = document.getElementById("notificationDropdown");
-  if (!dropdown) return;
+  if (!dropdown) {
+    console.log("notificationDropdown not found");
+    return;
+  }
 
   dropdown.classList.toggle("hidden");
 
@@ -1170,7 +1174,13 @@ function toggleNotifications() {
   if (profile) profile.classList.add("hidden");
 
   if (!dropdown.classList.contains("hidden")) {
-    markNotificationsRead();
+    if (typeof markNotificationsRead === "function") {
+      markNotificationsRead();
+    }
+  }
+
+  if (typeof renderNotifications === "function") {
+    renderNotifications();
   }
 }
 

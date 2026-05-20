@@ -1837,3 +1837,11 @@ button:active,
   color: #64748b !important;
   margin-top: 4px !important;
 }
+.bell-btn {
+  pointer-events: auto !important;
+  z-index: 99999 !important;
+}
+
+#notificationDropdown {
+  z-index: 100000 !important;
+}
