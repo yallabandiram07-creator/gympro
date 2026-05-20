@@ -169,8 +169,6 @@ function markAttendance(memberId) {
   showToast(data.message);
   logActivity("attendance", "Attendance Marked", "Member attendance was updated");
 
-  logActivity("attendance", "Attendance Marked", "Member attendance was updated");
-
 addNotification(
   "attendance",
   "Attendance Marked",
@@ -449,30 +447,15 @@ if (document.getElementById("expiringSoonCount")) {
   document.getElementById("expiringSoonCount").textContent = alertCount;
 }
 
-updateNotificationCount(alertCount);
  
     const expiringBox = document.getElementById("expiringMembersList");
     if (!expiringBox) return;
  
     if (!data.expiringMembers || data.expiringMembers.length === 0) {
-        document.getElementById("notificationDropdown").innerHTML = `
-  <div class="dropdown-title">Notifications</div>
-  <div class="dropdown-item">
-    <strong>No urgent alerts</strong>
-    <span>All memberships are safe for now.</span>
-  </div>
-`;
+      
       expiringBox.innerHTML = `<li class="empty-state"><strong>No expiring members</strong><span>All memberships are safe for now.</span></li>`;
     } else {
-        document.getElementById("notificationDropdown").innerHTML = `
-  <div class="dropdown-title">Notifications</div>
-  ${data.expiringMembers.slice(0, 5).map(m => `
-    <div class="dropdown-item">
-      <strong>${m.name}</strong>
-      <span>Membership expires in ${m.daysLeft} days</span>
-    </div>
-  `).join("")}
-`;
+
       const colors = ["#ef4444","#f97316","#eab308","#22c55e","#3b82f6"];
       expiringBox.innerHTML = data.expiringMembers.map((m, i) => {
         const initial = m.name.charAt(0).toUpperCase();
@@ -1163,24 +1146,21 @@ function scrollToAddMember() {
 
 function toggleNotifications() {
   const dropdown = document.getElementById("notificationDropdown");
-  if (!dropdown) {
-    console.log("notificationDropdown not found");
-    return;
-  }
+  if (!dropdown) return;
 
   dropdown.classList.toggle("hidden");
 
   const profile = document.getElementById("profileDropdown");
   if (profile) profile.classList.add("hidden");
 
+  if (typeof renderNotifications === "function") {
+    renderNotifications();
+  }
+
   if (!dropdown.classList.contains("hidden")) {
     if (typeof markNotificationsRead === "function") {
       markNotificationsRead();
     }
-  }
-
-  if (typeof renderNotifications === "function") {
-    renderNotifications();
   }
 }
 
