@@ -533,14 +533,22 @@ async function loadRecentPayments() {
  
 /* ===== MEMBER FORM ===== */
 const memberForm = document.getElementById("memberForm");
+
 if (memberForm) {
   memberForm.addEventListener("submit", function(e) {
     e.preventDefault();
+
     const token = tokenOrLogin();
     if (!token) return;
+
+    const memberName = document.getElementById("name").value;
+
     fetch(API + "/members", {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: token },
+      headers: { 
+        "Content-Type": "application/json", 
+        Authorization: token 
+      },
       body: JSON.stringify({
         name: document.getElementById("name").value,
         phone: document.getElementById("phone").value,
@@ -548,23 +556,32 @@ if (memberForm) {
         plan: document.getElementById("plan").value,
         fees: document.getElementById("fees").value
       })
-    }).then(res => res.json()).then(data => {
+    })
+    .then(res => res.json())
+    .then(data => {
       showToast(data.message);
 
-logActivity(
-  "member_added",
-  "Member Added",
-  document.getElementById("name").value + " was added successfully"
-);
+      if (typeof logActivity === "function") {
+        logActivity(
+          "member_added",
+          "Member Added",
+          memberName + " was added successfully"
+        );
+      }
 
-addNotification(
-  "member",
-  "New Member Added",
-  document.getElementById("name").value + " joined your gym"
-);
+      if (typeof addNotification === "function") {
+        addNotification(
+          "member",
+          "New Member Added",
+          memberName + " joined your gym"
+        );
+      }
 
-memberForm.reset();
-      loadMembers(); loadAttendance(); loadGymPlansForMemberForm();
+      memberForm.reset();
+
+      loadMembers();
+      loadAttendance();
+      loadGymPlansForMemberForm();
     });
   });
 }
