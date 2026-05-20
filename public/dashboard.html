@@ -559,18 +559,16 @@
 
 <!-- NOTIFICATION DROPDOWN -->
 <div id="notificationDropdown" class="top-dropdown hidden">
-  <div class="dropdown-title">Notifications</div>
-  <div class="dropdown-item">
-    <strong>Membership Alert</strong>
-    <span>3 members expiring soon</span>
+  <div class="dropdown-title-row">
+    <div class="dropdown-title">Notifications</div>
+    <button class="mark-read-btn" onclick="clearNotifications()">Clear</button>
   </div>
-  <div class="dropdown-item">
-    <strong>Payment Update</strong>
-    <span>Recent payments updated</span>
-  </div>
-  <div class="dropdown-item">
-    <strong>Attendance</strong>
-    <span>Today attendance synced</span>
+
+  <div id="notificationList">
+    <div class="dropdown-item">
+      <strong>No notifications</strong>
+      <span>Your alerts will appear here.</span>
+    </div>
   </div>
 </div>
 

@@ -168,6 +168,14 @@ function markAttendance(memberId) {
     .then(data => {
   showToast(data.message);
   logActivity("attendance", "Attendance Marked", "Member attendance was updated");
+
+  logActivity("attendance", "Attendance Marked", "Member attendance was updated");
+
+addNotification(
+  "attendance",
+  "Attendance Marked",
+  "Member attendance was updated"
+);
   loadMembers();
   loadAttendance();
 });
@@ -329,6 +337,12 @@ function sendExpiryReminders() {
   if (result) result.textContent = data.message;
   showToast(data.message);
   logActivity("reminder", "Reminder Sent", "WhatsApp expiry reminder was sent");
+
+  addNotification(
+  "reminder",
+  "Reminder Sent",
+  "WhatsApp expiry reminder was sent"
+);
 })
     .catch(() => { if (result) result.textContent = "Failed to send reminders"; });
 }
@@ -543,6 +557,12 @@ logActivity(
   document.getElementById("name").value + " was added successfully"
 );
 
+addNotification(
+  "member",
+  "New Member Added",
+  document.getElementById("name").value + " joined your gym"
+);
+
 memberForm.reset();
       loadMembers(); loadAttendance(); loadGymPlansForMemberForm();
     });
@@ -572,6 +592,12 @@ logActivity(
   "trainer_added",
   "Trainer Added",
   document.getElementById("trainerNameInput").value + " was added successfully"
+);
+
+addNotification(
+  "trainer",
+  "Trainer Added",
+  document.getElementById("trainerNameInput").value + " was added"
 );
 
 trainerForm.reset();
@@ -664,6 +690,12 @@ async function deleteMember(memberId) {
 
         showToast(data.message || "Member deleted successfully", "success");
         logActivity("member_deleted", "Member Deleted", "A member was deleted from the system");
+
+        addNotification(
+         "delete",
+         "Member Deleted",
+         "A member was removed from your gym"
+);
 
         await loadMembers();
         await loadAttendance();
@@ -886,6 +918,11 @@ async function saveManualPayment() {
     showToast(data.message || "Payment marked successfully", "success");
     logActivity("payment", "Payment Collected", "₹" + amount + " payment was recorded");
 
+    addNotification(
+  "payment",
+  "Payment Collected",
+  "₹" + amount + " payment received"
+);
     loadMembers();
     loadRecentPayments();
     loadDashboardAlerts();
@@ -1108,13 +1145,15 @@ function scrollToAddMember() {
 }
 function toggleNotifications() {
   const dropdown = document.getElementById("notificationDropdown");
+  if (!dropdown) return;
 
   dropdown.classList.toggle("hidden");
 
   const profile = document.getElementById("profileDropdown");
+  if (profile) profile.classList.add("hidden");
 
-  if (profile) {
-    profile.classList.add("hidden");
+  if (!dropdown.classList.contains("hidden")) {
+    markNotificationsRead();
   }
 }
 
@@ -1423,3 +1462,93 @@ function clearActivityLog() {
 
 document.addEventListener("DOMContentLoaded", renderActivityLog);
 setInterval(renderActivityLog, 60000);
+const NOTIFICATION_KEY = "gympro_notifications";
+
+function getNotifications() {
+  return JSON.parse(localStorage.getItem(NOTIFICATION_KEY)) || [];
+}
+
+function saveNotifications(notifications) {
+  localStorage.setItem(NOTIFICATION_KEY, JSON.stringify(notifications.slice(0, 20)));
+}
+
+function addNotification(type, title, message) {
+  const notifications = getNotifications();
+
+  notifications.unshift({
+    id: Date.now(),
+    type,
+    title,
+    message,
+    read: false,
+    time: new Date().toISOString()
+  });
+
+  saveNotifications(notifications);
+  renderNotifications();
+}
+
+function getNotificationClass(type) {
+  const classes = {
+    payment: "notif-payment",
+    expiry: "notif-expiry",
+    delete: "notif-delete",
+    attendance: "notif-attendance",
+    member: "notif-member",
+    trainer: "notif-trainer",
+    reminder: "notif-reminder"
+  };
+
+  return classes[type] || "notif-member";
+}
+
+function renderNotifications() {
+  const list = document.getElementById("notificationList");
+  if (!list) return;
+
+  const notifications = getNotifications();
+
+  if (!notifications.length) {
+    list.innerHTML = `
+      <div class="dropdown-item">
+        <strong>No notifications</strong>
+        <span>Your alerts will appear here.</span>
+      </div>
+    `;
+    updateNotificationCount(0);
+    return;
+  }
+
+  list.innerHTML = notifications.slice(0, 10).map(n => `
+    <div class="dropdown-item">
+      <strong>
+        <span class="notification-dot ${getNotificationClass(n.type)}"></span>
+        ${n.title}
+      </strong>
+      <span>${n.message}</span>
+      <span class="notification-time">${formatActivityTime(n.time)}</span>
+    </div>
+  `).join("");
+
+  const unread = notifications.filter(n => !n.read).length;
+  updateNotificationCount(unread);
+}
+
+function markNotificationsRead() {
+  const notifications = getNotifications().map(n => ({
+    ...n,
+    read: true
+  }));
+
+  saveNotifications(notifications);
+  renderNotifications();
+}
+
+function clearNotifications() {
+  localStorage.removeItem(NOTIFICATION_KEY);
+  renderNotifications();
+  showToast("Notifications cleared", "success");
+}
+
+document.addEventListener("DOMContentLoaded", renderNotifications);
+setInterval(renderNotifications, 60000);

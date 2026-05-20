@@ -1800,3 +1800,40 @@ button:active,
     align-items: flex-start;
   }
 }
+.dropdown-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mark-read-btn {
+  background: rgba(239,68,68,0.12) !important;
+  color: #f87171 !important;
+  border: 1px solid rgba(239,68,68,0.25) !important;
+  padding: 6px 10px !important;
+  font-size: 11px !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+}
+
+.notification-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.notif-payment { background: #22c55e; }
+.notif-expiry { background: #f97316; }
+.notif-delete { background: #ef4444; }
+.notif-attendance { background: #3b82f6; }
+.notif-member { background: #8b5cf6; }
+.notif-trainer { background: #a855f7; }
+.notif-reminder { background: #14b8a6; }
+
+.notification-time {
+  font-size: 11px !important;
+  color: #64748b !important;
+  margin-top: 4px !important;
+}
