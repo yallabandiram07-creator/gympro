@@ -428,6 +428,75 @@ app.post("/trainer/attendance/:memberId", trainerAuth, async (req, res) => {
   }
 });
 
+app.get("/attendance/analytics", auth, async (req, res) => {
+  try {
+    const { range } = req.query;
+
+    const members = await Member.find({ userId: req.user.id });
+    const totalMembers = members.length;
+
+    const now = new Date();
+    let startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    let endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    if (range === "last") {
+      startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+    }
+
+    const attendance = await Attendance.find({ userId: req.user.id });
+
+    const filtered = attendance.filter(a => {
+      const parts = String(a.date).split("/");
+      const dateObj = new Date(parts[2], parts[1] - 1, parts[0]);
+      return dateObj >= startDate && dateObj <= endDate;
+    });
+
+    const dayMap = {};
+
+    filtered.forEach(a => {
+      dayMap[a.date] = (dayMap[a.date] || 0) + 1;
+    });
+
+    const labels = [];
+    const data = [];
+
+    let bestDay = { date: "-", rate: 0 };
+    let worstDay = { date: "-", rate: 100 };
+
+    Object.keys(dayMap).forEach(date => {
+      const rate = totalMembers > 0 ? Math.round((dayMap[date] / totalMembers) * 100) : 0;
+
+      labels.push(date);
+      data.push(rate);
+
+      if (rate > bestDay.rate) bestDay = { date, rate };
+      if (rate < worstDay.rate) worstDay = { date, rate };
+    });
+
+    if (!filtered.length) {
+      worstDay = { date: "-", rate: 0 };
+    }
+
+    const totalPossible = totalMembers * new Date(endDate).getDate();
+    const totalMarked = filtered.length;
+    const totalMissed = Math.max(totalPossible - totalMarked, 0);
+
+    res.json({
+      labels,
+      data,
+      bestDay,
+      worstDay,
+      totalMarked,
+      totalMissed
+    });
+
+  } catch (err) {
+    console.log("Attendance analytics error:", err);
+    res.status(500).json({ message: "Attendance analytics error" });
+  }
+});
+
 app.get("/attendance/today", auth, async (req, res) => {
   try {
     const { date } = getISTDateTime();

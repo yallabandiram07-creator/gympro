@@ -255,6 +255,91 @@
   <div id="aiInsightsList" class="ai-insights-list"></div>
 </div>
 
+<div class="risk-card">
+  <div class="risk-header">
+    <div>
+      <h3>Retention Risk Monitor</h3>
+      <p>Members likely to churn or expire</p>
+    </div>
+
+    <div class="risk-badge">
+      <span id="riskCount">0</span> Risk
+    </div>
+  </div>
+
+  <div id="riskMembersList" class="risk-members-list">
+    <div class="risk-empty">
+      No risk detected yet.
+    </div>
+  </div>
+</div>
+
+<div class="calendar-card">
+  <div class="calendar-header">
+    <div>
+      <h3>Smart Schedule Manager</h3>
+      <p>Manage meetings, PT sessions and renewals</p>
+    </div>
+
+    <button class="primary-btn" onclick="openScheduleModal()">
+      + Add Schedule
+    </button>
+  </div>
+
+  <div id="scheduleList" class="schedule-list">
+    <div class="schedule-empty">
+      No schedules added yet.
+    </div>
+  </div>
+</div>
+
+<div id="scheduleModal" class="custom-modal hidden">
+  <div class="custom-modal-content">
+
+    <div class="custom-modal-header">
+      <h3>Add Schedule</h3>
+
+      <button class="close-modal-btn" onclick="closeScheduleModal()">
+        ✕
+      </button>
+    </div>
+
+    <div class="custom-modal-body">
+
+      <input
+        type="text"
+        id="scheduleTitle"
+        placeholder="Schedule title"
+      >
+
+     <input
+  type="datetime-local"
+  id="scheduleDate"
+  required
+>
+
+      <select id="schedulePriority">
+        <option value="normal">Normal Priority</option>
+        <option value="medium">Medium Priority</option>
+        <option value="high">High Priority</option>
+      </select>
+
+      <textarea
+        id="scheduleNote"
+        placeholder="Optional notes"
+      ></textarea>
+
+      <button
+        class="primary-btn"
+        onclick="saveSchedule()"
+      >
+        Save Schedule
+      </button>
+
+    </div>
+  </div>
+</div>
+
       <!-- BOTTOM ROW -->
       <div class="bottom-row">
         <div class="bottom-card">
@@ -364,56 +449,277 @@
 
     <!-- ===== GYM PROFILE SECTION ===== -->
     <section id="gymProfileSection" style="display:none;">
-      <div class="page-header">
-        <h1>Gym Profile</h1>
-        <p>Set gym details and custom membership plans.</p>
-      </div>
-      <div class="content-grid">
-        <div class="panel glass-panel">
-          <h2>Gym Details</h2>
-          <input id="gymName" placeholder="Gym Name">
-          <input id="ownerName" placeholder="Owner Name">
-          <input id="gymPhone" placeholder="Phone Number">
-          <input id="gymAddress" placeholder="Address">
-          <input id="gymTimings" placeholder="Gym Timings">
-          <button class="primary-btn" onclick="saveGymProfile()">Save Gym Profile</button>
-        </div>
-        <div class="panel glass-panel">
-          <h2>Membership Plans</h2>
-          <input id="plan1Name" placeholder="Plan 1 Name">
-          <input id="plan1Price" type="number" placeholder="Plan 1 Price">
-          <input id="plan1Days" type="number" placeholder="Plan 1 Days">
-          <input id="plan2Name" placeholder="Plan 2 Name">
-          <input id="plan2Price" type="number" placeholder="Plan 2 Price">
-          <input id="plan2Days" type="number" placeholder="Plan 2 Days">
-          <input id="plan3Name" placeholder="Plan 3 Name">
-          <input id="plan3Price" type="number" placeholder="Plan 3 Price">
-          <input id="plan3Days" type="number" placeholder="Plan 3 Days">
-          <button class="primary-btn" onclick="saveGymProfile()">Save Plans</button>
+
+  <div class="gp-hero">
+    <div>
+      <span class="gp-badge">Gym Setup</span>
+      <h1>Gym Profile</h1>
+      <p>Edit gym details, owner information, timings and membership plans.</p>
+    </div>
+    <div class="gp-hero-icon">🏋️</div>
+  </div>
+
+  <div class="gp-top-grid">
+    <div class="gp-preview-card">
+      <div class="gp-card-title">👁️ Your Gym Preview</div>
+      <div class="gp-preview-body">
+        <div class="gp-avatar" id="previewAvatar">GP</div>
+        <div>
+          <h2 id="previewGymName">Gym Name</h2>
+          <p id="previewOwnerName">Owner: Not added</p>
+          <span id="previewGymMeta">📞 Phone not added • ⏰ Timings not added</span>
+          <small id="previewAddress">📍 Address not added</small>
         </div>
       </div>
-    </section>
+    </div>
+
+    <div class="gp-score-card">
+      <div class="gp-card-title">◎ Profile Completion</div>
+      <div class="gp-score-row">
+        <div class="gp-ring">
+          <span><span id="profileCompletionScore">0</span>%</span>
+        </div>
+        <div>
+          <p id="profileCompletionText">Complete your profile details.</p>
+          <div class="completion-bar">
+            <div id="completionBarFill"></div>
+          </div>
+          <small id="profileCompletionSteps">0 of 5 sections completed</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="gp-quick-card">
+      <div class="gp-card-title">Quick Actions</div>
+      <button onclick="scrollToGymDetails()">✏️ Update Gym Details <span>›</span></button>
+      <button onclick="scrollToPlans()">🎟️ Manage Plans <span>›</span></button>
+      <button onclick="previewGymProfile()">👁️ Preview Profile <span>›</span></button>
+    </div>
+  </div>
+
+  <div class="gp-main-grid">
+
+    <div class="gp-form-card">
+      <div class="gp-section-head">
+        <div class="gp-section-icon">▣</div>
+        <div>
+          <h2>Edit Gym Profile</h2>
+          <p>Update the owner and gym information.</p>
+        </div>
+      </div>
+
+      <div class="gp-input-row">
+        <span>⌂</span>
+        <label>Gym Name</label>
+        <input id="gymName" placeholder="Gym Name">
+      </div>
+
+      <div class="gp-input-row">
+        <span>👤</span>
+        <label>Owner Name</label>
+        <input id="ownerName" placeholder="Owner Name">
+      </div>
+
+      <div class="gp-input-row">
+        <span>📞</span>
+        <label>Phone Number</label>
+        <input id="gymPhone" placeholder="Phone Number">
+      </div>
+
+      <div class="gp-input-row">
+        <span>📍</span>
+        <label>Gym Address</label>
+        <input id="gymAddress" placeholder="Gym Address">
+      </div>
+
+      <div class="gp-input-row">
+        <span>🕘</span>
+        <label>Gym Timings</label>
+        <input id="gymTimings" placeholder="e.g. 6 AM - 9 PM">
+      </div>
+
+      <button class="primary-btn gp-save-btn" onclick="saveGymProfile()">💾 Save Gym Profile</button>
+    </div>
+
+    <div class="gp-plans-card">
+      <div class="gp-plans-header">
+        <div class="gp-section-head">
+          <div class="gp-section-icon">▦</div>
+          <div>
+            <h2>Edit Membership Plans</h2>
+            <p>Create unlimited membership plans for your gym.</p>
+          </div>
+        </div>
+
+        <button class="primary-btn gp-add-plan-btn" onclick="addMembershipPlanBox()">+ Add New Plan</button>
+      </div>
+
+      <div class="gp-plan-stats">
+        <div>
+          <span>Total Plans</span>
+          <strong id="totalPlansCount">0</strong>
+        </div>
+        <div>
+          <span>Average Price</span>
+          <strong>₹<b id="averagePlanPrice">0</b></strong>
+        </div>
+        <div>
+          <span>Popular Duration</span>
+          <strong id="popularPlanDuration">-</strong>
+        </div>
+      </div>
+
+      <div id="dynamicPlansList" class="gp-plan-list"></div>
+
+      <button class="gp-add-full" onclick="addMembershipPlanBox()">+ Add New Plan</button>
+
+      <button class="primary-btn gp-save-btn" onclick="saveDynamicPlans()">Save Plans</button>
+    </div>
+
+  </div>
+
+  <div class="gp-tip-card">
+    <strong>⭐ Pro Tip</strong>
+    <span>Well structured membership plans help attract more members and grow your gym business.</span>
+  </div>
+
+</section>
+        
 
     <!-- ===== ATTENDANCE SECTION ===== -->
     <section id="attendanceSection" style="display:none;">
-      <div class="page-header">
-        <h1>Attendance</h1>
-        <p>Mark attendance manually or through QR scan.</p>
+
+  <div class="attendance-header-card">
+    <div>
+      <h1>Attendance</h1>
+      <p>Track gym attendance manually or with QR scanner.</p>
+    </div>
+
+    <div class="attendance-header-actions">
+      <button class="secondary-action-btn" onclick="showSection('qr', document.querySelector('[onclick*=qr]'))">
+        ⌁ QR Scanner
+      </button>
+
+      <button class="primary-action-btn" onclick="scrollToAttendanceMembers()">
+        ✓ Mark Attendance
+      </button>
+    </div>
+  </div>
+
+  <div class="attendance-kpi-grid">
+    <div class="attendance-kpi-card purple">
+      <div class="kpi-icon">👥</div>
+      <div>
+        <h3 id="attendanceTotalMembers">0</h3>
+        <p>Total Members</p>
       </div>
-      <div class="content-grid">
-        <div class="panel glass-panel">
-          <h2>Mark Attendance</h2>
-          <ul id="attendanceMemberList" class="modern-list"></ul>
+    </div>
+
+    <div class="attendance-kpi-card green">
+      <div class="kpi-icon">✓</div>
+      <div>
+        <h3 id="attendancePresentToday">0</h3>
+        <p>Present Today</p>
+      </div>
+    </div>
+
+    <div class="attendance-kpi-card orange">
+      <div class="kpi-icon">⚠</div>
+      <div>
+        <h3 id="attendanceAbsentToday">0</h3>
+        <p>Absent Today</p>
+      </div>
+    </div>
+
+    <div class="attendance-kpi-card blue">
+      <div class="kpi-icon">📈</div>
+      <div>
+        <h3 id="attendanceRate">0%</h3>
+        <p>Attendance Rate</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="manualAttendancePanel" class="manual-attendance-panel">
+    <div class="attendance-card-header">
+      <h2>Manual Attendance</h2>
+      <button class="clear-attendance-btn" onclick="clearTodayAttendance()">Clear Today</button>
+    </div>
+
+    <ul id="attendanceMemberList" class="manual-attendance-list"></ul>
+  </div>
+
+  <div class="attendance-main-grid">
+
+    <div class="attendance-overview-card">
+      <div class="attendance-card-header">
+        <h2>Attendance Overview</h2>
+
+        <select id="attendanceMonthFilter" class="attendance-filter-select" onchange="loadAttendanceAnalytics()">
+          <option value="this">This Month</option>
+          <option value="last">Last Month</option>
+        </select>
+      </div>
+
+      <div class="attendance-chart-box">
+        <canvas id="attendanceOverviewChart"></canvas>
+      </div>
+
+      <div class="attendance-stats-row">
+        <div class="mini-attendance-stat">
+          <span>Best Day</span>
+          <h3 id="bestAttendanceDay">0%</h3>
         </div>
-        <div class="panel glass-panel">
-          <div class="panel-header-row">
-            <h2>Today Present Members</h2>
-            <button class="danger-btn small-btn" onclick="clearTodayAttendance()">Clear Today</button>
-          </div>
-          <ul id="todayAttendanceList" class="modern-list"></ul>
+
+        <div class="mini-attendance-stat">
+          <span>Worst Day</span>
+          <h3 id="worstAttendanceDay">0%</h3>
+        </div>
+
+        <div class="mini-attendance-stat">
+          <span>Total Marked</span>
+          <h3 id="totalMarkedAttendance">0</h3>
+        </div>
+
+        <div class="mini-attendance-stat">
+          <span>Total Missed</span>
+          <h3 id="totalMissedAttendance">0</h3>
         </div>
       </div>
-    </section>
+    </div>
+
+    <div class="today-members-card">
+      <div class="attendance-card-header">
+        <h2>Today Present Members</h2>
+        <button class="clear-attendance-btn" onclick="clearTodayAttendance()">Clear All</button>
+      </div>
+
+      <div class="attendance-search-row">
+        <input type="text" class="attendance-search-input" placeholder="Search members...">
+        <button class="attendance-filter-btn">Filter</button>
+      </div>
+
+      <div id="todayAttendanceList" class="today-members-list">
+        <div class="empty-attendance">No attendance marked today.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="attendance-bottom-grid">
+    <div class="attendance-action-card">
+      <div>
+        <h3>Quick Mark</h3>
+        <p>Mark multiple members instantly.</p>
+      </div>
+
+      <button class="primary-action-btn small-btn" onclick="scrollToAttendanceMembers()">
+        Quick Mark
+      </button>
+    </div>
+  </div>
+
+</section>
 
     <!-- ===== QR SECTION ===== -->
     <section id="qrSection" style="display:none;">
@@ -665,6 +971,22 @@
     <div class="modal-actions">
       <button class="view-all-btn" onclick="closeModal()">Cancel</button>
       <button class="danger-btn" id="modalConfirmBtn" onclick="runModalAction()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="planEditModal" class="modal-overlay hidden">
+  <div class="app-modal">
+    <h2>Edit Membership Plan</h2>
+
+    <input id="editPlanIndex" type="hidden">
+    <input id="editPlanNameModal" placeholder="Plan Name">
+    <input id="editPlanPriceModal" type="number" placeholder="Plan Price">
+    <input id="editPlanDaysModal" type="number" placeholder="Plan Duration in Days">
+
+    <div class="modal-actions">
+      <button class="view-all-btn" onclick="closePlanEditModal()">Cancel</button>
+      <button class="primary-btn" onclick="saveEditedPlanModal()">Save Plan</button>
     </div>
   </div>
 </div>

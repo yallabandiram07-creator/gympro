@@ -27,7 +27,14 @@ function showSection(section, btn) {
   if (btn) btn.classList.add("active");
  
   if (section === "dashboard") { loadMembers(); loadAttendance(); loadDashboardAlerts(); loadRecentPayments(); }
-  if (section === "attendance") { loadMembers(); loadAttendance(); }
+  if (section === "attendance") {
+  loadMembers();
+  loadAttendance();
+
+  setTimeout(() => {
+    loadAttendanceAnalytics();
+  }, 500);
+}
   if (section === "qr") { stopQRAutoRefresh(); startQRAutoRefresh(); }
   if (section === "trainers") loadTrainers();
   if (section === "payments") loadOwnerPaymentSettings();
@@ -158,6 +165,7 @@ function loadMembers() {
  
       updateMembersChart(activeCount, expiredCount);
 generateAIInsights();
+generateRetentionRisks();
     });
 }
  
@@ -183,30 +191,77 @@ addNotification(
 function loadAttendance() {
   const token = tokenOrLogin();
   if (!token) return;
-  fetch(API + "/attendance/today", { headers: { Authorization: token } })
+
+  fetch(API + "/attendance/today", {
+    headers: { Authorization: token }
+  })
     .then(res => res.json())
     .then(attendance => {
-      const count = document.getElementById("todayAttendance");
-      const list = document.getElementById("todayAttendanceList");
-      const total = allMembersData.length || 1;
-      const present = attendance.length;
-      const absent = Math.max(total - present, 0);
-      const pct = Math.round((present / total) * 100);
- 
-      if (count) count.textContent = present;
-      if (document.getElementById("presentCount")) document.getElementById("presentCount").textContent = present;
-      if (document.getElementById("absentCount")) document.getElementById("absentCount").textContent = absent;
-      if (document.getElementById("attendanceDonutLabel")) document.getElementById("attendanceDonutLabel").innerHTML = pct + '%<br><small>Avg. Attendance</small>';
- 
-      if (list) {
-        list.innerHTML = "";
-        if (!attendance.length) { list.innerHTML = "<li><span>No attendance marked today.</span></li>"; return; }
-        attendance.forEach(a => {
-          list.innerHTML += `<li><strong>${a.memberName}</strong><span>📅 ${a.date} | ⏰ ${a.time}</span></li>`;
-        });
+      const totalMembers = allMembersData.length || 0;
+      const present = attendance.length || 0;
+      const absent = Math.max(totalMembers - present, 0);
+      const rate = totalMembers > 0 ? Math.round((present / totalMembers) * 100) : 0;
+
+      if (document.getElementById("todayAttendance")) {
+        document.getElementById("todayAttendance").textContent = present;
       }
+
+      if (document.getElementById("attendanceTotalMembers")) {
+        document.getElementById("attendanceTotalMembers").textContent = totalMembers;
+      }
+
+      if (document.getElementById("attendancePresentToday")) {
+        document.getElementById("attendancePresentToday").textContent = present;
+      }
+
+      if (document.getElementById("attendanceAbsentToday")) {
+        document.getElementById("attendanceAbsentToday").textContent = absent;
+      }
+
+      if (document.getElementById("attendanceRate")) {
+        document.getElementById("attendanceRate").textContent = rate + "%";
+      }
+
+      const list = document.getElementById("todayAttendanceList");
+
+      if (list) {
+        if (!attendance.length) {
+          list.innerHTML = `
+            <div class="empty-attendance">
+              No attendance marked today.
+            </div>
+          `;
+        } else {
+          list.innerHTML = attendance.map(a => `
+            <div class="today-member-row">
+              <div class="today-member-info">
+                <div class="today-member-avatar">
+                  ${String(a.memberName || "?").charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <strong>${a.memberName || "Member"}</strong>
+                  <span>${a.date || ""}</span>
+                </div>
+              </div>
+
+              <div>
+                <span style="color:#94a3b8;font-size:12px;margin-right:12px;">
+                  ${a.time || ""}
+                </span>
+                <span class="present-badge">● Present</span>
+              </div>
+            </div>
+          `).join("");
+        }
+      }
+
       updateAttendanceChart(present, absent);
-generateAIInsights();
+
+      if (typeof generateAIInsights === "function") {
+        generateAIInsights();
+      }
+
+      loadAttendanceAnalytics();
     });
 }
  
@@ -351,28 +406,39 @@ function sendExpiryReminders() {
 async function saveGymProfile() {
   const token = tokenOrLogin();
   if (!token) return;
-  const plans = [
-    { name: document.getElementById("plan1Name").value, price: Number(document.getElementById("plan1Price").value), days: Number(document.getElementById("plan1Days").value) },
-    { name: document.getElementById("plan2Name").value, price: Number(document.getElementById("plan2Price").value), days: Number(document.getElementById("plan2Days").value) },
-    { name: document.getElementById("plan3Name").value, price: Number(document.getElementById("plan3Price").value), days: Number(document.getElementById("plan3Days").value) }
-  ].filter(p => p.name && p.price && p.days);
- 
+
+  const plansSource = typeof dynamicGymPlans !== "undefined" ? dynamicGymPlans : [];
+
+  const plans = plansSource
+    .filter(p => p.name && p.price && p.days)
+    .map(p => ({
+      name: p.name,
+      price: Number(p.price),
+      days: Number(p.days)
+    }));
+
   const body = {
     gymName: document.getElementById("gymName").value,
     ownerName: document.getElementById("ownerName").value,
     phone: document.getElementById("gymPhone").value,
     address: document.getElementById("gymAddress").value,
     timings: document.getElementById("gymTimings").value,
-    plans
+    plans: plans
   };
- 
+
   const res = await fetch(API + "/gym-profile", {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: token },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token
+    },
     body: JSON.stringify(body)
   });
+
   const data = await res.json();
-  showToast(data.message);
+
+  showToast(data.message || "Gym profile saved successfully", "success");
+
   loadGymProfileOnDashboard();
   loadGymPlansForMemberForm();
 }
@@ -1724,4 +1790,712 @@ function generateAIInsights() {
       <span class="ai-insight-action">Recommended: ${item.action}</span>
     </div>
   `).join("");
+}
+function generateRetentionRisks() {
+  const box = document.getElementById("riskMembersList");
+  const countEl = document.getElementById("riskCount");
+
+  if (!box) return;
+
+  const members = allMembersData || [];
+
+  const risks = [];
+
+  members.forEach(m => {
+    const expiryDate = new Date(m.expiryDate || m.expiry);
+
+    const daysLeft = Math.ceil(
+      (expiryDate - new Date()) / (1000 * 60 * 60 * 24)
+    );
+
+    let level = "";
+    let levelClass = "";
+    let action = "";
+    let riskScore = 0;
+
+    if (daysLeft <= 0) {
+      level = "HIGH";
+      levelClass = "risk-high";
+      riskScore = 95;
+      action = "Contact immediately for renewal.";
+    }
+
+    else if (daysLeft <= 3) {
+      level = "MEDIUM";
+      levelClass = "risk-medium";
+      riskScore = 70;
+      action = "Send WhatsApp reminder today.";
+    }
+
+    else if (daysLeft <= 7) {
+      level = "LOW";
+      levelClass = "risk-low";
+      riskScore = 40;
+      action = "Offer renewal plan early.";
+    }
+
+    if (level) {
+      risks.push({
+        name: m.name,
+        phone: m.phone,
+        expiry: m.expiry,
+        daysLeft,
+        level,
+        levelClass,
+        action,
+        riskScore
+      });
+    }
+  });
+
+  risks.sort((a, b) => b.riskScore - a.riskScore);
+
+  if (countEl) {
+    countEl.textContent = risks.length;
+  }
+
+  if (!risks.length) {
+    box.innerHTML = `
+      <div class="risk-empty">
+        No retention risk detected.
+      </div>
+    `;
+    return;
+  }
+
+  box.innerHTML = risks.slice(0, 8).map(risk => `
+    <div class="risk-member">
+      <div class="risk-member-top">
+        <strong>${risk.name}</strong>
+
+        <div class="risk-level ${risk.levelClass}">
+          ${risk.level}
+        </div>
+      </div>
+
+      <span>📞 ${risk.phone}</span>
+
+      <span>
+        Membership expires in ${risk.daysLeft} day(s)
+      </span>
+
+      <span>
+        Risk score: ${risk.riskScore}/100
+      </span>
+
+      <div class="risk-action">
+        Recommended: ${risk.action}
+      </div>
+    </div>
+  `).join("");
+}
+const SCHEDULE_KEY = "gympro_schedules";
+
+function getSchedules() {
+  return JSON.parse(localStorage.getItem(SCHEDULE_KEY)) || [];
+}
+
+function saveSchedules(data) {
+  localStorage.setItem(
+    SCHEDULE_KEY,
+    JSON.stringify(data)
+  );
+}
+
+function openScheduleModal() {
+  document
+    .getElementById("scheduleModal")
+    .classList.remove("hidden");
+}
+
+function closeScheduleModal() {
+  document
+    .getElementById("scheduleModal")
+    .classList.add("hidden");
+}
+
+function saveSchedule() {
+  const title = document.getElementById("scheduleTitle").value.trim();
+  let date = document.getElementById("scheduleDate").value;
+  const priority = document.getElementById("schedulePriority").value;
+  const note = document.getElementById("scheduleNote").value.trim();
+
+  if (!title) {
+    showToast("Please enter schedule title", "error");
+    return;
+  }
+
+  if (!date) {
+    showToast("Please select date and time", "error");
+    return;
+  }
+
+  const schedules = getSchedules();
+
+  schedules.unshift({
+    id: Date.now(),
+    title,
+    date,
+    priority,
+    note
+  });
+
+  saveSchedules(schedules);
+  renderSchedules();
+  closeScheduleModal();
+
+  showToast("Schedule added successfully", "success");
+
+  if (typeof addNotification === "function") {
+    addNotification(
+      "member",
+      "New Schedule Added",
+      title + " scheduled successfully"
+    );
+  }
+
+  if (typeof logActivity === "function") {
+    logActivity(
+      "member_added",
+      "Schedule Added",
+      title + " was added to schedule manager"
+    );
+  }
+
+  document.getElementById("scheduleTitle").value = "";
+  document.getElementById("scheduleDate").value = "";
+  document.getElementById("schedulePriority").value = "normal";
+  document.getElementById("scheduleNote").value = "";
+}
+
+  
+function deleteSchedule(id) {
+  const schedules = getSchedules().filter(
+    s => s.id !== id
+  );
+
+  saveSchedules(schedules);
+
+  renderSchedules();
+
+  showToast("Schedule deleted", "success");
+}
+
+function renderSchedules() {
+  const box = document.getElementById("scheduleList");
+
+  if (!box) return;
+
+  const schedules = getSchedules();
+
+  if (!schedules.length) {
+    box.innerHTML = `
+      <div class="schedule-empty">
+        No schedules added yet.
+      </div>
+    `;
+    return;
+  }
+
+  schedules.sort(
+    (a, b) => new Date(a.date) - new Date(b.date)
+  );
+
+  box.innerHTML = schedules.map(schedule => `
+    <div class="schedule-item">
+
+      <div class="schedule-top">
+        <strong>${schedule.title}</strong>
+
+        <div class="schedule-priority priority-${schedule.priority}">
+          ${schedule.priority.toUpperCase()}
+        </div>
+      </div>
+
+      <div class="schedule-time">
+        📅 ${new Date(schedule.date).toLocaleString("en-IN")}
+      </div>
+
+      <div class="schedule-note">
+        ${schedule.note || "No additional notes"}
+      </div>
+
+      <button
+        class="schedule-delete"
+        onclick="deleteSchedule(${schedule.id})"
+      >
+        Delete
+      </button>
+
+    </div>
+  `).join("");
+}
+
+document.addEventListener(
+  "DOMContentLoaded",
+  renderSchedules
+);
+function updateGymProfilePreview() {
+  const gymName = document.getElementById("gymName")?.value.trim() || "Your Gym";
+  const ownerName = document.getElementById("ownerName")?.value.trim() || "Owner not added";
+  const phone = document.getElementById("gymPhone")?.value.trim() || "Phone not added";
+  const timings = document.getElementById("gymTimings")?.value.trim() || "Timings not added";
+  const address = document.getElementById("gymAddress")?.value.trim() || "Address not added";
+
+  const avatar = document.getElementById("previewAvatar");
+  const previewGym = document.getElementById("previewGymName");
+  const previewOwner = document.getElementById("previewOwnerName");
+  const previewMeta = document.getElementById("previewGymMeta");
+  const previewAddress = document.getElementById("previewAddress");
+
+  if (avatar) avatar.textContent = gymName.slice(0, 2).toUpperCase();
+  if (previewGym) previewGym.textContent = gymName;
+  if (previewOwner) previewOwner.textContent = "Owner: " + ownerName;
+  if (previewMeta) previewMeta.textContent = "📞 " + phone + " • ⏰ " + timings;
+  if (previewAddress) previewAddress.textContent = "📍 " + address;
+
+  const fields = ["gymName", "ownerName", "gymPhone", "gymAddress", "gymTimings"];
+  let filled = 0;
+
+  fields.forEach(id => {
+    if (document.getElementById(id)?.value.trim()) filled++;
+  });
+
+  const score = Math.round((filled / fields.length) * 100);
+
+  const scoreEl = document.getElementById("profileCompletionScore");
+  const bar = document.getElementById("completionBarFill");
+  const steps = document.getElementById("profileCompletionSteps");
+  const text = document.getElementById("profileCompletionText");
+  const ring = document.querySelector(".gp-ring");
+
+  if (scoreEl) scoreEl.textContent = score;
+  if (bar) bar.style.width = score + "%";
+  if (steps) steps.textContent = filled + " of " + fields.length + " sections completed";
+
+  if (text) {
+    text.textContent = score === 100 ? "Great job! Keep going." : "Complete your profile details.";
+  }
+
+  if (ring) {
+    const deg = Math.round((score / 100) * 360);
+    ring.style.background = `conic-gradient(#7c3cff ${deg}deg, rgba(255,255,255,0.08) ${deg}deg)`;
+  }
+}
+
+function syncOldPlanInputsFromDynamicPlans() {
+  const ids = [
+    ["plan1Name", "plan1Price", "plan1Days"],
+    ["plan2Name", "plan2Price", "plan2Days"],
+    ["plan3Name", "plan3Price", "plan3Days"]
+  ];
+
+  ids.forEach((set, index) => {
+    const plan = dynamicGymPlans[index] || {};
+    if (document.getElementById(set[0])) document.getElementById(set[0]).value = plan.name || "";
+    if (document.getElementById(set[1])) document.getElementById(set[1]).value = plan.price || "";
+    if (document.getElementById(set[2])) document.getElementById(set[2]).value = plan.days || "";
+  });
+}
+
+function renderDynamicPlans() {
+  const box = document.getElementById("dynamicPlansList");
+  if (!box) return;
+
+  if (!dynamicGymPlans.length) {
+    dynamicGymPlans = [
+      { name: "", price: "", days: "" },
+      { name: "", price: "", days: "" },
+      { name: "", price: "", days: "" }
+    ];
+  }
+
+  const icons = ["◆", "☆", "🔥", "⚡", "♟", "♣", "🏆", "💪"];
+  const desc = [
+    "Our best value plan for serious fitness enthusiasts",
+    "Perfect for commitment seekers",
+    "Great for getting started",
+    "Short term flexibility",
+    "Special pricing for students",
+    "Special care for senior members",
+    "Premium transformation plan",
+    "Advanced fitness membership"
+  ];
+
+  box.innerHTML = dynamicGymPlans.map((plan, index) => {
+    const planName = plan.name || "New Plan";
+    const price = Number(plan.price || 0);
+    const days = Number(plan.days || 0);
+    const months = days >= 30 ? Math.round(days / 30) : days;
+
+    return `
+      <div class="gp-plan-row gp-plan-color-${index % 6}">
+        <div class="gp-drag">⋮⋮</div>
+
+        <div class="gp-plan-icon">${icons[index % icons.length]}</div>
+
+        <div class="gp-plan-info">
+          <strong>
+            ${index + 1}. ${planName}
+            ${index === 0 ? '<span class="gp-popular-badge">Popular</span>' : ""}
+          </strong>
+          <span>${desc[index % desc.length]}</span>
+        </div>
+
+        <div class="gp-plan-meta gp-plan-duration">
+          <span>Duration</span>
+          <strong>
+            <span class="gp-mini-icon">📅</span>
+            ${months} ${days >= 30 ? "Months" : "Days"}
+          </strong>
+        </div>
+
+        <div class="gp-plan-meta gp-plan-price">
+          <span>Price</span>
+          <strong>
+            <span class="gp-rupee-big">₹</span>
+            ${price.toLocaleString("en-IN")}
+          </strong>
+        </div>
+
+        <div class="gp-feature-list">
+          <div><span class="gp-feature-check">✓</span> All Access</div>
+          <div><span class="gp-feature-check">✓</span> ${index === 0 ? "Personal Trainer" : index === 1 ? "Group Classes" : index === 4 ? "Student Discount" : index === 5 ? "Health Support" : "Basic Support"}</div>
+        </div>
+
+        <button class="gp-plan-edit" onclick="editPlanInline(${index})">✎</button>
+
+        <button class="gp-plan-remove" onclick="deleteDynamicPlan(${index})">🗑</button>
+
+        <div class="gp-toggle"></div>
+      </div>
+    `;
+  }).join("");
+
+  box.innerHTML += `
+    <div class="gp-plan-footer">
+      <span>ⓘ Drag and drop to reorder plans</span>
+      <span>Total Plans: ${dynamicGymPlans.filter(p => p.name && p.price && p.days).length}</span>
+    </div>
+  `;
+
+  updateDynamicPlanStats();
+  syncOldPlanInputsFromDynamicPlans();
+}
+
+function updateDynamicPlan(index, field, value) {
+  dynamicGymPlans[index][field] = value;
+  updateDynamicPlanStats();
+  syncOldPlanInputsFromDynamicPlans();
+}
+
+function addMembershipPlanBox() {
+  dynamicGymPlans.push({
+    name: "",
+    price: "",
+    days: ""
+  });
+
+  renderDynamicPlans();
+}
+
+function deleteDynamicPlan(index) {
+  dynamicGymPlans.splice(index, 1);
+
+  if (!dynamicGymPlans.length) {
+    dynamicGymPlans.push({ name: "", price: "", days: "" });
+  }
+
+  renderDynamicPlans();
+}
+
+function updateDynamicPlanStats() {
+  const validPlans = dynamicGymPlans.filter(p => p.name && p.price && p.days);
+
+  const totalEl = document.getElementById("totalPlansCount");
+  const avgEl = document.getElementById("averagePlanPrice");
+  const popularEl = document.getElementById("popularPlanDuration");
+
+  if (totalEl) totalEl.textContent = validPlans.length;
+
+  if (validPlans.length) {
+    const avg = Math.round(
+      validPlans.reduce((sum, p) => sum + Number(p.price || 0), 0) / validPlans.length
+    );
+
+    if (avgEl) avgEl.textContent = avg.toLocaleString("en-IN");
+
+    const sorted = [...validPlans].sort((a, b) => Number(b.days) - Number(a.days));
+    if (popularEl) popularEl.textContent = sorted[0].days + " Days";
+  } else {
+    if (avgEl) avgEl.textContent = "0";
+    if (popularEl) popularEl.textContent = "-";
+  }
+}
+
+async function saveDynamicPlans() {
+  syncOldPlanInputsFromDynamicPlans();
+  await saveGymProfile();
+
+  if (typeof showToast === "function") {
+    showToast("Membership plans saved", "success");
+  }
+}
+
+async function loadDynamicPlansFromOldInputs() {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  const res = await fetch(API + "/gym-profile", {
+    headers: { Authorization: token }
+  });
+
+  const profile = await res.json();
+
+  dynamicGymPlans = profile.plans && profile.plans.length
+    ? profile.plans.map(p => ({
+        name: p.name || "",
+        price: p.price || "",
+        days: p.days || ""
+      }))
+    : [
+        { name: "", price: "", days: "" },
+        { name: "", price: "", days: "" },
+        { name: "", price: "", days: "" }
+      ];
+
+  renderDynamicPlans();
+}
+
+setTimeout(loadDynamicPlansFromOldInputs, 800);
+
+function scrollToGymDetails() {
+  const input = document.getElementById("gymName");
+  if (input) {
+    input.scrollIntoView({ behavior: "smooth", block: "center" });
+    input.focus();
+  }
+}
+
+function scrollToPlans() {
+  const plans = document.querySelector(".gp-plans-card");
+  if (plans) {
+    plans.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+}
+
+function previewGymProfile() {
+  updateGymProfilePreview();
+  showToast("Profile preview updated", "success");
+}
+function editPlanInline(index) {
+  const plan = dynamicGymPlans[index];
+
+  document.getElementById("editPlanIndex").value = index;
+  document.getElementById("editPlanNameModal").value = plan.name || "";
+  document.getElementById("editPlanPriceModal").value = plan.price || "";
+  document.getElementById("editPlanDaysModal").value = plan.days || "";
+
+  document.getElementById("planEditModal").classList.remove("hidden");
+}
+function closePlanEditModal() {
+  document.getElementById("planEditModal").classList.add("hidden");
+}
+
+function saveEditedPlanModal() {
+  const index = Number(document.getElementById("editPlanIndex").value);
+
+  const name = document.getElementById("editPlanNameModal").value.trim();
+  const price = document.getElementById("editPlanPriceModal").value;
+  const days = document.getElementById("editPlanDaysModal").value;
+
+  if (!name || !price || !days) {
+    showToast("Please fill all plan details", "error");
+    return;
+  }
+
+  dynamicGymPlans[index] = {
+    name,
+    price,
+    days
+  };
+
+  renderDynamicPlans();
+  closePlanEditModal();
+
+  showToast("Plan updated", "success");
+}
+let attendanceOverviewChartObj = null;
+
+function scrollToAttendanceMembers() {
+  const list = document.getElementById("attendanceMemberList");
+  if (list) {
+    list.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
+
+  showToast("Member attendance list is loading", "success");
+}
+
+function renderAttendanceOverviewChart(rate = 0) {
+  const canvas = document.getElementById("attendanceOverviewChart");
+  if (!canvas || typeof Chart === "undefined") return;
+
+  if (attendanceOverviewChartObj) {
+    attendanceOverviewChartObj.destroy();
+  }
+
+  const base = Math.max(rate, 20);
+
+  const data = [
+    Math.max(base - 14, 5),
+    Math.max(base - 7, 10),
+    base,
+    Math.min(base + 8, 100),
+    Math.max(base - 4, 5),
+    Math.min(base + 12, 100),
+    Math.max(base - 2, 5)
+  ];
+
+  const ctx = canvas.getContext("2d");
+  const gradient = ctx.createLinearGradient(0, 0, 0, 240);
+  gradient.addColorStop(0, "rgba(124,60,255,0.45)");
+  gradient.addColorStop(1, "rgba(37,99,235,0.02)");
+
+  attendanceOverviewChartObj = new Chart(canvas, {
+    type: "line",
+    data: {
+      labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Today"],
+      datasets: [{
+        data,
+        borderColor: "#7c3cff",
+        backgroundColor: gradient,
+        borderWidth: 4,
+        tension: 0.42,
+        fill: true,
+        pointRadius: 5,
+        pointBackgroundColor: "#ffffff",
+        pointBorderColor: "#7c3cff",
+        pointBorderWidth: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: {
+          grid: { color: "rgba(255,255,255,0.05)" },
+          ticks: { color: "#94a3b8" }
+        },
+        y: {
+          beginAtZero: true,
+          max: 100,
+          grid: { color: "rgba(255,255,255,0.06)" },
+          ticks: {
+            color: "#94a3b8",
+            callback: value => value + "%"
+          }
+        }
+      }
+    }
+  });
+}
+function scrollToAttendanceMembers() {
+  const panel = document.getElementById("manualAttendancePanel");
+
+  if (panel) {
+    panel.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+}
+async function loadAttendanceAnalytics() {
+  const token = tokenOrLogin();
+  if (!token) return;
+
+  try {
+    const res = await fetch(API + "/attendance/today", {
+      headers: { Authorization: token }
+    });
+
+    const attendance = await res.json();
+
+    const totalMembers = allMembersData.length || 0;
+    const present = attendance.length || 0;
+    const rate = totalMembers > 0 ? Math.round((present / totalMembers) * 100) : 0;
+
+    const labels = ["Today"];
+    const chartData = [rate];
+
+    document.getElementById("bestAttendanceDay").innerText = rate + "%";
+    document.getElementById("worstAttendanceDay").innerText = rate + "%";
+    document.getElementById("totalMarkedAttendance").innerText = present;
+    document.getElementById("totalMissedAttendance").innerText = Math.max(totalMembers - present, 0);
+
+    renderRealAttendanceChart(labels, chartData);
+
+  } catch (err) {
+    console.log("Attendance analytics failed:", err);
+  }
+}
+
+function renderRealAttendanceChart(labels, chartData) {
+  const canvas = document.getElementById("attendanceOverviewChart");
+  if (!canvas || typeof Chart === "undefined") {
+    console.log("Chart canvas or Chart.js missing");
+    return;
+  }
+
+  if (attendanceOverviewChartObj) {
+    attendanceOverviewChartObj.destroy();
+  }
+
+  const finalLabels = labels.length ? labels : ["No Data"];
+  const finalData = chartData.length ? chartData : [0];
+
+  const ctx = canvas.getContext("2d");
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, 240);
+  gradient.addColorStop(0, "rgba(124,60,255,0.45)");
+  gradient.addColorStop(1, "rgba(37,99,235,0.02)");
+
+  attendanceOverviewChartObj = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: finalLabels,
+      datasets: [{
+        data: finalData,
+        borderColor: "#7c3cff",
+        backgroundColor: gradient,
+        borderWidth: 4,
+        tension: 0.42,
+        fill: true,
+        pointRadius: 5,
+        pointBackgroundColor: "#ffffff",
+        pointBorderColor: "#7c3cff",
+        pointBorderWidth: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: {
+            color: "#94a3b8",
+            callback: value => value + "%"
+          },
+          grid: { color: "rgba(255,255,255,0.06)" }
+        },
+        x: {
+          ticks: { color: "#94a3b8" },
+          grid: { color: "rgba(255,255,255,0.05)" }
+        }
+      }
+    }
+  });
 }
