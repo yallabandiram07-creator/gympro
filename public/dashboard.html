@@ -738,27 +738,127 @@
 
     <!-- ===== TRAINERS SECTION ===== -->
     <section id="trainersSection" style="display:none;">
-      <div class="page-header">
-        <h1>Trainer Management</h1>
-        <p>Add trainers and give them login access.</p>
+
+  <div class="trainer-hero">
+    <div>
+      <h1>Trainer Management</h1>
+      <p>Add trainers, manage their details and give them login access.</p>
+    </div>
+
+    <button class="primary-btn" onclick="scrollToAddTrainer()">+ Add New Trainer</button>
+  </div>
+
+  <div class="trainer-kpi-grid">
+    <div class="trainer-kpi-card">
+      <div class="trainer-kpi-icon purple">👥</div>
+      <div>
+        <h3 id="totalTrainersCount">0</h3>
+        <p>Total Trainers</p>
       </div>
-      <div class="content-grid">
-        <div class="panel glass-panel">
-          <h2>Add Trainer</h2>
-          <form id="trainerForm">
-            <input type="text" id="trainerNameInput" placeholder="Trainer Name" required>
-            <input type="text" id="trainerPhoneInput" placeholder="Trainer Phone" required>
-            <input type="email" id="trainerEmailInput" placeholder="Trainer Email" required>
-            <input type="password" id="trainerPasswordInput" placeholder="Trainer Password" required>
-            <button type="submit" class="primary-btn">Add Trainer</button>
-          </form>
-        </div>
-        <div class="panel glass-panel">
-          <h2>Trainer List</h2>
-          <ul id="trainerList" class="modern-list"></ul>
-        </div>
+    </div>
+
+    <div class="trainer-kpi-card">
+      <div class="trainer-kpi-icon green">✓</div>
+      <div>
+        <h3 id="activeTrainersCount">0</h3>
+        <p>Active Trainers</p>
       </div>
-    </section>
+    </div>
+
+    <div class="trainer-kpi-card">
+      <div class="trainer-kpi-icon red">●</div>
+      <div>
+        <h3 id="inactiveTrainersCount">0</h3>
+        <p>Inactive Trainers</p>
+      </div>
+    </div>
+
+    <div class="trainer-kpi-card">
+      <div class="trainer-kpi-icon blue">📅</div>
+      <div>
+        <h3 id="trainerActiveRate">0%</h3>
+        <p>Trainer Active Rate</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="trainer-page-grid">
+
+    <div class="trainer-filter-card">
+      <div class="trainer-card-title">
+        <h2>Filter Trainers</h2>
+        <span>⚙</span>
+      </div>
+
+      <input id="trainerSearchInput" oninput="filterTrainerList()" placeholder="Search trainer...">
+
+      <select id="trainerStatusFilter" onchange="filterTrainerList()">
+        <option value="all">All Status</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+
+      <select>
+        <option>All Specialization</option>
+        <option>Strength Training</option>
+        <option>Bodybuilding</option>
+        <option>Yoga</option>
+        <option>Cardio</option>
+      </select>
+
+      <button class="trainer-reset-btn" onclick="resetTrainerFilters()">Reset Filters</button>
+
+      <div id="addTrainerBox" class="trainer-add-box">
+        <h3>Add Trainer</h3>
+
+        <form id="trainerForm">
+          <input id="trainerNameInput" placeholder="Trainer Name">
+          <input id="trainerPhoneInput" placeholder="Trainer Phone">
+          <input id="trainerEmailInput" placeholder="Trainer Email">
+          <input id="trainerPasswordInput" placeholder="Trainer Password">
+          <select id="trainerSpecializationInput">
+          <option value="">Select Specialization</option>
+          <option>Strength Training</option>
+          <option>Bodybuilding</option>
+          <option>Yoga</option>
+          <option>Cardio</option>
+          <option>CrossFit</option>
+          <option>Functional Training</option>
+</select>
+
+<input id="trainerExperienceInput" type="number" placeholder="Experience in years">
+          <button class="primary-btn" type="submit">Add Trainer</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="trainer-list-card">
+      <div class="trainer-list-header">
+        <div>
+          <h2>Trainer List <span id="trainerListCount">0 Trainers</span></h2>
+        </div>
+
+        <select class="trainer-sort-select">
+          <option>Sort by: Newest</option>
+          <option>Sort by: Name</option>
+        </select>
+      </div>
+
+      <div class="trainer-table-head">
+        <span>Trainer</span>
+        <span>Specialization</span>
+        <span>Experience</span>
+        <span>Contact</span>
+        <span>Status</span>
+        <span>Actions</span>
+      </div>
+
+      <div id="trainerList" class="trainer-premium-list"></div>
+    </div>
+
+  </div>
+
+</section>
 
     <!-- ===== PAYMENTS SECTION ===== -->
     <section id="paymentsSection" style="display:none;">
@@ -1003,6 +1103,57 @@
 <script>
   lucide.createIcons();
 </script>
+
+<div id="trainerEditModal" class="custom-modal hidden">
+  <div class="custom-modal-content">
+    <div class="custom-modal-header">
+      <h3>Edit Trainer</h3>
+      <button class="close-modal-btn" onclick="closeTrainerEditModal()">✕</button>
+    </div>
+
+    <div class="custom-modal-body">
+      <input type="hidden" id="editTrainerId">
+      <input id="editTrainerName" placeholder="Trainer Name">
+      <input id="editTrainerPhone" placeholder="Trainer Phone">
+      <input id="editTrainerEmail" placeholder="Trainer Email">
+
+      <select id="editTrainerSpecialization">
+        <option>Strength Training</option>
+        <option>Bodybuilding</option>
+        <option>Yoga</option>
+        <option>Cardio</option>
+        <option>CrossFit</option>
+        <option>Functional Training</option>
+      </select>
+
+      <input id="editTrainerExperience" type="number" placeholder="Experience in years">
+
+      <button class="primary-btn" onclick="saveTrainerEdit()">Save Trainer</button>
+    </div>
+  </div>
+</div>
+
+<div id="trainerDeleteModal" class="custom-modal hidden">
+  <div class="custom-modal-content">
+    <div class="custom-modal-header">
+      <h3>Delete Trainer</h3>
+      <button class="close-modal-btn" onclick="closeTrainerDeleteModal()">✕</button>
+    </div>
+
+    <div class="custom-modal-body">
+      <p style="color:#94a3b8;margin-bottom:18px;">
+        Are you sure you want to delete this trainer? This action cannot be undone.
+      </p>
+
+      <input type="hidden" id="deleteTrainerId">
+
+      <div style="display:flex;gap:12px;">
+        <button class="secondary-action-btn" onclick="closeTrainerDeleteModal()">Cancel</button>
+        <button class="clear-attendance-btn" onclick="confirmDeleteTrainer()">Delete Trainer</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>

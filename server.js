@@ -267,7 +267,7 @@ app.get("/member-diet-logs", memberAuth, async (req, res) => {
 
 app.post("/trainers", auth, async (req, res) => {
   try {
-    const { name, phone, email, password } = req.body;
+    const { name, phone, email, password, specialization, experience } = req.body;
 
     const exist = await Trainer.findOne({ userId: req.user.id, phone });
     if (exist) return res.json({ message: "Trainer already exists" });
@@ -279,11 +279,61 @@ app.post("/trainers", auth, async (req, res) => {
       name,
       phone,
       email,
-      password: hashedPassword
+      password: hashedPassword,
+      specialization,
+      experience: Number(experience || 0),
+      status: "active"
     }).save();
 
     res.json({ message: "Trainer added successfully" });
   } catch {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.delete("/trainers/:id", auth, async (req, res) => {
+  try {
+    const trainer = await Trainer.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user.id
+    });
+
+    if (!trainer) {
+      return res.json({ message: "Trainer not found" });
+    }
+
+    res.json({ message: "Trainer deleted successfully" });
+  } catch (err) {
+    console.log("Delete trainer error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.put("/trainers/:id", auth, async (req, res) => {
+  try {
+    const { name, phone, email, specialization, experience, status } = req.body;
+
+    const trainer = await Trainer.findOne({
+      _id: req.params.id,
+      userId: req.user.id
+    });
+
+    if (!trainer) {
+      return res.json({ message: "Trainer not found" });
+    }
+
+    trainer.name = name || trainer.name;
+    trainer.phone = phone || trainer.phone;
+    trainer.email = email || trainer.email;
+    trainer.specialization = specialization || trainer.specialization;
+    trainer.experience = Number(experience || trainer.experience || 0);
+    trainer.status = status || trainer.status || "active";
+
+    await trainer.save();
+
+    res.json({ message: "Trainer updated successfully" });
+  } catch (err) {
+    console.log("Update trainer error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });

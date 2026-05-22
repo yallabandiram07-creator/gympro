@@ -5,7 +5,13 @@ const TrainerSchema = new mongoose.Schema({
   name: String,
   phone: String,
   email: String,
-  password: String
+  password: String,
+  specialization: String,
+experience: Number,
+status: {
+  type: String,
+  default: "active"
+}
 });
 
 module.exports = mongoose.model("Trainer", TrainerSchema);

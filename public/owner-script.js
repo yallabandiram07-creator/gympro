@@ -265,20 +265,119 @@ function loadAttendance() {
     });
 }
  
+let allTrainersData = [];
+
+
+/* ===== Trainer section ===== */
+
 function loadTrainers() {
   const token = tokenOrLogin();
   if (!token) return;
-  fetch(API + "/trainers", { headers: { Authorization: token } })
+
+  fetch(API + "/trainers", {
+    headers: { Authorization: token }
+  })
     .then(res => res.json())
     .then(trainers => {
-      const list = document.getElementById("trainerList");
-      if (!list) return;
-      list.innerHTML = "";
-      if (!trainers.length) { list.innerHTML = "<li><span>No trainers added yet.</span></li>"; return; }
-      trainers.forEach(t => {
-        list.innerHTML += `<li><strong>${t.name}</strong><span>📞 ${t.phone}</span><span>✉️ ${t.email}</span></li>`;
-      });
+      allTrainersData = trainers || [];
+      renderTrainerTable(allTrainersData);
     });
+}
+
+function renderTrainerTable(trainers) {
+  const list = document.getElementById("trainerList");
+  if (!list) return;
+
+  const total = trainers.length;
+  const active = trainers.length;
+  const inactive = 0;
+  const rate = total ? Math.round((active / total) * 100) : 0;
+
+  document.getElementById("totalTrainersCount").textContent = total;
+  document.getElementById("activeTrainersCount").textContent = active;
+  document.getElementById("inactiveTrainersCount").textContent = inactive;
+  document.getElementById("trainerActiveRate").textContent = rate + "%";
+  document.getElementById("trainerListCount").textContent = total + " Trainers";
+
+  if (!trainers.length) {
+    list.innerHTML = `
+      <div style="padding:20px;color:#94a3b8;">
+        No trainers added yet.
+      </div>
+    `;
+    return;
+  }
+
+  const tags = ["Strength Training", "Bodybuilding", "Yoga", "CrossFit", "Cardio", "Functional"];
+  const tagColors = ["purple", "blue", "green", "orange"];
+
+  list.innerHTML = trainers.map((trainer, index) => {
+    const initials = String(trainer.name || "T")
+      .split(" ")
+      .map(word => word[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+
+    return `
+      <div class="trainer-premium-row">
+        <div class="trainer-main-info">
+          <div class="trainer-avatar">${initials}</div>
+          <div>
+            <div class="trainer-name">${trainer.name || "Trainer"}</div>
+            <div class="trainer-email">${trainer.email || "No email added"}</div>
+          </div>
+        </div>
+
+        <div>
+          <span class="trainer-tag ${tagColors[index % tagColors.length]}">
+            ${tags[index % tags.length]}
+          </span>
+        </div>
+
+        <div style="color:#cbd5e1;">${3 + index} Years</div>
+
+        <div style="color:#cbd5e1;font-size:13px;">
+          📞 ${trainer.phone || "No phone"}<br>
+          ✉️ ${trainer.email || "No email"}
+        </div>
+
+        <div>
+          <span class="trainer-status active">● Active</span>
+        </div>
+
+        <div class="trainer-actions">
+          <button class="trainer-action-btn edit-btn" onclick="openTrainerEditModal('${trainer._id}')">✎</button>
+          <button class="trainer-action-btn delete-btn" onclick="openTrainerDeleteModal('${trainer._id}')">🗑</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function filterTrainerList() {
+  const search = document.getElementById("trainerSearchInput")?.value.toLowerCase() || "";
+  const status = document.getElementById("trainerStatusFilter")?.value || "all";
+
+  let filtered = allTrainersData.filter(t =>
+    String(t.name || "").toLowerCase().includes(search) ||
+    String(t.phone || "").toLowerCase().includes(search) ||
+    String(t.email || "").toLowerCase().includes(search)
+  );
+
+  if (status === "inactive") filtered = [];
+  renderTrainerTable(filtered);
+}
+
+function resetTrainerFilters() {
+  document.getElementById("trainerSearchInput").value = "";
+  document.getElementById("trainerStatusFilter").value = "all";
+  renderTrainerTable(allTrainersData);
+}
+
+function scrollToAddTrainer() {
+  const box = document.getElementById("addTrainerBox");
+  if (box) box.scrollIntoView({ behavior: "smooth", block: "center" });
 }
  
 /* ===== QR ===== */
@@ -651,7 +750,9 @@ if (trainerForm) {
         name: document.getElementById("trainerNameInput").value,
         phone: document.getElementById("trainerPhoneInput").value,
         email: document.getElementById("trainerEmailInput").value,
-        password: document.getElementById("trainerPasswordInput").value
+        password: document.getElementById("trainerPasswordInput").value,
+        specialization: document.getElementById("trainerSpecializationInput").value,
+        experience: document.getElementById("trainerExperienceInput").value,
       })
     }).then(res => res.json()).then(data => {
       showToast(data.message);
@@ -673,7 +774,11 @@ trainerForm.reset();
     });
   });
 }
- 
+
+function deleteTrainer(id) {
+  openTrainerDeleteModal(id);
+}
+
 /* ===== SUBSCRIPTION CHECK ===== */
 function checkOwnerSubscription() {
   const token = localStorage.getItem("token");
@@ -2498,4 +2603,76 @@ function renderRealAttendanceChart(labels, chartData) {
       }
     }
   });
+}
+function openTrainerEditModal(id) {
+  const trainer = allTrainersData.find(t => t._id === id);
+  if (!trainer) return;
+
+  document.getElementById("editTrainerId").value = trainer._id;
+  document.getElementById("editTrainerName").value = trainer.name || "";
+  document.getElementById("editTrainerPhone").value = trainer.phone || "";
+  document.getElementById("editTrainerEmail").value = trainer.email || "";
+  document.getElementById("editTrainerSpecialization").value = trainer.specialization || "Strength Training";
+  document.getElementById("editTrainerExperience").value = trainer.experience || "";
+
+  document.getElementById("trainerEditModal").classList.remove("hidden");
+}
+
+function closeTrainerEditModal() {
+  document.getElementById("trainerEditModal").classList.add("hidden");
+}
+
+function openTrainerDeleteModal(id) {
+  document.getElementById("deleteTrainerId").value = id;
+  document.getElementById("trainerDeleteModal").classList.remove("hidden");
+}
+
+function closeTrainerDeleteModal() {
+  document.getElementById("trainerDeleteModal").classList.add("hidden");
+}
+
+function confirmDeleteTrainer() {
+  const id = document.getElementById("deleteTrainerId").value;
+  const token = tokenOrLogin();
+  if (!token) return;
+
+  fetch(API + "/trainers/" + id, {
+    method: "DELETE",
+    headers: { Authorization: token }
+  })
+    .then(res => res.json())
+    .then(data => {
+      closeTrainerDeleteModal();
+      showToast(data.message || "Trainer deleted", "success");
+      loadTrainers();
+    });
+}
+function saveTrainerEdit() {
+  const id = document.getElementById("editTrainerId").value;
+  const token = tokenOrLogin();
+  if (!token) return;
+
+  const body = {
+    name: document.getElementById("editTrainerName").value.trim(),
+    phone: document.getElementById("editTrainerPhone").value.trim(),
+    email: document.getElementById("editTrainerEmail").value.trim(),
+    specialization: document.getElementById("editTrainerSpecialization").value,
+    experience: document.getElementById("editTrainerExperience").value,
+    status: "active"
+  };
+
+  fetch(API + "/trainers/" + id, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token
+    },
+    body: JSON.stringify(body)
+  })
+    .then(res => res.json())
+    .then(data => {
+      closeTrainerEditModal();
+      showToast(data.message || "Trainer updated", "success");
+      loadTrainers();
+    });
 }
