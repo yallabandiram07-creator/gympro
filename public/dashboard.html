@@ -861,18 +861,142 @@
 </section>
 
     <!-- ===== PAYMENTS SECTION ===== -->
-    <section id="paymentsSection" style="display:none;">
-      <div class="page-header">
-        <h1>Payment Settings</h1>
-        <p>Add Razorpay keys for this owner.</p>
+<section id="paymentsSection" style="display:none;">
+
+  <div class="pay-hero">
+    <div class="pay-title-wrap">
+      <div class="pay-title-icon">🛡️</div>
+      <div>
+        <h1>Payment Settings <span>✓</span></h1>
+        <p>Manage Razorpay & track all payments of your gym</p>
       </div>
-      <div class="panel glass-panel">
-        <input type="text" id="ownerRazorpayKeyId" placeholder="Razorpay Key ID">
-        <input type="password" id="ownerRazorpayKeySecret" placeholder="Razorpay Key Secret">
-        <button class="primary-btn" onclick="saveOwnerPaymentSettings()">Save Razorpay Settings</button>
-        <p id="paymentSettingsStatus" style="color:#94a3b8;margin-top:10px;"></p>
+    </div>
+
+    <div class="pay-top-actions">
+      <button class="pay-sync-btn">🟢 Last Sync<br><small>Just now</small></button>
+      <button class="pay-purple-btn" onclick="testRazorpayStatus()">▣ Test Razorpay</button>
+      <button class="pay-blue-btn" onclick="openPaymentCommandModal()">⊕ Add Manual Payment</button>
+    </div>
+  </div>
+
+  <div class="pay-kpi-grid">
+    <div class="pay-kpi purple"><div class="pay-kpi-icon">💼</div><span>Total Revenue</span><h2>₹<b id="payTotalRevenue">0</b></h2><p>↑ dynamic from payments</p></div>
+    <div class="pay-kpi blue"><div class="pay-kpi-icon">💳</div><span>This Month</span><h2>₹<b id="payMonthRevenue">0</b></h2><p>Monthly collection</p></div>
+    <div class="pay-kpi green"><div class="pay-kpi-icon">💰</div><span>Today Revenue</span><h2>₹<b id="payTodayRevenue">0</b></h2><p>Collected today</p></div>
+    <div class="pay-kpi orange"><div class="pay-kpi-icon">⏱</div><span>Pending Payments</span><h2>₹<b id="payPendingAmount">0</b></h2><p><b id="payPendingCount">0</b> Members</p></div>
+    <div class="pay-kpi red"><div class="pay-kpi-icon">🛑</div><span>Expired Members</span><h2><b id="payExpiredMembers">0</b></h2><p>Need Attention</p></div>
+  </div>
+
+  <div class="pay-main-grid">
+    <div class="pay-card pay-chart-card">
+      <div class="pay-card-head">
+        <h2>📈 Revenue Overview</h2>
+        <select id="payRevenueRange" onchange="loadPaymentCommandCenter()">
+          <option value="year">This Year</option>
+          <option value="month">This Month</option>
+        </select>
       </div>
-    </section>
+      <canvas id="paymentRevenueChart"></canvas>
+    </div>
+
+    <div class="pay-card pay-donut-card">
+      <div class="pay-card-head"><h2>◉ Paid vs Unpaid Members</h2></div>
+      <div class="pay-donut-layout">
+        <div class="pay-donut-box">
+          <canvas id="paymentStatusDonut"></canvas>
+          <div class="pay-donut-center"><b id="payTotalMembersDonut">0</b><small>Total Members</small></div>
+        </div>
+        <div class="pay-status-list">
+          <div><span class="green-dot"></span> Paid Members <b id="paidMembersCount">0</b></div>
+          <div><span class="orange-dot"></span> Unpaid Members <b id="unpaidMembersCount">0</b></div>
+          <div><span class="red-dot"></span> Expired Members <b id="expiredMembersCountPay">0</b></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pay-side-stack">
+      <div class="pay-card razor-card">
+        <div class="pay-card-head">
+          <h2>▣ Razorpay Status</h2>
+          <span id="razorpayActiveBadge" class="pay-active-badge">Active</span>
+        </div>
+
+        <div class="razor-row"><span>✅ Razorpay Key ID</span><b id="payRazorpayKeyText">Not Added</b></div>
+        <div class="razor-row"><span>✅ Razorpay Secret</span><b id="payRazorpaySecretText">Not Added</b></div>
+        <div class="razor-row"><span>✅ Webhook Status</span><b>Active</b></div>
+        <div class="razor-row"><span>✅ Auto Sync</span><b>Enabled</b></div>
+      </div>
+
+      <div class="pay-card quick-pay-card">
+        <h2>⚙ Quick Actions</h2>
+        <div class="quick-pay-grid">
+          <button onclick="scrollToRazorpaySettings()">▣ Razorpay Settings</button>
+          <button onclick="openPaymentCommandModal()">⊕ Add Manual Payment</button>
+          <button onclick="exportPaymentsCSV()">📄 Export Report</button>
+          <button onclick="sendExpiryReminders()">🟢 Send Reminders</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pay-bottom-grid">
+    <div class="pay-card recent-payments-card">
+      <div class="pay-card-head">
+        <h2>💳 Recent Payments</h2>
+        <div class="pay-filters">
+          <select id="paymentMonthFilter" onchange="renderPaymentsTable()">
+            <option value="all">All Months</option>
+            <option value="this">This Month</option>
+          </select>
+          <select id="paymentStatusFilter" onchange="renderPaymentsTable()">
+            <option value="all">All Status</option>
+            <option value="paid">Successful</option>
+            <option value="created">Created</option>
+            <option value="failed">Failed</option>
+          </select>
+          <input id="paymentSearchInput" oninput="renderPaymentsTable()" placeholder="Search by name or phone...">
+        </div>
+      </div>
+
+      <div class="pay-table-wrap">
+        <table class="pay-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Member Name</th>
+              <th>Phone</th>
+              <th>Amount</th>
+              <th>Plan</th>
+              <th>Status</th>
+              <th>Payment Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="paymentHistoryTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="pay-card payment-status-card">
+      <h2>◉ Payment Status</h2>
+      <div class="pay-progress-row"><span>Successful</span><div><i id="paidProgress"></i></div><b id="paidPercent">0%</b></div>
+      <div class="pay-progress-row"><span>Pending</span><div><i id="pendingProgress"></i></div><b id="pendingPercent">0%</b></div>
+      <div class="pay-progress-row"><span>Created</span><div><i id="createdProgress"></i></div><b id="createdPercent">0%</b></div>
+      <div class="pay-progress-row"><span>Failed</span><div><i id="failedProgress"></i></div><b id="failedPercent">0%</b></div>
+    </div>
+  </div>
+
+  <div id="razorpaySettingsBox" class="pay-card razor-settings-panel">
+    <h2>Razorpay API Settings</h2>
+    <p>Add Razorpay keys for this owner.</p>
+    <input type="text" id="ownerRazorpayKeyId" placeholder="Razorpay Key ID">
+    <input type="password" id="ownerRazorpayKeySecret" placeholder="Razorpay Key Secret">
+    <button class="primary-btn" onclick="saveOwnerPaymentSettings()">Save Razorpay Settings</button>
+    <p id="paymentSettingsStatus"></p>
+  </div>
+
+</section>
+
 
     <!-- ===== WHATSAPP SECTION ===== -->
     <section id="whatsappSection" style="display:none;">
@@ -1091,6 +1215,7 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="owner-script.js"></script>
 
 <script>

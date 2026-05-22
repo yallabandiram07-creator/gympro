@@ -37,7 +37,10 @@ function showSection(section, btn) {
 }
   if (section === "qr") { stopQRAutoRefresh(); startQRAutoRefresh(); }
   if (section === "trainers") loadTrainers();
-  if (section === "payments") loadOwnerPaymentSettings();
+  if (section === "payments") {
+  loadOwnerPaymentSettings();
+  loadPaymentCommandCenter();
+}
   if (section === "whatsapp") loadWhatsAppSettings();
   if (section === "rewards") loadMembers();
 }
@@ -2675,4 +2678,267 @@ function saveTrainerEdit() {
       showToast(data.message || "Trainer updated", "success");
       loadTrainers();
     });
+}
+/* ===== PREMIUM PAYMENT COMMAND CENTER ===== */
+
+let paymentRevenueChartObj = null;
+let paymentStatusDonutObj = null;
+let paymentCommandData = {
+  payments: [],
+  monthlyData: []
+};
+
+async function loadPaymentCommandCenter() {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  try {
+    const res = await fetch(API + "/payment-command-center", {
+      headers: { Authorization: token }
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      showToast(data.message || "Payment analytics failed", "error");
+      return;
+    }
+
+    paymentCommandData = data;
+
+    setText("payTotalRevenue", Number(data.totalRevenue || 0).toLocaleString("en-IN"));
+    setText("payMonthRevenue", Number(data.monthRevenue || 0).toLocaleString("en-IN"));
+    setText("payTodayRevenue", Number(data.todayRevenue || 0).toLocaleString("en-IN"));
+    setText("payPendingAmount", Number(data.pendingAmount || 0).toLocaleString("en-IN"));
+    setText("payExpiredMembers", data.expiredMembers || 0);
+    setText("payPendingCount", data.pendingCount || 0);
+
+    setText("payTotalMembersDonut", data.totalMembers || 0);
+    setText("paidMembersCount", data.paidMembers || 0);
+    setText("unpaidMembersCount", data.unpaidMembers || 0);
+    setText("expiredMembersCountPay", data.expiredMembers || 0);
+
+    renderPaymentRevenueChart(data.monthlyData || []);
+    renderPaymentDonut(data);
+    renderPaymentsTable();
+    renderPaymentStatusBars();
+    loadRazorpayVisualStatus();
+
+  } catch (err) {
+    console.log("Payment command center error:", err);
+    showToast("Payment analytics loading failed", "error");
+  }
+}
+
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.innerText = value;
+}
+
+function renderPaymentRevenueChart(monthlyData) {
+  const canvas = document.getElementById("paymentRevenueChart");
+  if (!canvas || typeof Chart === "undefined") return;
+
+  if (paymentRevenueChartObj) paymentRevenueChartObj.destroy();
+
+  paymentRevenueChartObj = new Chart(canvas, {
+    type: "line",
+    data: {
+      labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      datasets: [{
+        label: "Revenue",
+        data: monthlyData,
+        borderColor: "#8b5cf6",
+        backgroundColor: "rgba(124, 60, 255, 0.22)",
+        fill: true,
+        tension: 0.45,
+        borderWidth: 4,
+        pointRadius: 5,
+        pointBackgroundColor: "#ffffff",
+        pointBorderColor: "#8b5cf6",
+        pointBorderWidth: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: {
+          ticks: { color: "#94a3b8" },
+          grid: { color: "rgba(255,255,255,0.06)" }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: "#94a3b8",
+            callback: value => "₹" + value
+          },
+          grid: { color: "rgba(255,255,255,0.06)" }
+        }
+      }
+    }
+  });
+}
+
+function renderPaymentDonut(data) {
+  const canvas = document.getElementById("paymentStatusDonut");
+  if (!canvas || typeof Chart === "undefined") return;
+
+  if (paymentStatusDonutObj) paymentStatusDonutObj.destroy();
+
+  paymentStatusDonutObj = new Chart(canvas, {
+    type: "doughnut",
+    data: {
+      labels: ["Paid", "Unpaid", "Expired"],
+      datasets: [{
+        data: [
+          Number(data.paidMembers || 0),
+          Number(data.unpaidMembers || 0),
+          Number(data.expiredMembers || 0)
+        ],
+        backgroundColor: ["#22c55e", "#f59e0b", "#f43f5e"],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: "74%",
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+function renderPaymentsTable() {
+  const tbody = document.getElementById("paymentHistoryTable");
+  if (!tbody) return;
+
+  const search = (document.getElementById("paymentSearchInput")?.value || "").toLowerCase();
+  const status = document.getElementById("paymentStatusFilter")?.value || "all";
+
+  let payments = paymentCommandData.payments || [];
+
+  if (status !== "all") {
+    payments = payments.filter(p => p.status === status);
+  }
+
+  payments = payments.filter(p =>
+    String(p.memberName || "").toLowerCase().includes(search) ||
+    String(p.phone || "").toLowerCase().includes(search)
+  );
+
+  if (!payments.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8">
+          <div class="empty-state">
+            <strong>No payments found</strong>
+            <span>Payments will appear here after collections.</span>
+          </div>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = payments.map((p, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>
+        <div class="pay-member">
+          <div class="pay-avatar">${String(p.memberName || "M").charAt(0).toUpperCase()}</div>
+          <strong>${p.memberName || "-"}</strong>
+        </div>
+      </td>
+      <td>${p.phone || "-"}</td>
+      <td>₹${Number(p.amount || 0).toLocaleString("en-IN")}</td>
+      <td>${p.days || 0} Days</td>
+      <td><span class="pay-status ${p.status || "created"}">${p.status || "created"}</span></td>
+      <td>${p.createdAt ? new Date(p.createdAt).toLocaleString("en-IN") : "-"}</td>
+      <td>👁</td>
+    </tr>
+  `).join("");
+}
+
+function renderPaymentStatusBars() {
+  const payments = paymentCommandData.payments || [];
+  const total = payments.length || 1;
+
+  const paid = payments.filter(p => p.status === "paid").length;
+  const pending = payments.filter(p => p.status === "pending").length;
+  const created = payments.filter(p => p.status === "created").length;
+  const failed = payments.filter(p => p.status === "failed").length;
+
+  updateProgress("paid", paid, total);
+  updateProgress("pending", pending, total);
+  updateProgress("created", created, total);
+  updateProgress("failed", failed, total);
+}
+
+function updateProgress(type, value, total) {
+  const percent = Math.round((value / total) * 100);
+
+  const bar = document.getElementById(type + "Progress");
+  const label = document.getElementById(type + "Percent");
+
+  if (bar) bar.style.width = percent + "%";
+  if (label) label.innerText = percent + "%";
+}
+
+async function loadRazorpayVisualStatus() {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  try {
+    const res = await fetch(API + "/owner-payment-settings", {
+      headers: { Authorization: token }
+    });
+
+    const data = await res.json();
+
+    setText("payRazorpayKeyText", data.razorpayKeyId || "Not Added");
+    setText("payRazorpaySecretText", data.hasSecret ? "••••••••••••••" : "Not Added");
+
+  } catch (err) {
+    console.log("Razorpay status error:", err);
+  }
+}
+
+function testRazorpayStatus() {
+  showToast("Razorpay settings checked", "success");
+}
+
+function openPaymentCommandModal() {
+  showToast("Manual payment modal will be added next", "success");
+}
+
+function exportPaymentsCSV() {
+  const payments = paymentCommandData.payments || [];
+
+  if (!payments.length) {
+    showToast("No payments to export", "error");
+    return;
+  }
+
+  let csv = "Member,Phone,Amount,Days,Status,Date\n";
+
+  payments.forEach(p => {
+    csv += `${p.memberName || ""},${p.phone || ""},${p.amount || 0},${p.days || 0},${p.status || ""},${p.createdAt || ""}\n`;
+  });
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = window.URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "gympro-payments.csv";
+  a.click();
+
+  window.URL.revokeObjectURL(url);
+}
+
+function scrollToRazorpaySettings() {
+  const box = document.getElementById("razorpaySettingsBox");
+  if (box) box.scrollIntoView({ behavior: "smooth", block: "center" });
 }

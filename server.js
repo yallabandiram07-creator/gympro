@@ -338,6 +338,7 @@ app.put("/trainers/:id", auth, async (req, res) => {
   }
 });
 
+
 app.get("/trainers", auth, async (req, res) => {
   try {
     const trainers = await Trainer.find({ userId: req.user.id });
@@ -1217,6 +1218,95 @@ setInterval(() => {
     console.log("Keep-alive ping failed:", err.message);
   });
 }, 14 * 60 * 1000);
+
+app.get("/payment-command-center", auth, async (req, res) => {
+  try {
+    const payments = await Payment.find({
+      userId: req.user.id
+    }).sort({ createdAt: -1 });
+
+    const members = await Member.find({
+      userId: req.user.id
+    });
+
+    const today = new Date();
+
+    let totalRevenue = 0;
+    let monthRevenue = 0;
+    let todayRevenue = 0;
+    let pendingAmount = 0;
+    let expiredMembers = 0;
+
+    let paidMembers = 0;
+    let unpaidMembers = 0;
+
+    const monthlyData = [0,0,0,0,0,0,0,0,0,0,0,0];
+
+    payments.forEach(payment => {
+
+      const amount = Number(payment.amount || 0);
+
+      if (payment.status === "paid") {
+        totalRevenue += amount;
+
+        const paymentDate = new Date(payment.createdAt);
+
+        monthlyData[paymentDate.getMonth()] += amount;
+
+        if (
+          paymentDate.getMonth() === today.getMonth() &&
+          paymentDate.getFullYear() === today.getFullYear()
+        ) {
+          monthRevenue += amount;
+        }
+
+        if (
+          paymentDate.toDateString() === today.toDateString()
+        ) {
+          todayRevenue += amount;
+        }
+      }
+
+      if (payment.status === "created") {
+        pendingAmount += amount;
+      }
+    });
+
+    members.forEach(member => {
+
+      const expiry = new Date(member.expiryDate || member.expiry);
+
+      if (expiry < today) {
+        expiredMembers++;
+      }
+
+      if (Number(member.fees || 0) > 0) {
+        paidMembers++;
+      } else {
+        unpaidMembers++;
+      }
+    });
+
+    res.json({
+      totalRevenue,
+      monthRevenue,
+      todayRevenue,
+      pendingAmount,
+      expiredMembers,
+      paidMembers,
+      unpaidMembers,
+      totalMembers: members.length,
+      payments,
+      monthlyData
+    });
+
+  } catch (err) {
+    console.log("Payment command center error:", err);
+    res.status(500).json({
+      message: "Server error"
+    });
+  }
+});
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT} 🚀`);
