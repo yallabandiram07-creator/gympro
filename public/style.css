@@ -4170,3 +4170,463 @@ button:active,
 .razor-settings-panel p{color:#94a3b8;margin:8px 0 14px}
 #paymentSettingsStatus{color:#94a3b8!important}
 @media(max-width:1200px){.pay-kpi-grid{grid-template-columns:repeat(2,1fr)}.pay-main-grid,.pay-bottom-grid{grid-template-columns:1fr}.pay-hero{flex-direction:column;align-items:flex-start;gap:16px}}
+.wa-hero,
+.wa-card,
+.wa-kpi {
+  background: linear-gradient(145deg, rgba(15,23,50,.94), rgba(6,12,28,.98));
+  border: 1px solid rgba(99,102,241,.22);
+  box-shadow: 0 22px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.05);
+  border-radius: 24px;
+}
+
+.wa-hero {
+  min-height: 150px;
+  padding: 30px 34px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  position: relative;
+}
+
+.wa-hero::after {
+  content: "";
+  position: absolute;
+  right: 110px;
+  top: -80px;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(124,60,255,.32), transparent 70%);
+  filter: blur(8px);
+}
+
+.wa-premium-badge {
+  display: inline-block;
+  background: rgba(124,60,255,.22);
+  color: #c4b5fd;
+  padding: 6px 13px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.wa-hero h1 {
+  color: white;
+  font-size: 32px;
+  font-weight: 900;
+}
+
+.wa-hero p {
+  color: #cbd5e1;
+  font-size: 14px;
+  margin-top: 7px;
+}
+
+.wa-hero-art {
+  position: relative;
+  z-index: 2;
+  width: 150px;
+  height: 115px;
+}
+
+.wa-phone {
+  position: absolute;
+  right: 18px;
+  top: 4px;
+  width: 78px;
+  height: 106px;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #2563eb, #7c3cff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 42px;
+  transform: rotate(12deg);
+  box-shadow: 0 0 40px rgba(124,60,255,.45);
+}
+
+.wa-bell {
+  position: absolute;
+  right: 0;
+  top: 36px;
+  font-size: 42px;
+  filter: drop-shadow(0 0 22px rgba(124,60,255,.7));
+}
+
+.wa-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.wa-kpi {
+  padding: 22px;
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  min-height: 120px;
+}
+
+.wa-kpi-icon {
+  width: 62px;
+  height: 62px;
+  border-radius: 22px;
+  background: rgba(255,255,255,.07);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  box-shadow: 0 0 30px rgba(99,102,241,.22);
+}
+
+.wa-kpi.connected .wa-kpi-icon { background: rgba(34,197,94,.18); }
+.wa-kpi.blue .wa-kpi-icon { background: rgba(59,130,246,.20); }
+.wa-kpi.purple .wa-kpi-icon { background: rgba(124,60,255,.20); }
+.wa-kpi.orange .wa-kpi-icon { background: rgba(249,115,22,.20); }
+
+.wa-kpi span {
+  color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.wa-kpi h2 {
+  color: white;
+  font-size: 24px;
+  font-weight: 900;
+  margin: 4px 0;
+}
+
+.wa-kpi p {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.wa-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.wa-card {
+  padding: 24px;
+}
+
+.wa-card-head h2 {
+  color: white;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.wa-card-head p {
+  color: #94a3b8;
+  font-size: 13px;
+  margin-top: 5px;
+  margin-bottom: 18px;
+}
+
+.wa-input-box {
+  display: grid;
+  grid-template-columns: 44px 1fr 28px;
+  gap: 12px;
+  align-items: center;
+  background: rgba(255,255,255,.035);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 17px;
+  padding: 13px;
+  margin-bottom: 12px;
+}
+
+.wa-input-box span {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: rgba(124,60,255,.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wa-input-box label {
+  color: #94a3b8;
+  font-size: 12px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.wa-input-box input {
+  margin: 0 !important;
+  border: none !important;
+  padding: 5px 0 !important;
+  background: transparent !important;
+  height: auto !important;
+}
+
+.wa-input-box b {
+  color: #22c55e;
+  font-size: 20px;
+}
+
+.wa-save-btn,
+.wa-send-btn {
+  width: 100%;
+  height: 54px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, #2563eb, #7c3cff);
+  margin-top: 10px;
+  font-weight: 900;
+}
+
+.wa-success-box {
+  margin-top: 16px;
+  padding: 17px;
+  border-radius: 16px;
+  background: rgba(34,197,94,.10);
+  border: 1px solid rgba(34,197,94,.24);
+}
+
+.wa-success-box strong {
+  color: #22c55e;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.wa-success-box p {
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+.wa-orbit {
+  height: 250px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wa-orbit::before {
+  content: "";
+  position: absolute;
+  width: 220px;
+  height: 130px;
+  border: 1px dashed rgba(124,60,255,.45);
+  border-radius: 50%;
+}
+
+.wa-big-bell {
+  width: 110px;
+  height: 110px;
+  border-radius: 38px;
+  background: radial-gradient(circle at top, rgba(255,255,255,.35), transparent 35%),
+              linear-gradient(135deg, #7c3cff, #4f46e5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 55px;
+  box-shadow: 0 0 50px rgba(124,60,255,.55);
+  z-index: 2;
+}
+
+.wa-user {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(59,130,246,.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wa-user.u1 { left: 90px; top: 55px; }
+.wa-user.u2 { right: 90px; top: 55px; }
+.wa-user.u3 { left: 80px; bottom: 45px; background: rgba(239,68,68,.22); }
+.wa-user.u4 { right: 80px; bottom: 45px; background: rgba(34,197,94,.22); }
+
+.wa-reminder-box {
+  background: rgba(255,255,255,.035);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.wa-reminder-box p {
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+.wa-days-control {
+  margin: 15px 0;
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 12px;
+}
+
+.wa-days-control button {
+  height: 44px;
+  box-shadow: none;
+  background: rgba(255,255,255,.06);
+}
+
+.wa-days-control strong {
+  text-align: center;
+  color: white;
+  font-size: 23px;
+}
+
+.wa-reminder-box small {
+  display: block;
+  text-align: center;
+  color: #94a3b8;
+  margin-top: 14px;
+}
+
+#waReminderResult {
+  color: #cbd5e1;
+  margin-top: 12px;
+  text-align: center;
+}
+
+.wa-history-card {
+  margin-bottom: 24px;
+}
+
+.wa-history-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.wa-history-head h2 {
+  color: white;
+  font-size: 20px;
+}
+
+.wa-history-head p {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.wa-export-btn {
+  background: rgba(124,60,255,.16);
+  border: 1px solid rgba(124,60,255,.35);
+  border-radius: 13px;
+}
+
+.wa-table-wrap {
+  overflow-x: auto;
+}
+
+.wa-table {
+  width: 100%;
+  min-width: 850px;
+  border-collapse: collapse;
+}
+
+.wa-table th {
+  background: rgba(255,255,255,.05);
+  color: #c7d2fe;
+  text-align: left;
+  padding: 14px;
+  font-size: 13px;
+}
+
+.wa-table td {
+  padding: 14px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  color: #e5e7eb;
+  font-size: 13px;
+}
+
+.wa-status {
+  background: rgba(34,197,94,.14);
+  color: #22c55e;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 12px;
+}
+
+@media(max-width:1100px) {
+  .wa-kpi-grid,
+  .wa-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wa-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+.reward-hero,.reward-card,.reward-kpi{
+  background:linear-gradient(145deg,rgba(15,23,50,.94),rgba(6,12,28,.98));
+  border:1px solid rgba(99,102,241,.22);
+  border-radius:24px;
+  box-shadow:0 22px 60px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05);
+}
+.reward-hero{padding:28px 34px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center}
+.reward-premium-badge{background:rgba(124,60,255,.22);color:#c4b5fd;padding:6px 13px;border-radius:999px;font-size:12px;font-weight:900}
+.reward-hero h1{color:white;font-size:32px;font-weight:900;margin-top:8px}
+.reward-hero p{color:#cbd5e1;font-size:14px;margin-top:6px}
+.reward-send-btn{background:linear-gradient(135deg,#2563eb,#7c3cff);border-radius:14px;font-weight:900}
+.reward-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:18px}
+.reward-kpi{padding:22px}
+.reward-kpi-icon{width:58px;height:58px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:27px;margin-bottom:12px}
+.reward-kpi-icon.gold{background:rgba(234,179,8,.18)}
+.reward-kpi-icon.green{background:rgba(34,197,94,.18)}
+.reward-kpi-icon.pink{background:rgba(236,72,153,.18)}
+.reward-kpi-icon.purple{background:rgba(124,60,255,.18)}
+.reward-kpi span{color:#cbd5e1;font-size:13px;font-weight:800}
+.reward-kpi h2{color:white;font-size:28px;font-weight:900;margin:6px 0}
+.reward-kpi p{color:#22c55e;font-size:12px;font-weight:800}
+.reward-top-grid{display:grid;grid-template-columns:1fr 1.3fr;gap:18px;margin-bottom:18px}
+.reward-card{padding:24px;margin-bottom:18px}
+.reward-card h2{color:white;font-size:20px;font-weight:900;margin-bottom:16px}
+.progress-content{display:flex;gap:20px;align-items:center}
+.reward-product-img{width:120px;height:120px;border-radius:22px;background:rgba(124,60,255,.14);display:flex;align-items:center;justify-content:center;font-size:54px}
+.progress-content h3{color:white;font-size:22px}
+.progress-content span{display:inline-block;background:rgba(124,60,255,.22);color:#c4b5fd;padding:7px 13px;border-radius:999px;margin:8px 0;font-weight:900}
+.reward-progress-bar{width:320px;height:12px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden}
+.reward-progress-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#2563eb,#7c3cff);border-radius:999px}
+.progress-content p{color:#cbd5e1;margin-top:10px}
+.earn-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.earn-grid div{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:16px;color:#cbd5e1;font-size:13px}
+.earn-grid b{display:block;color:white;margin-top:6px}
+.reward-shop-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.reward-shop-head h2{margin-bottom:5px}
+.reward-shop-head p{color:#94a3b8;font-size:13px}
+.reward-balance-box{background:rgba(255,255,255,.05);border-radius:16px;padding:14px 22px}
+.reward-balance-box span{color:#94a3b8;font-size:12px}
+.reward-balance-box h3{color:white;font-size:24px}
+.reward-tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.reward-tabs button{background:rgba(255,255,255,.05);box-shadow:none;border:1px solid rgba(255,255,255,.08)}
+.reward-tabs button.active{background:linear-gradient(135deg,#2563eb,#7c3cff)}
+.reward-tier{font-size:15px;margin:18px 0 12px;font-weight:900}
+.reward-tier.green{color:#22c55e}
+.reward-tier.blue{color:#38bdf8}
+.reward-tier.purple{color:#c084fc}
+.reward-shop-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:16px}
+.reward-item{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:14px;text-align:center;transition:.25s}
+.reward-item:hover,.reward-item.featured{border-color:rgba(124,60,255,.65);box-shadow:0 0 35px rgba(124,60,255,.18);transform:translateY(-3px)}
+.reward-img{height:120px;border-radius:16px;background:linear-gradient(145deg,rgba(15,23,42,.9),rgba(30,41,59,.7));display:flex;align-items:center;justify-content:center;font-size:54px;margin-bottom:13px}
+.reward-item h4{color:white;font-size:15px;margin-bottom:8px}
+.reward-item p{color:#fbbf24;font-weight:900;font-size:13px}
+.reward-item small{color:#22c55e;display:block;margin:6px 0 10px}
+.reward-item button{width:100%;padding:10px;background:linear-gradient(135deg,#4f46e5,#7c3cff);border-radius:10px}
+.reward-bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.reward-redemption-list p{color:#94a3b8}
+.reward-leaderboard-row{display:grid;grid-template-columns:40px 1fr auto;align-items:center;gap:12px;padding:13px;border-bottom:1px solid rgba(255,255,255,.06)}
+.reward-rank{font-size:22px}
+.reward-member-name{color:white;font-weight:900}
+.reward-member-points{color:#fbbf24;font-weight:900}
+@media(max-width:1200px){
+  .reward-kpi-grid,.reward-top-grid,.reward-bottom-grid{grid-template-columns:1fr}
+  .reward-shop-grid{grid-template-columns:repeat(2,1fr)}
+  .earn-grid{grid-template-columns:repeat(2,1fr)}
+}

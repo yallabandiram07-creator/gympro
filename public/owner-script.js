@@ -42,7 +42,10 @@ function showSection(section, btn) {
   loadPaymentCommandCenter();
 }
   if (section === "whatsapp") loadWhatsAppSettings();
-  if (section === "rewards") loadMembers();
+  if (section === "rewards") {
+  loadMembers();
+  setTimeout(loadPremiumRewardsPage, 500);
+}
 }
  
 function loadMembers() {
@@ -2910,7 +2913,15 @@ function testRazorpayStatus() {
 }
 
 function openPaymentCommandModal() {
-  showToast("Manual payment modal will be added next", "success");
+  showSection("dashboard", document.querySelector(".nav-btn"));
+
+  setTimeout(() => {
+    const search = document.getElementById("memberSearch");
+    if (search) {
+      search.focus();
+      showToast("Search member and click Paid button to add manual payment", "success");
+    }
+  }, 300);
 }
 
 function exportPaymentsCSV() {
@@ -2941,4 +2952,83 @@ function exportPaymentsCSV() {
 function scrollToRazorpaySettings() {
   const box = document.getElementById("razorpaySettingsBox");
   if (box) box.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+function updateWhatsAppPremiumUI() {
+  const hasTokenText = document.getElementById("waSettingsStatus")?.innerText || "";
+  const pending = document.getElementById("expiringSoonCount")?.innerText || "0";
+
+  if (document.getElementById("waPendingMembers")) {
+    document.getElementById("waPendingMembers").innerText = pending;
+  }
+
+  if (document.getElementById("waHistoryRecipients")) {
+    document.getElementById("waHistoryRecipients").innerText = pending;
+  }
+
+  if (document.getElementById("waApiStatus")) {
+    if (hasTokenText.includes("saved")) {
+      document.getElementById("waApiStatus").innerText = "Connected";
+      document.getElementById("waApiSub").innerText = "Everything is working fine";
+    } else {
+      document.getElementById("waApiStatus").innerText = "Not Connected";
+      document.getElementById("waApiSub").innerText = "Add access token first";
+    }
+  }
+}
+
+const oldLoadWhatsAppSettings = loadWhatsAppSettings;
+loadWhatsAppSettings = function () {
+  oldLoadWhatsAppSettings();
+  setTimeout(updateWhatsAppPremiumUI, 600);
+};
+
+const oldSendExpiryReminders = sendExpiryReminders;
+sendExpiryReminders = function () {
+  oldSendExpiryReminders();
+  setTimeout(updateWhatsAppPremiumUI, 800);
+};
+function loadPremiumRewardsPage() {
+  const members = allMembersData || [];
+  const totalPoints = members.reduce((sum, m) => sum + Number(m.points || 0), 0);
+
+  const sorted = [...members].sort((a, b) => Number(b.points || 0) - Number(a.points || 0));
+  const top = sorted[0];
+
+  setText("rewardTotalPoints", totalPoints.toLocaleString("en-IN"));
+  setText("rewardEarnedPoints", totalPoints.toLocaleString("en-IN"));
+  setText("rewardRedeemedPoints", "0");
+  setText("rewardAvailableShopPoints", totalPoints.toLocaleString("en-IN"));
+  setText("rewardTopMember", top ? top.name : "-");
+  setText("rewardTopPoints", top ? `${top.points || 0} Points` : "0 Points");
+
+  const progress = Math.min(Math.round((totalPoints / 1500) * 100), 100);
+  const fill = document.getElementById("rewardProgressFill");
+  if (fill) fill.style.width = progress + "%";
+  setText("rewardProgressText", totalPoints.toLocaleString("en-IN"));
+
+  const board = document.getElementById("rewardLeaderboard");
+  if (board) {
+    board.innerHTML = sorted.slice(0, 5).map((m, i) => `
+      <div class="reward-leaderboard-row">
+        <div class="reward-rank">${i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}</div>
+        <div class="reward-member-name">${m.name}</div>
+        <div class="reward-member-points">${m.points || 0} Points</div>
+      </div>
+    `).join("");
+  }
+}
+
+function redeemReward(itemName, pointsRequired) {
+  showToast(`${itemName} redemption request created. Backend approval system next.`, "success");
+
+  const list = document.getElementById("rewardRedemptionList");
+  if (list) {
+    list.innerHTML = `
+      <div class="reward-leaderboard-row">
+        <div class="reward-rank">🎁</div>
+        <div class="reward-member-name">${itemName}</div>
+        <div class="reward-member-points">${pointsRequired} Points</div>
+      </div>
+    ` + list.innerHTML;
+  }
 }

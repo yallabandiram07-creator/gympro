@@ -999,40 +999,296 @@
 
 
     <!-- ===== WHATSAPP SECTION ===== -->
-    <section id="whatsappSection" style="display:none;">
-      <div class="page-header">
-        <h1>WhatsApp Reminder Settings</h1>
-        <p>Save Meta WhatsApp Cloud API details and send expiry reminders.</p>
-      </div>
-      <div class="content-grid">
-        <div class="panel glass-panel">
-          <h2>WhatsApp Settings</h2>
-          <input type="text" id="waPhoneNumberId" placeholder="WhatsApp Phone Number ID">
-          <input type="password" id="waAccessToken" placeholder="Access Token">
-          <input type="text" id="waTemplateName" placeholder="Template Name e.g. hello_world">
-          <input type="text" id="waLanguageCode" placeholder="Language Code e.g. en_US">
-          <button class="primary-btn" onclick="saveWhatsAppSettings()">Save WhatsApp Settings</button>
-          <p id="waSettingsStatus" style="color:#94a3b8;margin-top:10px;"></p>
-        </div>
-        <div class="panel glass-panel">
-          <h2>Expiry Reminders</h2>
-          <p style="color:#94a3b8;">This will send reminders to members expiring within 3 days.</p>
-          <button class="primary-btn" onclick="sendExpiryReminders()">Send Expiry Reminders</button>
-          <p id="waReminderResult" style="color:#94a3b8;margin-top:10px;"></p>
-        </div>
-      </div>
-    </section>
+    <!-- ===== WHATSAPP SECTION ===== -->
+<section id="whatsappSection" style="display:none;">
 
-    <!-- ===== REWARDS SECTION ===== -->
-    <section id="rewardsSection" style="display:none;">
-      <div class="page-header">
-        <h1>Reward Points</h1>
-        <p>Member reward tracking.</p>
+  <div class="wa-hero">
+    <div>
+      <span class="wa-premium-badge">Premium</span>
+      <h1>WhatsApp Reminder Settings</h1>
+      <p>Save Meta WhatsApp Cloud API details and send smart expiry reminders.</p>
+    </div>
+    <div class="wa-hero-art">
+      <div class="wa-phone">📱</div>
+      <div class="wa-bell">🔔</div>
+    </div>
+  </div>
+
+  <div class="wa-kpi-grid">
+    <div class="wa-kpi connected">
+      <div class="wa-kpi-icon">🟢</div>
+      <div>
+        <span>API Status</span>
+        <h2 id="waApiStatus">Checking...</h2>
+        <p id="waApiSub">Connect your WhatsApp API</p>
       </div>
-      <div class="panel glass-panel">
-        <ul id="rewardList" class="modern-list"></ul>
+    </div>
+
+    <div class="wa-kpi blue">
+      <div class="wa-kpi-icon">✈️</div>
+      <div>
+        <span>Reminder Type</span>
+        <h2>Expiry</h2>
+        <p>Membership alerts</p>
       </div>
-    </section>
+    </div>
+
+    <div class="wa-kpi purple">
+      <div class="wa-kpi-icon">👥</div>
+      <div>
+        <span>Pending Reminders</span>
+        <h2 id="waPendingMembers">0</h2>
+        <p>Expiring soon members</p>
+      </div>
+    </div>
+
+    <div class="wa-kpi orange">
+      <div class="wa-kpi-icon">📅</div>
+      <div>
+        <span>Expiry Window</span>
+        <h2>3 Days</h2>
+        <p>Before member expiry</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="wa-main-grid">
+
+    <div class="wa-card">
+      <div class="wa-card-head">
+        <div>
+          <h2>WhatsApp API Settings</h2>
+          <p>Configure your Meta WhatsApp Cloud API credentials</p>
+        </div>
+      </div>
+
+      <div class="wa-input-box">
+        <span>📱</span>
+        <div>
+          <label>WhatsApp Phone Number ID</label>
+          <input type="text" id="waPhoneNumberId" placeholder="Enter Phone Number ID">
+        </div>
+        <b>✓</b>
+      </div>
+
+      <div class="wa-input-box">
+        <span>🔐</span>
+        <div>
+          <label>Access Token</label>
+          <input type="password" id="waAccessToken" placeholder="Enter Access Token">
+        </div>
+        <b>✓</b>
+      </div>
+
+      <div class="wa-input-box">
+        <span>🧩</span>
+        <div>
+          <label>Template Name</label>
+          <input type="text" id="waTemplateName" placeholder="hello_world">
+        </div>
+        <b>✓</b>
+      </div>
+
+      <div class="wa-input-box">
+        <span>🌐</span>
+        <div>
+          <label>Language Code</label>
+          <input type="text" id="waLanguageCode" placeholder="en_US">
+        </div>
+        <b>✓</b>
+      </div>
+
+      <button class="wa-save-btn" onclick="saveWhatsAppSettings()">💾 Save WhatsApp Settings</button>
+
+      <div class="wa-success-box">
+        <strong id="waSettingsStatus">Checking WhatsApp settings...</strong>
+        <p>Your WhatsApp Cloud API status will appear here.</p>
+      </div>
+    </div>
+
+    <div class="wa-card wa-reminder-card">
+      <div class="wa-card-head">
+        <div>
+          <h2>Expiry Reminders</h2>
+          <p>Send automated WhatsApp reminders before membership expires.</p>
+        </div>
+      </div>
+
+      <div class="wa-orbit">
+        <div class="wa-user u1">👤</div>
+        <div class="wa-user u2">👤</div>
+        <div class="wa-user u3">👤</div>
+        <div class="wa-user u4">👤</div>
+        <div class="wa-big-bell">🔔</div>
+      </div>
+
+      <div class="wa-reminder-box">
+        <p>This will send reminders to members expiring within</p>
+        <div class="wa-days-control">
+          <button>-</button>
+          <strong>3 Days</strong>
+          <button>+</button>
+        </div>
+
+        <button class="wa-send-btn" onclick="sendExpiryReminders()">✈️ Send Expiry Reminders Now</button>
+
+        <small>🕘 Recommended sending time: 9:00 AM to 8:00 PM</small>
+        <p id="waReminderResult"></p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="wa-card wa-history-card">
+    <div class="wa-history-head">
+      <div>
+        <h2>Reminder History</h2>
+        <p>View your recently sent WhatsApp reminders</p>
+      </div>
+      <button class="wa-export-btn">⬇ Export Report</button>
+    </div>
+
+    <div class="wa-table-wrap">
+      <table class="wa-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Message Type</th>
+            <th>Recipients</th>
+            <th>Sent On</th>
+            <th>Status</th>
+            <th>Delivered</th>
+            <th>Failed</th>
+          </tr>
+        </thead>
+        <tbody id="waHistoryTable">
+          <tr>
+            <td>1</td>
+            <td>🔔 Expiry Reminder</td>
+            <td id="waHistoryRecipients">0</td>
+            <td>Today</td>
+            <td><span class="wa-status">Ready</span></td>
+            <td>-</td>
+            <td>-</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</section>
+
+<!-- ===== REWARDS SECTION ===== -->
+<section id="rewardsSection" style="display:none;">
+
+  <div class="reward-hero">
+    <div>
+      <span class="reward-premium-badge">Premium</span>
+      <h1>Reward Points</h1>
+      <p>Earn points, unlock amazing rewards and stay motivated.</p>
+    </div>
+    <button class="reward-send-btn">✈ Send Notification</button>
+  </div>
+
+  <div class="reward-kpi-grid">
+    <div class="reward-kpi"><div class="reward-kpi-icon gold">🪙</div><span>Total Points</span><h2 id="rewardTotalPoints">0</h2><p>Available balance</p></div>
+    <div class="reward-kpi"><div class="reward-kpi-icon green">📈</div><span>Points Earned</span><h2 id="rewardEarnedPoints">0</h2><p>This month</p></div>
+    <div class="reward-kpi"><div class="reward-kpi-icon pink">🎁</div><span>Points Redeemed</span><h2 id="rewardRedeemedPoints">0</h2><p>This month</p></div>
+    <div class="reward-kpi"><div class="reward-kpi-icon purple">🏆</div><span>Top Member</span><h2 id="rewardTopMember">-</h2><p id="rewardTopPoints">0 Points</p></div>
+  </div>
+
+  <div class="reward-top-grid">
+    <div class="reward-card progress-card">
+      <h2>Your Progress to Next Reward</h2>
+      <div class="progress-content">
+        <div class="reward-product-img">🥊</div>
+        <div>
+          <h3>Gym Gloves</h3>
+          <span>1,500 Points</span>
+          <div class="reward-progress-bar"><i id="rewardProgressFill"></i></div>
+          <p><b id="rewardProgressText">0</b> / 1,500 Points</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reward-card earn-card">
+      <h2>Ways to Earn Points</h2>
+      <div class="earn-grid">
+        <div>✅ Daily Attendance <b>5</b></div>
+        <div>🔥 7 Day Streak <b>25</b></div>
+        <div>👑 30 Day Streak <b>120</b></div>
+        <div>👥 Refer Friend <b>400</b></div>
+        <div>📲 Social Tag <b>40</b></div>
+        <div>🏆 Challenge Win <b>200</b></div>
+        <div>🟢 On-time Renewal <b>100</b></div>
+        <div>💬 Feedback <b>15</b></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="reward-card reward-shop-card">
+    <div class="reward-shop-head">
+      <div>
+        <h2>🎁 Reward Shop</h2>
+        <p>Redeem your points for exciting rewards.</p>
+      </div>
+      <div class="reward-balance-box">
+        <span>Total Available Points</span>
+        <h3 id="rewardAvailableShopPoints">0</h3>
+      </div>
+    </div>
+
+    <div class="reward-tabs">
+      <button class="active">All Rewards</button>
+      <button>Accessories</button>
+      <button>Apparel</button>
+      <button>Supplements</button>
+      <button>Lifestyle</button>
+    </div>
+
+    <h3 class="reward-tier green">TIER 1 - QUICK REWARDS</h3>
+    <div class="reward-shop-grid">
+      <div class="reward-item"><div class="reward-img">🏷️</div><h4>Gym Sticker Pack</h4><p>100 Points</p><small>In Stock</small><button onclick="redeemReward('Gym Sticker Pack',100)">Redeem</button></div>
+      <div class="reward-item"><div class="reward-img">⌚</div><h4>Wrist Band</h4><p>200 Points</p><small>In Stock</small><button onclick="redeemReward('Wrist Band',200)">Redeem</button></div>
+      <div class="reward-item"><div class="reward-img">🥤</div><h4>Shaker Bottle</h4><p>500 Points</p><small>In Stock</small><button onclick="redeemReward('Shaker Bottle',500)">Redeem</button></div>
+      <div class="reward-item"><div class="reward-img">➰</div><h4>Jump Rope</h4><p>700 Points</p><small>In Stock</small><button onclick="redeemReward('Jump Rope',700)">Redeem</button></div>
+      <div class="reward-item"><div class="reward-img">🧺</div><h4>Gym Towel</h4><p>850 Points</p><small>In Stock</small><button onclick="redeemReward('Gym Towel',850)">Redeem</button></div>
+    </div>
+
+    <h3 class="reward-tier blue">TIER 2 - MOST POPULAR</h3>
+    <div class="reward-shop-grid">
+      <div class="reward-item"><div class="reward-img">🟩</div><h4>Resistance Band</h4><p>1,000 Points</p><small>In Stock</small><button onclick="redeemReward('Resistance Band',1000)">Redeem</button></div>
+      <div class="reward-item"><div class="reward-img">🧢</div><h4>Gym Cap</h4><p>1,300 Points</p><small>In Stock</small><button onclick="redeemReward('Gym Cap',1300)">Redeem</button></div>
+      <div class="reward-item"><div class="reward-img">🥊</div><h4>Gym Gloves</h4><p>1,500 Points</p><small>In Stock</small><button onclick="redeemReward('Gym Gloves',1500)">Redeem</button></div>
+      <div class="reward-item"><div class="reward-img">👕</div><h4>Gym T-Shirt</h4><p>1,800 Points</p><small>In Stock</small><button onclick="redeemReward('Gym T-Shirt',1800)">Redeem</button></div>
+      <div class="reward-item"><div class="reward-img">🎒</div><h4>Gym Bag</h4><p>4,500 Points</p><small>In Stock</small><button onclick="redeemReward('Gym Bag',4500)">Redeem</button></div>
+    </div>
+
+    <h3 class="reward-tier purple">TIER 3 - PREMIUM REWARDS</h3>
+    <div class="reward-shop-grid">
+      <div class="reward-item featured"><div class="reward-img">🧪</div><h4>Creatine 300g</h4><p>3,000 Points</p><small>In Stock</small><button onclick="redeemReward('Creatine 300g',3000)">Redeem</button></div>
+      <div class="reward-item"><div class="reward-img">💧</div><h4>Premium Bottle</h4><p>3,500 Points</p><small>In Stock</small><button onclick="redeemReward('Premium Bottle',3500)">Redeem</button></div>
+      <div class="reward-item featured"><div class="reward-img">🥛</div><h4>Whey Protein 1kg</h4><p>6,000 Points</p><small>In Stock</small><button onclick="redeemReward('Whey Protein 1kg',6000)">Redeem</button></div>
+      <div class="reward-item"><div class="reward-img">🏋️</div><h4>Lifting Belt</h4><p>5,000 Points</p><small>In Stock</small><button onclick="redeemReward('Lifting Belt',5000)">Redeem</button></div>
+      <div class="reward-item"><div class="reward-img">🎁</div><h4>Supplement Hamper</h4><p>9,000 Points</p><small>In Stock</small><button onclick="redeemReward('Supplement Hamper',9000)">Redeem</button></div>
+    </div>
+  </div>
+
+  <div class="reward-bottom-grid">
+    <div class="reward-card">
+      <h2>🎟 Recent Redemptions</h2>
+      <div id="rewardRedemptionList" class="reward-redemption-list">
+        <p>No redemptions yet.</p>
+      </div>
+    </div>
+
+    <div class="reward-card">
+      <h2>🏆 Top Members Leaderboard</h2>
+      <div id="rewardLeaderboard" class="reward-leaderboard"></div>
+    </div>
+  </div>
+
+</section>
 
     <!-- ===== REPORTS SECTION ===== -->
     <section id="reportsSection" style="display:none;">
