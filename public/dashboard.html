@@ -1181,111 +1181,125 @@
 <!-- ===== REWARDS SECTION ===== -->
 <section id="rewardsSection" style="display:none;">
 
-  <div class="reward-hero">
-    <div>
-      <span class="reward-premium-badge">Premium</span>
-      <h1>Reward Points</h1>
-      <p>Earn points, unlock amazing rewards and stay motivated.</p>
+  <div class="reward-page">
+
+    <div class="reward-header">
+      <div>
+        <div class="reward-title-row">
+          <h1>Reward Points</h1>
+          <span>Premium</span>
+        </div>
+        <p>Earn points, unlock amazing rewards and stay motivated!</p>
+      </div>
+      <button class="reward-notify-btn">✈ Send Notification</button>
     </div>
-    <button class="reward-send-btn">✈ Send Notification</button>
-  </div>
 
-  <div class="reward-kpi-grid">
-    <div class="reward-kpi"><div class="reward-kpi-icon gold">🪙</div><span>Total Points</span><h2 id="rewardTotalPoints">0</h2><p>Available balance</p></div>
-    <div class="reward-kpi"><div class="reward-kpi-icon green">📈</div><span>Points Earned</span><h2 id="rewardEarnedPoints">0</h2><p>This month</p></div>
-    <div class="reward-kpi"><div class="reward-kpi-icon pink">🎁</div><span>Points Redeemed</span><h2 id="rewardRedeemedPoints">0</h2><p>This month</p></div>
-    <div class="reward-kpi"><div class="reward-kpi-icon purple">🏆</div><span>Top Member</span><h2 id="rewardTopMember">-</h2><p id="rewardTopPoints">0 Points</p></div>
-  </div>
+    <div class="reward-stats-grid">
+      <div class="reward-stat-card"><div class="stat-icon coin">🪙</div><span>Total Points</span><h2 id="rewardTotalPoints">0</h2><p>Available Balance</p></div>
+      <div class="reward-stat-card"><div class="stat-icon green">📈</div><span>Points Earned</span><h2 id="rewardEarnedPoints">0</h2><p>This Month ↑ 18%</p></div>
+      <div class="reward-stat-card"><div class="stat-icon gift">🎁</div><span>Points Redeemed</span><h2 id="rewardRedeemedPoints">0</h2><p>This Month ↑ 12%</p></div>
+      <div class="reward-stat-card"><div class="stat-icon cup">🏆</div><span>Current Rank</span><h2 id="rewardRank">Silver</h2><p>Next: Gold 🪙</p></div>
+      <div class="reward-stat-card"><div class="stat-icon cal">🗓️</div><span>Membership Since</span><h2>245</h2><p>Days with us 💜</p></div>
+    </div>
 
-  <div class="reward-top-grid">
-    <div class="reward-card progress-card">
-      <h2>Your Progress to Next Reward</h2>
-      <div class="progress-content">
-        <div class="reward-product-img">🥊</div>
-        <div>
-          <h3>Gym Gloves</h3>
-          <span>1,500 Points</span>
-          <div class="reward-progress-bar"><i id="rewardProgressFill"></i></div>
-          <p><b id="rewardProgressText">0</b> / 1,500 Points</p>
+    <div class="reward-top-grid">
+      <div class="reward-panel next-reward-panel">
+        <h2>Your Progress to Next Reward</h2>
+        <div class="next-reward-body">
+          <div class="next-reward-img">
+            <img src="https://images.unsplash.com/photo-1627483298606-cf54c61779a9?auto=format&fit=crop&w=500&q=80">
+          </div>
+          <div class="next-reward-info">
+            <h3>Gym Gloves</h3>
+            <span>1,500 Points</span>
+            <div class="next-progress"><i id="rewardProgressFill"></i></div>
+            <div class="next-progress-text"><b id="rewardProgressText">0</b> / 1,500 Points</div>
+            <small>You need more points to unlock this reward!</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="reward-panel earn-panel">
+        <div class="panel-head">
+          <h2>Ways to Earn Points</h2>
+          <button>View All</button>
+        </div>
+
+        <div class="earn-points-grid">
+          <div><span>✅</span><p>Daily Attendance</p><b>5 Points</b></div>
+          <div><span>🔥</span><p>7 Day Streak</p><b>25 Points</b></div>
+          <div><span>👑</span><p>30 Day Streak</p><b>120 Points</b></div>
+          <div><span>👥</span><p>Refer a Friend</p><b>400 Points</b></div>
+          <div><span>🔗</span><p>Social Media Tag</p><b>40 Points</b></div>
+          <div><span>🏆</span><p>Challenge Winner</p><b>200 Points</b></div>
+          <div><span>✅</span><p>On-time Renewal</p><b>100 Points</b></div>
+          <div><span>💬</span><p>Feedback</p><b>15 Points</b></div>
         </div>
       </div>
     </div>
 
-    <div class="reward-card earn-card">
-      <h2>Ways to Earn Points</h2>
-      <div class="earn-grid">
-        <div>✅ Daily Attendance <b>5</b></div>
-        <div>🔥 7 Day Streak <b>25</b></div>
-        <div>👑 30 Day Streak <b>120</b></div>
-        <div>👥 Refer Friend <b>400</b></div>
-        <div>📲 Social Tag <b>40</b></div>
-        <div>🏆 Challenge Win <b>200</b></div>
-        <div>🟢 On-time Renewal <b>100</b></div>
-        <div>💬 Feedback <b>15</b></div>
+    <div class="reward-panel reward-shop-panel">
+      <div class="reward-shop-header">
+        <div>
+          <h2>🎁 Reward Shop</h2>
+          <p>Redeem your points for exciting rewards</p>
+        </div>
+        <div class="reward-shop-actions">
+          <div class="available-points-box">
+            <span>Total Available Points</span>
+            <h3 id="rewardAvailableShopPoints">0</h3>
+          </div>
+          <button>⏱ My Redemptions</button>
+        </div>
       </div>
-    </div>
-  </div>
 
-  <div class="reward-card reward-shop-card">
-    <div class="reward-shop-head">
-      <div>
-        <h2>🎁 Reward Shop</h2>
-        <p>Redeem your points for exciting rewards.</p>
+      <div class="reward-tabs">
+        <button class="active">All Rewards</button>
+        <button>Accessories</button>
+        <button>Apparel</button>
+        <button>Supplements</button>
+        <button>Merchandise</button>
+        <button>Lifestyle</button>
       </div>
-      <div class="reward-balance-box">
-        <span>Total Available Points</span>
-        <h3 id="rewardAvailableShopPoints">0</h3>
+
+      <h3 class="tier-title green">TIER 1 - QUICK REWARDS</h3>
+      <div class="reward-shop-grid">
+        <div class="reward-item"><div class="reward-img"><img src="https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=500&q=80"></div><h4>Gym Sticker Pack</h4><p>🪙 100 Points</p><small>In Stock</small><button onclick="redeemReward('Gym Sticker Pack',100)">Redeem</button></div>
+        <div class="reward-item"><div class="reward-img"><img src="https://rukminim2.flixcart.com/image/612/612/xif0q/shopsy-support/x/g/q/wrist-support-wrist-support-with-velcro-strap-free-size-nivia-original-imahhzh5zyuhuzmt.jpeg?q=70"></div><h4>Wrist Band</h4><p>🪙 200 Points</p><small>In Stock</small><button onclick="redeemReward('Wrist Band',200)">Redeem</button></div>
+        <div class="reward-item"><div class="reward-img"><img src="https://rukminim2.flixcart.com/image/612/612/xif0q/bottle/e/z/q/700-shaker-bottle-with-whisk-ball-gym-700-ml-shaker-1-sipper-311-original-imahene3qszhqbpy.jpeg?q=70"></div><h4>Shaker Bottle</h4><p>🪙 500 Points</p><small>In Stock</small><button onclick="redeemReward('Shaker Bottle',500)">Redeem</button></div>
+        <div class="reward-item"><div class="reward-img"><img src="https://rukminim3.flixcart.com/image/546/564/xif0q/shopsy-skipping-rope/o/l/s/skipping-rope-for-kids-adjustable-pvc-jump-rope-finest-quality-original-imagpwbbgxuzte5r.jpeg?q=60"></div><h4>Jump Rope</h4><p>🪙 700 Points</p><small>In Stock</small><button onclick="redeemReward('Jump Rope',700)">Redeem</button></div>
+        <div class="reward-item"><div class="reward-img"><img src="https://beastlife.in/cdn/shop/files/Towel-6.jpg?v=1762339153&width=1445"></div><h4>Towel</h4><p>🪙 850 Points</p><small>In Stock</small><button onclick="redeemReward('Towel',850)">Redeem</button></div>
       </div>
-    </div>
 
-    <div class="reward-tabs">
-      <button class="active">All Rewards</button>
-      <button>Accessories</button>
-      <button>Apparel</button>
-      <button>Supplements</button>
-      <button>Lifestyle</button>
-    </div>
+      <h3 class="tier-title blue">TIER 2 - MOST POPULAR</h3>
+      <div class="reward-shop-grid">
+        <div class="reward-item"><div class="reward-img"><img src="https://scssports.in/cdn/shop/files/Untitleddesign-2026-04-07T115512.509.jpg?v=1775543938&width=1000"></div><h4>Resistance Band</h4><p>🪙 1,000 Points</p><small>In Stock</small><button onclick="redeemReward('Resistance Band',1000)">Redeem</button></div>
+        <div class="reward-item"><div class="reward-img"><img src="https://i.etsystatic.com/17507261/r/il/ad3d86/2122239365/il_600x600.2122239365_kqrz.jpg"></div><h4>Gym Cap</h4><p>🪙 1,300 Points</p><small>In Stock</small><button onclick="redeemReward('Gym Cap',1300)">Redeem</button></div>
+        <div class="reward-item"><div class="reward-img"><img src="https://m.media-amazon.com/images/I/610W2jfXYNL.jpg"></div><h4>Gym Gloves</h4><p>🪙 1,500 Points</p><small>In Stock</small><button onclick="redeemReward('Gym Gloves',1500)">Redeem</button></div>
+        <div class="reward-item"><div class="reward-img"><img src="images/t shirt.png" ></div><h4>Gym T-Shirt</h4><p>🪙 1,800 Points</p><small>In Stock</small><button onclick="redeemReward('Gym T-Shirt',1800)">Redeem</button></div>
+        <div class="reward-item"><div class="reward-img"><img src="https://rukminim2.flixcart.com/image/612/612/xif0q/sport-bag/t/0/x/gym-l-2005-3-0-kit-bag-monvelli-25-gym-original-imahj4dhevcgk8bx.jpeg?q=70"></div><h4>Gym Bag</h4><p>🪙 4,500 Points</p><small>In Stock</small><button onclick="redeemReward('Gym Bag',4500)">Redeem</button></div>
+      </div>
 
-    <h3 class="reward-tier green">TIER 1 - QUICK REWARDS</h3>
-    <div class="reward-shop-grid">
-      <div class="reward-item"><div class="reward-img">🏷️</div><h4>Gym Sticker Pack</h4><p>100 Points</p><small>In Stock</small><button onclick="redeemReward('Gym Sticker Pack',100)">Redeem</button></div>
-      <div class="reward-item"><div class="reward-img">⌚</div><h4>Wrist Band</h4><p>200 Points</p><small>In Stock</small><button onclick="redeemReward('Wrist Band',200)">Redeem</button></div>
-      <div class="reward-item"><div class="reward-img">🥤</div><h4>Shaker Bottle</h4><p>500 Points</p><small>In Stock</small><button onclick="redeemReward('Shaker Bottle',500)">Redeem</button></div>
-      <div class="reward-item"><div class="reward-img">➰</div><h4>Jump Rope</h4><p>700 Points</p><small>In Stock</small><button onclick="redeemReward('Jump Rope',700)">Redeem</button></div>
-      <div class="reward-item"><div class="reward-img">🧺</div><h4>Gym Towel</h4><p>850 Points</p><small>In Stock</small><button onclick="redeemReward('Gym Towel',850)">Redeem</button></div>
-    </div>
-
-    <h3 class="reward-tier blue">TIER 2 - MOST POPULAR</h3>
-    <div class="reward-shop-grid">
-      <div class="reward-item"><div class="reward-img">🟩</div><h4>Resistance Band</h4><p>1,000 Points</p><small>In Stock</small><button onclick="redeemReward('Resistance Band',1000)">Redeem</button></div>
-      <div class="reward-item"><div class="reward-img">🧢</div><h4>Gym Cap</h4><p>1,300 Points</p><small>In Stock</small><button onclick="redeemReward('Gym Cap',1300)">Redeem</button></div>
-      <div class="reward-item"><div class="reward-img">🥊</div><h4>Gym Gloves</h4><p>1,500 Points</p><small>In Stock</small><button onclick="redeemReward('Gym Gloves',1500)">Redeem</button></div>
-      <div class="reward-item"><div class="reward-img">👕</div><h4>Gym T-Shirt</h4><p>1,800 Points</p><small>In Stock</small><button onclick="redeemReward('Gym T-Shirt',1800)">Redeem</button></div>
-      <div class="reward-item"><div class="reward-img">🎒</div><h4>Gym Bag</h4><p>4,500 Points</p><small>In Stock</small><button onclick="redeemReward('Gym Bag',4500)">Redeem</button></div>
-    </div>
-
-    <h3 class="reward-tier purple">TIER 3 - PREMIUM REWARDS</h3>
-    <div class="reward-shop-grid">
-      <div class="reward-item featured"><div class="reward-img">🧪</div><h4>Creatine 300g</h4><p>3,000 Points</p><small>In Stock</small><button onclick="redeemReward('Creatine 300g',3000)">Redeem</button></div>
-      <div class="reward-item"><div class="reward-img">💧</div><h4>Premium Bottle</h4><p>3,500 Points</p><small>In Stock</small><button onclick="redeemReward('Premium Bottle',3500)">Redeem</button></div>
-      <div class="reward-item featured"><div class="reward-img">🥛</div><h4>Whey Protein 1kg</h4><p>6,000 Points</p><small>In Stock</small><button onclick="redeemReward('Whey Protein 1kg',6000)">Redeem</button></div>
-      <div class="reward-item"><div class="reward-img">🏋️</div><h4>Lifting Belt</h4><p>5,000 Points</p><small>In Stock</small><button onclick="redeemReward('Lifting Belt',5000)">Redeem</button></div>
-      <div class="reward-item"><div class="reward-img">🎁</div><h4>Supplement Hamper</h4><p>9,000 Points</p><small>In Stock</small><button onclick="redeemReward('Supplement Hamper',9000)">Redeem</button></div>
-    </div>
-  </div>
-
-  <div class="reward-bottom-grid">
-    <div class="reward-card">
-      <h2>🎟 Recent Redemptions</h2>
-      <div id="rewardRedemptionList" class="reward-redemption-list">
-        <p>No redemptions yet.</p>
+      <h3 class="tier-title purple">TIER 3 - PREMIUM REWARDS</h3>
+      <div class="reward-shop-grid">
+        <div class="reward-item featured"><div class="reward-img"><img src="https://wellversed.in/cdn/shop/files/ELI-4___Unflavoured_33servings___Creatine___Revamp_Listing___Wellcore_700x700.jpg?v=1768371462"></div><h4>Creatine 300g</h4><p>🪙 3,000 Points</p><small>In Stock</small><button onclick="redeemReward('Creatine 300g',3000)">Redeem</button></div>
+        <div class="reward-item"><div class="reward-img"><img src="https://arrowmax.in/cdn/shop/files/3d91500b-27fa-415e-8c1c-b2d62a56fb15_533x.jpg?v=1760426676"></div><h4>Premium Bottle</h4><p>🪙 3,500 Points</p><small>In Stock</small><button onclick="redeemReward('Premium Bottle',3500)">Redeem</button></div>
+        <div class="reward-item featured"><div class="reward-img"><img src="https://m.media-amazon.com/images/I/71GsdXCoroL.jpg"></div><h4>Whey Protein 1kg</h4><p>🪙 6,000 Points</p><small>In Stock</small><button onclick="redeemReward('Whey Protein 1kg',6000)">Redeem</button></div>
+        <div class="reward-item"><div class="reward-img"><img src="https://invincible.in/cdn/shop/files/GYM_BELT_2.jpg?v=1762228890&width=1000"></div><h4>Lifting Belt</h4><p>🪙 5,000 Points</p><small>In Stock</small><button onclick="redeemReward('Lifting Belt',5000)">Redeem</button></div>
+        <div class="reward-item"><div class="reward-img"><img src="images/supplement-hamper.png"></div><h4>Supplement Hamper</h4><p>🪙 9,000 Points</p><small>In Stock</small><button onclick="redeemReward('Supplement Hamper',9000)">Redeem</button></div>
       </div>
     </div>
 
-    <div class="reward-card">
-      <h2>🏆 Top Members Leaderboard</h2>
-      <div id="rewardLeaderboard" class="reward-leaderboard"></div>
+    <div class="reward-bottom-grid">
+      <div class="reward-panel"><h2>🎟 Recent Redemptions</h2><div id="rewardRedemptionList" class="reward-redemption-list"><p>No redemptions yet.</p></div></div>
+      <div class="reward-panel"><h2>👑 Top Members Leaderboard</h2><div id="rewardLeaderboard" class="reward-leaderboard"></div></div>
     </div>
+
+    <div class="reward-streak-card">
+      <div><h2>⭐ Keep Going, You're Doing Great!</h2><p>Stay consistent, earn more points and unlock bigger rewards.</p></div>
+      <div class="streak-days"><span>7 Days Streak</span><b>✅ ✅ ✅ ✅ ✅ ✅ ✅</b></div>
+    </div>
+
   </div>
 
 </section>
