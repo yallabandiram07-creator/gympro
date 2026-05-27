@@ -3022,234 +3022,168 @@ function loadPremiumRewardsPage() {
 }
 
 function redeemReward(itemName, pointsRequired) {
-  showToast(`${itemName} redemption request created. Backend approval system next.`, "success");
 
-  const list = document.getElementById("rewardRedemptionList");
-  if (list) {
-    list.innerHTML = `
-      <div class="reward-leaderboard-row">
-        <div class="reward-rank">🎁</div>
-        <div class="reward-member-name">${itemName}</div>
-        <div class="reward-member-points">${pointsRequired} Points</div>
-      </div>
-    ` + list.innerHTML;
-  }
+  const modal = document.getElementById("rewardPreviewModal");
+
+  const name = document.getElementById("previewRewardName");
+  const img = document.getElementById("previewRewardImage");
+  const text = document.getElementById("previewRewardText");
+  const points = document.getElementById("previewRewardPoints");
+
+  const imageMap = {
+
+    "Gym Sticker Pack": "images/sticker-pack.png",
+    "Wrist Band": "images/wrist-band.png",
+    "Shaker Bottle": "images/shaker.png",
+    "Jump Rope": "images/jump-rope.png",
+    "Gym Towel": "images/towel.png",
+    "Resistance Band": "images/resistance-band.png",
+    "Gym Cap": "images/cap.png",
+    "Gym Gloves": "images/gloves.png",
+    "GymPro T-Shirt": "images/gympro-shirt.png",
+    "Gym Bag": "images/gym-bag.png",
+    "Creatine 300g": "images/creatine.png",
+    "Premium Bottle": "images/premium-bottle.png",
+    "Whey Protein 1kg": "images/whey.png",
+    "Lifting Belt": "images/lifting-belt.png",
+    "Supplement Hamper": "images/supplement-hamper.png"
+
+  };
+
+  name.innerText = itemName;
+
+  img.src =
+    imageMap[itemName] || "images/gympro-shirt.png";
+
+  points.innerText =
+    pointsRequired.toLocaleString("en-IN");
+
+  text.innerText =
+    "Premium GymPro reward product preview.";
+
+  modal.classList.remove("hidden");
 }
 
-let ownerRedemptionsCache = [];
+function closeRewardPreview() {
+  document
+    .getElementById("rewardPreviewModal")
+    .classList.add("hidden");
+}
+
+let redemptionsV2 = [];
 
 async function loadOwnerRedemptions() {
   const token = tokenOrLogin();
   if (!token) return;
 
-  const tbody = document.getElementById("rewardRedemptionList");
+  const tbody = document.getElementById("redemptionTableBodyV2");
   if (!tbody) return;
+
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="6">
+        <div class="redemption-empty">Loading redemptions...</div>
+      </td>
+    </tr>
+  `;
 
   try {
     const res = await fetch(API + "/owner-redemptions", {
       headers: { Authorization: token }
     });
 
-    const redemptions = await res.json();
-    ownerRedemptionsCache = Array.isArray(redemptions) ? redemptions : [];
+    const data = await res.json();
+    redemptionsV2 = Array.isArray(data) ? data : [];
 
-    renderOwnerRedemptions();
+    updateRedemptionKpis();
+    renderRedemptionsV2();
 
   } catch (err) {
-    console.log(err);
+    console.log("Redemption load failed:", err);
     tbody.innerHTML = `
       <tr>
         <td colspan="6">
-          <div class="redemption-empty">
-            Failed to load redemptions.
-          </div>
+          <div class="redemption-empty">Failed to load redemptions.</div>
         </td>
       </tr>
     `;
   }
 }
 
-function renderOwnerRedemptions() {
-  const tbody = document.getElementById("rewardRedemptionList");
-  if (!tbody) return;
+function updateRedemptionKpis() {
+  setText("totalRedemptionRequests", redemptionsV2.length);
+  setText("pendingRedemptionRequests", redemptionsV2.filter(r => String(r.status || "pending").toLowerCase() === "pending").length);
+  setText("deliveredRedemptionRequests", redemptionsV2.filter(r => String(r.status || "").toLowerCase() === "delivered").length);
+  setText("rejectedRedemptionRequests", redemptionsV2.filter(r => String(r.status || "").toLowerCase() === "rejected").length);
+}
 
-  const redemptions = ownerRedemptionsCache || [];
+function renderRedemptionsV2() {
+  const listBox = document.getElementById("redemptionTableBodyV2");
+  if (!listBox) return;
 
-  setText("totalRedemptionRequests", redemptions.length || 0);
-  setText("pendingRedemptionRequests", redemptions.filter(r => r.status === "pending").length);
-  setText("deliveredRedemptionRequests", redemptions.filter(r => r.status === "delivered").length);
-  setText("rejectedRedemptionRequests", redemptions.filter(r => r.status === "rejected").length);
+  const filter = String(document.getElementById("redemptionStatusFilterV2")?.value || "all").toLowerCase();
 
-  const filter = document.getElementById("redemptionStatusFilter")?.value || "all";
-
-  let filtered = [...redemptions];
+  let list = redemptionsV2.map(r => ({
+    ...r,
+    status: String(r.status || "pending").toLowerCase()
+  }));
 
   if (filter !== "all") {
-    filtered = filtered.filter(r => String(r.status || "pending") === filter);
+    list = list.filter(r => r.status === filter);
   }
 
-  if (!filtered.length) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="6">
-          <div class="redemption-empty">
-            No reward redemption requests found.
-          </div>
-        </td>
-      </tr>
-    `;
+  if (!list.length) {
+    listBox.innerHTML = `<div class="redemption-empty">No reward redemption requests found.</div>`;
     return;
   }
 
-  tbody.innerHTML = filtered.map(r => `
-    <tr>
-      <td>
+  listBox.innerHTML = list.map(r => {
+    const status = String(r.status || "pending").toLowerCase();
+    const memberName = r.memberName || "Member";
+    const initial = memberName.charAt(0).toUpperCase();
+
+    return `
+      <div class="premium-redemption-row">
         <div class="redemption-member">
-          <div class="redemption-avatar">
-            ${String(r.memberName || "M").charAt(0).toUpperCase()}
-          </div>
+          <div class="redemption-avatar">${initial}</div>
           <div>
-            <strong>${r.memberName || "Member"}</strong><br>
-            <small>Member reward request</small>
+            <strong>${memberName}</strong>
+            <span>Member request</span>
           </div>
         </div>
-      </td>
 
-      <td>
         <div class="redemption-reward">
-          <img src="${r.image || "images/gympro-shirt.png"}" alt="${r.rewardName || "Reward"}">
+          <img src="${r.image || "images/gympro-shirt.png"}">
           <div>
-            <strong>${r.rewardName || "Reward"}</strong><br>
-            <small>Reward Shop Item</small>
+            <strong>${r.rewardName || "Reward"}</strong>
+            <span>🪙 ${Number(r.points || 0).toLocaleString("en-IN")} Points</span>
           </div>
         </div>
-      </td>
 
-      <td>🪙 ${Number(r.points || 0).toLocaleString("en-IN")}</td>
-
-      <td>${r.createdAt ? new Date(r.createdAt).toLocaleString("en-IN") : "-"}</td>
-
-      <td>
-        <span class="redemption-badge ${String(r.status || "pending")}">
-          ${String(r.status || "pending").toUpperCase()}
-        </span>
-      </td>
-
-      <td>
-        <div class="redemption-actions">
-          <button class="primary-btn small-btn" onclick="openRedemptionConfirmModal('${r._id}','delivered','${r.rewardName || "Reward"}')">
-            Delivered
-          </button>
-
-          <button class="danger-btn small-btn" onclick="openRedemptionConfirmModal('${r._id}','rejected','${r.rewardName || "Reward"}')">
-            Reject
-          </button>
+        <div class="redemption-date">
+          <strong>${r.createdAt ? new Date(r.createdAt).toLocaleDateString("en-IN") : "-"}</strong>
+          <span>${r.createdAt ? new Date(r.createdAt).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"}) : ""}</span>
         </div>
-      </td>
-    </tr>
-  `).join("");
-}
 
-async function updateRedemptionStatus(id, status) {
-  const token = tokenOrLogin();
-  if (!token) return;
+        <span class="redemption-badge ${status}">
+          ${status.toUpperCase()}
+        </span>
 
-  try {
-    const res = await fetch(API + "/owner-redemptions/" + id, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token
-      },
-      body: JSON.stringify({ status })
-    });
-
-    const data = await res.json();
-
-    showToast(data.message || "Redemption updated", "success");
-    loadOwnerRedemptions();
-
-  } catch (err) {
-    console.log(err);
-    showToast("Failed to update redemption", "error");
-  }
-}
-function openRedemptionConfirmModal(id, status, rewardName) {
-  document.getElementById("confirmRedemptionId").value = id;
-  document.getElementById("confirmRedemptionStatus").value = status;
-
-  document.getElementById("redemptionConfirmTitle").innerText =
-    status === "delivered" ? "Mark Reward Delivered?" : "Reject Reward Request?";
-
-  document.getElementById("redemptionConfirmText").innerText =
-    status === "delivered"
-      ? "Confirm that " + rewardName + " has been delivered to the member."
-      : "Are you sure you want to reject " + rewardName + "?";
-
-  document.getElementById("redemptionConfirmModal").classList.remove("hidden");
-}
-
-function closeRedemptionConfirmModal() {
-  document.getElementById("redemptionConfirmModal").classList.add("hidden");
-}
-
-async function confirmRedemptionUpdate() {
-  const id = document.getElementById("confirmRedemptionId").value;
-  const status = document.getElementById("confirmRedemptionStatus").value;
-
-  closeRedemptionConfirmModal();
-  await updateRedemptionStatus(id, status);
-}
-function sendRewardNotification() {
-  showToast("Reward notification system will connect with WhatsApp next.", "success");
-}
-
-function openWaysToEarnModal(){
-  document.getElementById(
-    "waysEarnModal"
-  ).classList.remove("hidden");
-}
-
-function closeWaysToEarnModal(){
-  document.getElementById(
-    "waysEarnModal"
-  ).classList.add("hidden");
-}
-
-function scrollToRedemptions() {
-  const panel = document.querySelector(".owner-redemption-panel");
-  if (panel) {
-    panel.scrollIntoView({ behavior: "smooth", block: "start" });
-  } else {
-    showToast("No redemption panel found", "error");
-  }
-}
-function filterRewardShop(category, btn) {
-  document.querySelectorAll(".reward-tabs button").forEach(button => {
-    button.classList.remove("active");
-  });
-
-  if (btn) btn.classList.add("active");
-
-  const cards = document.querySelectorAll(".reward-item");
-
-  cards.forEach(card => {
-    const cardCategory = card.getAttribute("data-category");
-
-    if (category === "all" || cardCategory === category) {
-      card.style.display = "block";
-    } else {
-      card.style.display = "none";
-    }
-  });
-
-  document.querySelectorAll(".tier-title").forEach(title => {
-    const nextGrid = title.nextElementSibling;
-    if (!nextGrid) return;
-
-    const visibleCards = nextGrid.querySelectorAll(".reward-item:not([style*='display: none'])");
-
-    title.style.display = visibleCards.length ? "block" : "none";
-    nextGrid.style.display = visibleCards.length ? "grid" : "none";
-  });
+        <div class="redemption-actions">
+          ${
+            status === "pending"
+              ? `
+                <button class="primary-btn small-btn" onclick="openRedemptionConfirmModal('${r._id}','delivered','${r.rewardName || "Reward"}')">
+                  Delivered
+                </button>
+                <button class="danger-btn small-btn" onclick="openRedemptionConfirmModal('${r._id}','rejected','${r.rewardName || "Reward"}')">
+                  Reject
+                </button>
+              `
+              : `<span class="redemption-complete">Completed</span>`
+          }
+        </div>
+      </div>
+    `;
+  }).join("");
 }

@@ -76,376 +76,258 @@
 
   <main class="main-content premium-main">
 
-    <!-- ===== DASHBOARD SECTION ===== -->
     <section id="dashboardSection">
 
-      <!-- HERO BANNER -->
-      <div class="dash-hero">
-        <div class="hero-bg-shape"></div>
+  <div class="owner-command-header">
+    <div class="owner-header-left">
+      <button class="owner-menu-btn">☰</button>
+      <div>
+        <h1 id="dashboardGymName">Welcome back, Star Gym! 👋</h1>
+        <p>Here’s what’s happening with your gym today.</p>
+      </div>
+    </div>
 
-        <div class="dash-hero-top">
-          <div class="dash-topbar-left">
-            <h1 id="dashboardGymName">Welcome back, Star Gym 👋</h1>
-            <p>Here's what's happening with your gym today.</p>
-          </div>
-
-          <!-- TOPBAR RIGHT: search + buttons only, NO statusFilter here -->
-          <div class="dash-topbar-right">
-            <div class="search-wrap">
-              <input id="memberSearch" oninput="filterMembers()" placeholder="Search members, payments, plans..." class="topbar-search">
-              <span class="search-icon">⌕</span>
-            </div>
-            <button class="topbar-btn quick-btn" onclick="scrollToAddMember()">⚡ Quick Actions⌄</button>
-            <button class="topbar-btn date-btn">
-              📅 <span id="todayDate"></span> • <span id="liveTime"></span>
-            </button>
-            <button class="bell-btn" onclick="toggleNotifications()">
-              🔔
-              <span id="notificationCount" style="display:none;">0</span>
-            </button>
-            <div class="profile-bubble" id="profileBubble" onclick="toggleProfileMenu()">SG</div>
-            <span class="profile-arrow">⌄</span>
-          </div>
-        </div>
-
-        <div style="display:none;">
-          <p id="dashboardOwnerInfo"></p>
-          <p id="dashboardGymInfo"></p>
-          <p id="subscriptionInfo">Checking subscription...</p>
-        </div>
-
-        <!-- KPI CARDS -->
-        <div class="kpi-row">
-          <div class="kpi-card">
-            <div class="kpi-icon blue-icon">👥</div>
-            <div class="kpi-info">
-              <span>Total Members</span>
-              <h2><span id="totalMembers">0</span> <small>↑ 12%</small></h2>
-              <p>vs last month</p>
-            </div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-icon green-icon">💳</div>
-            <div class="kpi-info">
-              <span>Monthly Revenue</span>
-              <h2>₹<span id="totalRevenue">0</span> <small>↑ 18.6%</small></h2>
-              <p>vs last month</p>
-            </div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-icon teal-icon">✅</div>
-            <div class="kpi-info">
-              <span>Today Attendance</span>
-              <h2><span id="todayAttendance">0</span> <small>↑ 8%</small></h2>
-              <p>vs yesterday</p>
-            </div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-icon orange-icon">🕘</div>
-            <div class="kpi-info">
-              <span>Expiring Soon</span>
-              <h2><span id="expiringSoonCount">0</span> <em>Members</em></h2>
-              <p>in next 7 days</p>
-            </div>
-          </div>
-          <div class="kpi-card small-plan-card">
-            <div class="kpi-icon purple-icon">▣</div>
-            <div class="kpi-info">
-              <span>Active Plans</span>
-              <h2>3 <em>Plans</em></h2>
-              <p>available</p>
-            </div>
-          </div>
-        </div>
+    <div class="owner-header-actions">
+      <div class="owner-search-box">
+        <input id="memberSearch" oninput="filterMembers()" placeholder="Search members, payments, etc...">
+        <span>⌕</span>
       </div>
 
-      <!-- CHARTS ROW -->
-      <div class="charts-row">
-        <div class="chart-card revenue-chart-card">
-          <div class="chart-card-header">
-            <h2>Revenue Overview</h2>
-            <select class="chart-select">
-              <option>This Month</option>
-              <option>Last Month</option>
-            </select>
-          </div>
-          <div class="revenue-big">₹<span id="totalRevenueBig">0</span></div>
-          <p class="revenue-sub">Total Revenue <span class="trend-up">↑ 18.6% from last month</span></p>
-          <canvas id="revenueChart"></canvas>
-        </div>
+      <button class="owner-quick-btn" onclick="scrollToAddMember()">⚡ Quick Actions</button>
 
-        <div class="chart-card donut-card">
-          <div class="chart-card-header">
-            <h2>Attendance Overview</h2>
-            <select class="chart-select">
-              <option>This Week</option>
-              <option>Last Week</option>
-            </select>
-          </div>
-          <div class="donut-wrap">
-            <canvas id="attendanceChart"></canvas>
-            <div class="donut-center" id="attendanceDonutLabel">0%<br><small>Avg. Attendance</small></div>
-          </div>
-          <div class="donut-legend">
-            <div class="legend-item"><span class="dot green-dot"></span> Present <strong id="presentCount">0</strong></div>
-            <div class="legend-item"><span class="dot red-dot"></span> Absent <strong id="absentCount">0</strong></div>
-            <div class="legend-item">Total <strong id="totalLegend">0</strong></div>
-          </div>
-        </div>
-
-        <div class="chart-card donut-card">
-          <div class="chart-card-header">
-            <h2>Members Overview</h2>
-            <select class="chart-select">
-              <option>This Month</option>
-              <option>Last Month</option>
-            </select>
-          </div>
-          <div class="donut-wrap">
-            <canvas id="membersChart"></canvas>
-            <div class="donut-center" id="membersDonutLabel">0<br><small>Total Members</small></div>
-          </div>
-          <div class="donut-legend">
-            <div class="legend-item"><span class="dot green-dot"></span> Active <strong id="activeCount">0</strong></div>
-            <div class="legend-item"><span class="dot red-dot"></span> Expired <strong id="expiredCount">0</strong></div>
-            <div class="legend-item"><span class="dot yellow-dot"></span> Paused <strong>0</strong></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="activity-card">
-  <div class="activity-header">
-    <div>
-      <h3>Recent Activity</h3>
-      <p>Latest gym actions and updates</p>
-    </div>
-    <button class="clear-activity-btn" onclick="clearActivityLog()">Clear</button>
-  </div>
-
-  <div id="recentActivityList" class="activity-list">
-    <p class="activity-empty">No recent activity yet</p>
-  </div>
-</div>
- 
-<!--AI INSIGHTS-->
-<div class="ai-insights-card">
-  <div class="ai-insights-header">
-    <div>
-      <h3>AI Business Insights</h3>
-      <p>Advanced gym performance intelligence</p>
-    </div>
-    <span class="ai-badge">AI V2</span>
-  </div>
-
-  <div class="ai-health-box">
-    <div>
-      <span>Gym Health Score</span>
-      <h2><span id="gymHealthScore">0</span>/100</h2>
-      <p id="gymHealthLabel">Analyzing...</p>
-    </div>
-    <div class="health-ring">
-      <span id="healthRingValue">0%</span>
-    </div>
-  </div>
-
-  <div id="aiSummaryBox" class="ai-summary-box">
-    Analyzing your gym performance...
-  </div>
-
-  <div id="aiInsightsList" class="ai-insights-list"></div>
-</div>
-
-<div class="risk-card">
-  <div class="risk-header">
-    <div>
-      <h3>Retention Risk Monitor</h3>
-      <p>Members likely to churn or expire</p>
-    </div>
-
-    <div class="risk-badge">
-      <span id="riskCount">0</span> Risk
-    </div>
-  </div>
-
-  <div id="riskMembersList" class="risk-members-list">
-    <div class="risk-empty">
-      No risk detected yet.
-    </div>
-  </div>
-</div>
-
-<div class="calendar-card">
-  <div class="calendar-header">
-    <div>
-      <h3>Smart Schedule Manager</h3>
-      <p>Manage meetings, PT sessions and renewals</p>
-    </div>
-
-    <button class="primary-btn" onclick="openScheduleModal()">
-      + Add Schedule
-    </button>
-  </div>
-
-  <div id="scheduleList" class="schedule-list">
-    <div class="schedule-empty">
-      No schedules added yet.
-    </div>
-  </div>
-</div>
-
-<div id="scheduleModal" class="custom-modal hidden">
-  <div class="custom-modal-content">
-
-    <div class="custom-modal-header">
-      <h3>Add Schedule</h3>
-
-      <button class="close-modal-btn" onclick="closeScheduleModal()">
-        ✕
-      </button>
-    </div>
-
-    <div class="custom-modal-body">
-
-      <input
-        type="text"
-        id="scheduleTitle"
-        placeholder="Schedule title"
-      >
-
-     <input
-  type="datetime-local"
-  id="scheduleDate"
-  required
->
-
-      <select id="schedulePriority">
-        <option value="normal">Normal Priority</option>
-        <option value="medium">Medium Priority</option>
-        <option value="high">High Priority</option>
-      </select>
-
-      <textarea
-        id="scheduleNote"
-        placeholder="Optional notes"
-      ></textarea>
-
-      <button
-        class="primary-btn"
-        onclick="saveSchedule()"
-      >
-        Save Schedule
+      <button class="owner-date-btn">
+        📅 <span id="todayDate"></span><br>
+        <small id="liveTime">--:--</small>
       </button>
 
+      <button class="owner-bell-btn bell-btn" onclick="toggleNotifications()">
+        🔔 <span id="notificationCount" style="display:none;">0</span>
+      </button>
+
+      <div class="owner-profile-mini" onclick="toggleProfileMenu()">
+        <div id="profileBubble">SG</div>
+        <div>
+          <strong>Star Gym</strong>
+          <span>Owner</span>
+        </div>
+        <b>⌄</b>
+      </div>
     </div>
   </div>
-</div>
 
-      <!-- BOTTOM ROW -->
-      <div class="bottom-row">
-        <div class="bottom-card">
-          <div class="bottom-card-header">
-            <h2>Expiring Soon</h2>
-            <button class="view-all-btn">View All</button>
-          </div>
-          <ul id="expiringMembersList" class="dash-list"></ul>
-        </div>
+  <div style="display:none;">
+    <p id="dashboardOwnerInfo"></p>
+    <p id="dashboardGymInfo"></p>
+    <p id="subscriptionInfo">Checking subscription...</p>
+  </div>
 
-        <div class="bottom-card">
-          <div class="bottom-card-header">
-            <h2>Recent Payments</h2>
-            <button class="view-all-btn">View All</button>
-          </div>
-          <ul id="recentPaymentsList" class="dash-list"></ul>
-        </div>
+  <div class="owner-kpi-grid">
+    <div class="owner-kpi-card purple">
+      <div class="owner-kpi-icon">👥</div>
+      <div><span>Total Members</span><h2 id="totalMembers">0</h2><p>↑ 12% vs last month</p></div>
+    </div>
 
-        <div class="bottom-card">
-          <h2>Quick Actions</h2>
-          <div class="qa-grid">
-            <button class="qa-btn" onclick="document.getElementById('name').focus(); showSection('dashboard', document.querySelector('.nav-btn'))">
-              <span class="qa-icon blue-qa">👤</span><span>Add Member</span>
-            </button>
-            <button class="qa-btn" onclick="showSection('attendance', this)">
-              <span class="qa-icon green-qa">✅</span><span>Mark Attendance</span>
-            </button>
-            <button class="qa-btn" onclick="showSection('qr', this)">
-              <span class="qa-icon purple-qa">▦</span><span>Generate QR</span>
-            </button>
-            <button class="qa-btn" onclick="showSection('trainers', this)">
-              <span class="qa-icon orange-qa">👥</span><span>Add Trainer</span>
-            </button>
-            <button class="qa-btn" onclick="showSection('whatsapp', this)">
-              <span class="qa-icon teal-qa">🟢</span><span>Send Reminder</span>
-            </button>
-            <button class="qa-btn" onclick="showSection('reports', this); updateReports();">
-              <span class="qa-icon blue-qa">📊</span><span>View Reports</span>
-            </button>
-            <button class="qa-btn" onclick="showSection('payments', this)">
-              <span class="qa-icon yellow-qa">💳</span><span>Payment Settings</span>
-            </button>
-            <button class="qa-btn" onclick="showSection('rewards', this)">
-              <span class="qa-icon pink-qa">🎁</span><span>Rewards</span>
-            </button>
-          </div>
+    <div class="owner-kpi-card blue">
+      <div class="owner-kpi-icon">₹</div>
+      <div><span>Monthly Revenue</span><h2>₹<b id="totalRevenue">0</b></h2><p>↑ 18.6% vs last month</p></div>
+    </div>
+
+    <div class="owner-kpi-card green">
+      <div class="owner-kpi-icon">✅</div>
+      <div><span>Today Attendance</span><h2 id="todayAttendance">0</h2><p>↑ 8% vs yesterday</p></div>
+    </div>
+
+    <div class="owner-kpi-card orange">
+      <div class="owner-kpi-icon">🕘</div>
+      <div><span>Expiring Soon</span><h2 id="expiringSoonCount">0</h2><p>in next 7 days</p></div>
+    </div>
+
+    <div class="owner-kpi-card violet">
+      <div class="owner-kpi-icon">▣</div>
+      <div><span>Active Plans</span><h2>3</h2><p>running</p></div>
+    </div>
+  </div>
+
+  <div class="owner-main-grid">
+    <div class="chart-card revenue-chart-card owner-revenue-card">
+      <div class="chart-card-header">
+        <h2>Revenue Overview</h2>
+        <select class="chart-select"><option>This Month</option></select>
+      </div>
+      <div class="revenue-big">₹<span id="totalRevenueBig">0</span></div>
+      <p class="revenue-sub">Total Revenue <span class="trend-up">↑ 18.6% from last month</span></p>
+      <canvas id="revenueChart"></canvas>
+    </div>
+
+    <div class="chart-card donut-card">
+      <div class="chart-card-header">
+        <h2>Attendance Overview</h2>
+        <select class="chart-select"><option>This Week</option></select>
+      </div>
+      <div class="donut-wrap">
+        <canvas id="attendanceChart"></canvas>
+        <div class="donut-center" id="attendanceDonutLabel">0%<br><small>Avg. Attendance</small></div>
+      </div>
+      <div class="donut-legend">
+        <div class="legend-item"><span class="dot green-dot"></span> Present <strong id="presentCount">0</strong></div>
+        <div class="legend-item"><span class="dot red-dot"></span> Absent <strong id="absentCount">0</strong></div>
+        <div class="legend-item">Total <strong id="totalLegend">0</strong></div>
+      </div>
+    </div>
+
+    <div class="chart-card donut-card">
+      <div class="chart-card-header">
+        <h2>Members Overview</h2>
+        <select class="chart-select"><option>This Month</option></select>
+      </div>
+      <div class="donut-wrap">
+        <canvas id="membersChart"></canvas>
+        <div class="donut-center" id="membersDonutLabel">0<br><small>Total Members</small></div>
+      </div>
+      <div class="donut-legend">
+        <div class="legend-item"><span class="dot green-dot"></span> Active <strong id="activeCount">0</strong></div>
+        <div class="legend-item"><span class="dot red-dot"></span> Expired <strong id="expiredCount">0</strong></div>
+        <div class="legend-item"><span class="dot yellow-dot"></span> Paused <strong>0</strong></div>
+      </div>
+    </div>
+
+    <div class="owner-ai-card compact">
+      <div class="owner-section-head">
+        <h3>AI Gym Insights</h3>
+        <span class="ai-badge">BETA</span>
+      </div>
+
+      <div class="ai-insight-item">
+        <div class="ai-insight-icon blue">📈</div>
+        <div><strong>Membership growth is up 12%</strong><p>This month performance improved.</p></div>
+      </div>
+
+      <div class="ai-insight-item">
+        <div class="ai-insight-icon orange">🕘</div>
+        <div><strong>Evening attendance is highest</strong><p>Peak hours: 6PM - 9PM</p></div>
+      </div>
+
+      <div class="ai-insight-item">
+        <div class="ai-insight-icon green">₹</div>
+        <div><strong>Revenue can increase further</strong><p>Referral campaigns recommended.</p></div>
+      </div>
+
+      <button class="full-ai-btn">View Full Insights →</button>
+    </div>
+  </div>
+
+  <div class="owner-bottom-grid">
+    <div class="owner-payments-card">
+      <div class="owner-section-head">
+        <h3>Recent Payments</h3>
+        <button>View All</button>
+      </div>
+      <ul id="recentPaymentsList" class="dash-list"></ul>
+    </div>
+
+    <div class="owner-expiring-card">
+      <div class="owner-section-head">
+        <h3>Expiring Soon</h3>
+        <button>View All</button>
+      </div>
+      <ul id="expiringMembersList" class="dash-list"></ul>
+    </div>
+
+    <div class="owner-actions-card">
+      <div class="owner-section-head">
+        <h3>Quick Actions</h3>
+      </div>
+
+      <div class="owner-actions-grid">
+        <button onclick="scrollToAddMember()">👤 Add Member</button>
+        <button onclick="showSection('attendance', this)">✅ Attendance</button>
+        <button onclick="showSection('qr', this)">📱 Generate QR</button>
+        <button onclick="showSection('trainers', this)">🏋️ Trainers</button>
+        <button onclick="showSection('whatsapp', this)">💬 WhatsApp</button>
+        <button onclick="showSection('reports', this)">📊 Reports</button>
+        <button onclick="showSection('payments', this)">💳 Payments</button>
+        <button onclick="showSection('rewards', this)">🎁 Rewards</button>
+      </div>
+    </div>
+
+    <div class="owner-health-card">
+      <div class="owner-section-head">
+        <h3>Gym Health Score</h3>
+      </div>
+
+      <div class="health-ring">
+        <div>
+          <h1>92<span>/100</span></h1>
+          <p>Excellent</p>
         </div>
       </div>
 
-      <!-- MEMBERS ROW: Add Member LEFT, All Members table RIGHT -->
-      <div class="members-row">
+      <p class="health-desc">Your gym is performing exceptionally well.</p>
+      <button class="health-btn">View Details</button>
+    </div>
+  </div>
 
-        <!-- LEFT COLUMN: Add New Member form -->
-        <div class="bottom-card add-member-card">
-          <div class="card-title-row">
-            <h2>Add New Member</h2>
-            <span class="mini-badge">Quick Add</span>
-          </div>
-          <p id="memberLimitInfo" style="color:#94a3b8;font-size:13px;margin-bottom:8px;"></p>
-          <form id="memberForm">
-            <input type="text" id="name" placeholder="Member Name" required>
-            <input type="text" id="phone" placeholder="Phone Number without +91" required>
-            <input type="password" id="memberPass" placeholder="Member Login Password" required>
-            <select id="memberPlanSelect" onchange="applySelectedPlan()">
-              <option value="">Select Membership Plan</option>
-            </select>
-            <input type="number" id="plan" placeholder="Plan Duration in Days" required>
-            <input type="number" id="fees" placeholder="Fees Amount" required>
-            <button type="submit" class="primary-btn" style="width:100%;margin-top:8px;">Add Member</button>
-          </form>
-        </div>
-
-        <!-- RIGHT COLUMN: All Members table -->
-        <div class="bottom-card members-wide-card">
-          <div class="bottom-card-header">
-            <h2>All Members</h2>
-            <div class="members-header-actions">
-              <select id="statusFilter" onchange="filterMembers()" class="filter-select">
-                <option value="all">All Members</option>
-                <option value="active">Active</option>
-                <option value="expiring">Expiring Soon</option>
-                <option value="expired">Expired</option>
-              </select>
-              <button onclick="exportMembersCSV()" class="view-all-btn">Export CSV</button>
-            </div>
-          </div>
-          <div class="member-table-wrap">
-            <table class="member-table">
-              <thead>
-                <tr>
-                  <th>Member</th>
-                  <th>Status</th>
-                  <th>Plan</th>
-                  <th>Fees</th>
-                  <th>Expiry</th>
-                  <th>Points</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="memberList"></tbody>
-            </table>
-          </div>
-        </div>
-
+  <div class="members-row">
+    <div class="bottom-card add-member-card">
+      <div class="card-title-row">
+        <h2>Add New Member</h2>
+        <span class="mini-badge">Quick Add</span>
       </div>
-    </section>
+
+      <p id="memberLimitInfo" style="color:#94a3b8;font-size:13px;margin-bottom:8px;"></p>
+
+      <form id="memberForm">
+        <input type="text" id="name" placeholder="Member Name" required>
+        <input type="text" id="phone" placeholder="Phone Number without +91" required>
+        <input type="password" id="memberPass" placeholder="Member Login Password" required>
+
+        <select id="memberPlanSelect" onchange="applySelectedPlan()">
+          <option value="">Select Membership Plan</option>
+        </select>
+
+        <input type="number" id="plan" placeholder="Plan Duration in Days" required>
+        <input type="number" id="fees" placeholder="Fees Amount" required>
+
+        <button type="submit" class="primary-btn" style="width:100%;margin-top:8px;">Add Member</button>
+      </form>
+    </div>
+
+    <div class="bottom-card members-wide-card">
+      <div class="bottom-card-header">
+        <h2>All Members</h2>
+
+        <div class="members-header-actions">
+          <select id="statusFilter" onchange="filterMembers()" class="filter-select">
+            <option value="all">All Members</option>
+            <option value="active">Active</option>
+            <option value="expiring">Expiring Soon</option>
+            <option value="expired">Expired</option>
+          </select>
+
+          <button onclick="exportMembersCSV()" class="view-all-btn">Export CSV</button>
+        </div>
+      </div>
+
+      <div class="member-table-wrap">
+        <table class="member-table">
+          <thead>
+            <tr>
+              <th>Member</th>
+              <th>Status</th>
+              <th>Plan</th>
+              <th>Fees</th>
+              <th>Expiry</th>
+              <th>Points</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="memberList"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</section>
 
     <!-- ===== GYM PROFILE SECTION ===== -->
     <section id="gymProfileSection" style="display:none;">
@@ -1194,13 +1076,25 @@
       <button class="reward-notify-btn" onclick="sendRewardNotification()">✈ Send Notification</button>
     </div>
 
-    <div class="reward-stats-grid">
-      <div class="reward-stat-card"><div class="stat-icon coin">🪙</div><span>Total Points</span><h2 id="rewardTotalPoints">0</h2><p>Available Balance</p></div>
-      <div class="reward-stat-card"><div class="stat-icon green">📈</div><span>Points Earned</span><h2 id="rewardEarnedPoints">0</h2><p>This Month ↑ 18%</p></div>
-      <div class="reward-stat-card"><div class="stat-icon gift">🎁</div><span>Points Redeemed</span><h2 id="rewardRedeemedPoints">0</h2><p>This Month ↑ 12%</p></div>
-      <div class="reward-stat-card"><div class="stat-icon cup">🏆</div><span>Current Rank</span><h2 id="rewardRank">Silver</h2><p>Next: Gold 🪙</p></div>
-      <div class="reward-stat-card"><div class="stat-icon cal">🗓️</div><span>Membership Since</span><h2>245</h2><p>Days with us 💜</p></div>
-    </div>
+    <div class="stat-icon purple">
+  <i class="fas fa-users"></i>
+</div>
+
+<div class="stat-icon blue">
+  <i class="fas fa-indian-rupee-sign"></i>
+</div>
+
+<div class="stat-icon green">
+  <i class="fas fa-check"></i>
+</div>
+
+<div class="stat-icon orange">
+  <i class="fas fa-clock"></i>
+</div>
+
+<div class="stat-icon pink">
+  <i class="fas fa-calendar"></i>
+</div>
 
     <div class="reward-top-grid">
       <div class="reward-panel next-reward-panel">
@@ -1275,7 +1169,7 @@
     <p>🪙 100 Points</p>
     <div class="reward-meta-row"><span>Cost: ₹20</span><span>Safe</span></div>
     <small>In Stock</small>
-    <button onclick="redeemReward('Gym Sticker Pack',100)">Redeem</button>
+    <button onclick="redeemReward('Gym Sticker Pack',100)">Preview</button>
   </div>
 
   <div class="reward-item" data-category="accessories">
@@ -1288,7 +1182,7 @@
     <p>🪙 200 Points</p>
     <div class="reward-meta-row"><span>Cost: ₹40</span><span>Safe</span></div>
     <small>In Stock</small>
-    <button onclick="redeemReward('Wrist Band',200)">Redeem</button>
+    <button onclick="redeemReward('Wrist Band',200)">Preview</button>
   </div>
 
   <div class="reward-item" data-category="accessories">
@@ -1301,7 +1195,7 @@
     <p>🪙 500 Points</p>
     <div class="reward-meta-row"><span>Cost: ₹120</span><span>Safe</span></div>
     <small>In Stock</small>
-    <button onclick="redeemReward('Shaker Bottle',500)">Redeem</button>
+    <button onclick="redeemReward('Shaker Bottle',500)">Preview</button>
   </div>
 
   <div class="reward-item" data-category="accessories">
@@ -1314,7 +1208,7 @@
     <p>🪙 700 Points</p>
     <div class="reward-meta-row"><span>Cost: ₹150</span><span>Safe</span></div>
     <small>In Stock</small>
-    <button onclick="redeemReward('Jump Rope',700)">Redeem</button>
+    <button onclick="redeemReward('Jump Rope',700)">Preview</button>
   </div>
 
   <div class="reward-item" data-category="lifestyle">
@@ -1327,7 +1221,7 @@
     <p>🪙 850 Points</p>
     <div class="reward-meta-row"><span>Cost: ₹180</span><span>Safe</span></div>
     <small>In Stock</small>
-    <button onclick="redeemReward('Gym Towel',850)">Redeem</button>
+    <button onclick="redeemReward('Gym Towel',850)">Preview</button>
   </div>
 
 </div>
@@ -1345,7 +1239,7 @@
     <p>🪙 1,000 Points</p>
     <div class="reward-meta-row"><span>Cost: ₹220</span><span>Safe</span></div>
     <small>In Stock</small>
-    <button onclick="redeemReward('Resistance Band',1000)">Redeem</button>
+    <button onclick="redeemReward('Resistance Band',1000)">Preview</button>
   </div>
 
   <div class="reward-item" data-category="apparel">
@@ -1358,7 +1252,7 @@
     <p>🪙 1,300 Points</p>
     <div class="reward-meta-row"><span>Cost: ₹250</span><span>Safe</span></div>
     <small>In Stock</small>
-    <button onclick="redeemReward('Gym Cap',1300)">Redeem</button>
+    <button onclick="redeemReward('Gym Cap',1300)">Preview</button>
   </div>
 
   <div class="reward-item" data-category="accessories">
@@ -1371,7 +1265,7 @@
     <p>🪙 1,500 Points</p>
     <div class="reward-meta-row"><span>Cost: ₹300</span><span>Safe</span></div>
     <small>In Stock</small>
-    <button onclick="redeemReward('Gym Gloves',1500)">Redeem</button>
+    <button onclick="redeemReward('Gym Gloves',1500)">Preview</button>
   </div>
 
   <div class="reward-item featured" data-category="apparel">
@@ -1384,7 +1278,7 @@
     <p>🪙 1,800 Points</p>
     <div class="reward-meta-row"><span>Cost: ₹350</span><span>Branding</span></div>
     <small>In Stock</small>
-    <button onclick="redeemReward('GymPro T-Shirt',1800)">Redeem</button>
+    <button onclick="redeemReward('GymPro T-Shirt',1800)">Preview</button>
   </div>
 
   <div class="reward-item" data-category="merchandise">
@@ -1397,7 +1291,7 @@
     <p>🪙 4,500 Points</p>
     <div class="reward-meta-row"><span>Cost: ₹600</span><span>Safe</span></div>
     <small>In Stock</small>
-    <button onclick="redeemReward('Gym Bag',4500)">Redeem</button>
+    <button onclick="redeemReward('Gym Bag',4500)">Preview</button>
   </div>
 
 </div>
@@ -1415,7 +1309,7 @@
     <p>🪙 3,000 Points</p>
     <div class="reward-meta-row"><span>Cost: ₹400</span><span>Controlled</span></div>
     <small>In Stock</small>
-    <button onclick="redeemReward('Creatine 300g',3000)">Redeem</button>
+    <button onclick="redeemReward('Creatine 300g',3000)">Preview</button>
   </div>
 
   <div class="reward-item" data-category="lifestyle">
@@ -1428,7 +1322,7 @@
     <p>🪙 3,500 Points</p>
     <div class="reward-meta-row"><span>Cost: ₹500</span><span>Safe</span></div>
     <small>In Stock</small>
-    <button onclick="redeemReward('Premium Bottle',3500)">Redeem</button>
+    <button onclick="redeemReward('Premium Bottle',3500)">Preview</button>
   </div>
 
   <div class="reward-item featured" data-category="supplements">
@@ -1441,7 +1335,7 @@
     <p>🪙 6,000 Points</p>
     <div class="reward-meta-row"><span>Cost: ₹1,200+</span><span>Rare</span></div>
     <small>Limited Stock</small>
-    <button onclick="redeemReward('Whey Protein 1kg',6000)">Redeem</button>
+    <button onclick="redeemReward('Whey Protein 1kg',6000)">Preview</button>
   </div>
 
   <div class="reward-item" data-category="accessories">
@@ -1454,7 +1348,7 @@
     <p>🪙 5,000 Points</p>
     <div class="reward-meta-row"><span>Cost: ₹700</span><span>Safe</span></div>
     <small>In Stock</small>
-    <button onclick="redeemReward('Lifting Belt',5000)">Redeem</button>
+    <button onclick="redeemReward('Lifting Belt',5000)">Preview</button>
   </div>
 
   <div class="reward-item featured" data-category="supplements">
@@ -1467,49 +1361,36 @@
     <p>🪙 9,000 Points</p>
     <div class="reward-meta-row"><span>Cost: ₹1,200</span><span>Rare</span></div>
     <small>Limited Stock</small>
-    <button onclick="redeemReward('Supplement Hamper',9000)">Redeem</button>
+    <button onclick="redeemReward('Supplement Hamper',9000)">Preview</button>
   </div>
 
 </div>
 
 
-<div class="reward-panel owner-redemption-panel">
+<div class="reward-panel owner-redemption-panel premium-redemption-panel">
   <div class="owner-redemption-head">
     <div>
       <h2>🎟 Reward Redemption Requests</h2>
-      <p>Approve, reject, or mark member rewards as delivered.</p>
+      <p>Manage reward claims from members.</p>
     </div>
 
-    <div class="redemption-filter-box">
-      <select id="redemptionStatusFilter" onchange="renderOwnerRedemptions()">
-  <option value="all">All Status</option>
-  <option value="pending">Pending</option>
-  <option value="delivered">Delivered</option>
-  <option value="rejected">Rejected</option>
-</select>
+    <div class="redemption-head-actions">
+      <button onclick="loadOwnerRedemptions()" class="redemption-refresh-btn">⟳ Refresh</button>
+
+      <select id="redemptionStatusFilterV2" onchange="renderRedemptionsV2()">
+        <option value="all">All Status</option>
+        <option value="pending">Pending</option>
+        <option value="delivered">Delivered</option>
+        <option value="rejected">Rejected</option>
+      </select>
     </div>
   </div>
 
-  <div class="redemption-table-wrap">
-    <table class="redemption-table">
-      <thead>
-        <tr>
-          <th>Member</th>
-          <th>Reward</th>
-          <th>Points</th>
-          <th>Date</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="rewardRedemptionList">
-        <tr>
-          <td colspan="6">Loading redemptions...</td>
-        </tr>
-      </tbody>
-    </table>
+  <div id="redemptionTableBodyV2" class="premium-redemption-list">
+    <div class="redemption-empty">Loading...</div>
   </div>
 </div>
+
 
 <div class="redemption-kpi-grid">
   <div class="redemption-kpi-card">
@@ -1903,6 +1784,45 @@
 
   </div>
 
+</div>
+
+<div id="rewardPreviewModal" class="modal-overlay hidden">
+
+  <div class="reward-preview-modal">
+
+    <div class="reward-preview-top">
+      <span class="preview-badge">GymPro Reward</span>
+
+      <button class="preview-close" onclick="closeRewardPreview()">
+        ✕
+      </button>
+    </div>
+
+    <img
+      id="previewRewardImage"
+      class="reward-preview-image"
+    >
+
+    <h2 id="previewRewardName"></h2>
+
+    <div class="preview-points-box">
+      🪙 <span id="previewRewardPoints"></span> Points Required
+    </div>
+
+    <p id="previewRewardText"></p>
+
+    <div class="preview-note">
+      Members can redeem this reward from the Member Dashboard after earning enough points.
+    </div>
+
+    <button class="primary-btn preview-main-btn"
+      onclick="closeRewardPreview()">
+      Close Preview
+    </button>
+
+  </div>
+
+</div>
 </div>
 </body>
 </html>
