@@ -138,7 +138,6 @@ async function addDietLog() {
   });
 
   const data = await res.json();
-  alert(data.message);
   loadMemberDashboard();
 }
 
@@ -347,24 +346,127 @@ async function loadMemberRewards() {
   `).join("");
 }
 
-async function redeemMemberReward(rewardName) {
-  const token = getMemberToken();
+let currentRewardName = "";
 
-  if (!confirm("Redeem " + rewardName + "?")) return;
+function closeRedeemModal(){
+  document.getElementById(
+    "premiumRedeemModal"
+  ).style.display = "none";
+}
 
-  const res = await fetch(API + "/member-redeem-reward", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token
-    },
-    body: JSON.stringify({ rewardName })
-  });
+function redeemMemberReward(rewardName){
 
-  const data = await res.json();
+  currentRewardName = rewardName;
 
-  alert(data.message);
+  document.getElementById(
+    "premiumRedeemModal"
+  ).style.display = "flex";
 
-  loadMemberDashboard();
-  loadMemberRewards();
+  document.getElementById(
+    "redeemModalTitle"
+  ).innerText = "Redeem Reward";
+
+  document.getElementById(
+    "redeemModalText"
+  ).innerText =
+    "Are you sure you want to redeem " +
+    rewardName + "?";
+
+  document.getElementById(
+    "confirmRedeemBtn"
+  ).onclick = confirmRewardRedeem;
+}
+
+async function confirmRewardRedeem(){
+
+  const btn =
+    document.getElementById(
+      "confirmRedeemBtn"
+    );
+
+  btn.innerText = "Processing...";
+  btn.disabled = true;
+
+  try{
+
+    const token = getMemberToken();
+
+    const res = await fetch(
+      API + "/member-redeem-reward",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          Authorization:token
+        },
+        body:JSON.stringify({
+          rewardName:currentRewardName
+        })
+      }
+    );
+
+    const data = await res.json();
+
+    if(
+      data.message.includes("success")
+    ){
+
+      document.getElementById(
+        "redeemModalTitle"
+      ).innerText = "Redeemed Successfully";
+
+      document.getElementById(
+        "redeemModalText"
+      ).innerText =
+        currentRewardName +
+        " redemption request submitted.";
+
+      btn.innerText = "Success";
+      btn.classList.add(
+        "redeem-success"
+      );
+
+      loadMemberDashboard();
+      loadMemberRewards();
+
+      setTimeout(()=>{
+        closeRedeemModal();
+
+        btn.innerText = "Redeem Now";
+        btn.disabled = false;
+        btn.classList.remove(
+          "redeem-success"
+        );
+      },1800);
+
+    }else{
+
+      document.getElementById(
+        "redeemModalTitle"
+      ).innerText = "Not Enough Points";
+
+      document.getElementById(
+        "redeemModalText"
+      ).innerText = data.message;
+
+      btn.innerText = "Try Again";
+      btn.disabled = false;
+    }
+
+  }catch(err){
+
+    console.log(err);
+
+    document.getElementById(
+      "redeemModalTitle"
+    ).innerText = "Something went wrong";
+
+    document.getElementById(
+      "redeemModalText"
+    ).innerText =
+      "Please try again later.";
+
+    btn.innerText = "Try Again";
+    btn.disabled = false;
+  }
 }
