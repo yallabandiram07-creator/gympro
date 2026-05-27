@@ -1510,6 +1510,32 @@
   </div>
 </div>
 
+<div class="redemption-kpi-grid">
+  <div class="redemption-kpi-card">
+    <span>🎟 Total Requests</span>
+    <h2 id="totalRedemptionRequests">0</h2>
+    <p>All reward claims</p>
+  </div>
+
+  <div class="redemption-kpi-card pending">
+    <span>⏳ Pending</span>
+    <h2 id="pendingRedemptionRequests">0</h2>
+    <p>Needs owner action</p>
+  </div>
+
+  <div class="redemption-kpi-card delivered">
+    <span>✅ Delivered</span>
+    <h2 id="deliveredRedemptionRequests">0</h2>
+    <p>Completed rewards</p>
+  </div>
+
+  <div class="redemption-kpi-card rejected">
+    <span>❌ Rejected</span>
+    <h2 id="rejectedRedemptionRequests">0</h2>
+    <p>Not approved</p>
+  </div>
+</div>
+
 <div class="reward-warning">
   ⚠ Profit-safe reward economy enabled: no free memberships, no plan discounts, only low-cost high-value products.
 </div>
@@ -1768,5 +1794,19 @@
   </div>
 </div>
 
+<div id="redemptionConfirmModal" class="modal-overlay hidden">
+  <div class="app-modal">
+    <h2 id="redemptionConfirmTitle">Confirm Redemption</h2>
+    <p id="redemptionConfirmText">Are you sure?</p>
+
+    <input type="hidden" id="confirmRedemptionId">
+    <input type="hidden" id="confirmRedemptionStatus">
+
+    <div class="modal-actions">
+      <button class="view-all-btn" onclick="closeRedemptionConfirmModal()">Cancel</button>
+      <button class="primary-btn" onclick="confirmRedemptionUpdate()">Confirm</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

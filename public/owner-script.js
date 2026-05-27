@@ -3049,6 +3049,10 @@ async function loadOwnerRedemptions() {
     });
 
     const redemptions = await res.json();
+    setText("totalRedemptionRequests", redemptions.length || 0);
+setText("pendingRedemptionRequests", redemptions.filter(r => r.status === "pending").length);
+setText("deliveredRedemptionRequests", redemptions.filter(r => r.status === "delivered").length);
+setText("rejectedRedemptionRequests", redemptions.filter(r => r.status === "rejected").length);
 
     const filter = document.getElementById("redemptionStatusFilter")?.value || "all";
 
@@ -3111,11 +3115,11 @@ async function loadOwnerRedemptions() {
 
         <td>
           <div class="redemption-actions">
-            <button class="primary-btn small-btn" onclick="updateRedemptionStatus('${r._id}','delivered')">
+            <button class="primary-btn small-btn" onclick="openRedemptionConfirmModal('${r._id}','delivered','${r.rewardName}')">
               Delivered
             </button>
 
-            <button class="danger-btn small-btn" onclick="updateRedemptionStatus('${r._id}','rejected')">
+            <button class="danger-btn small-btn" onclick="openRedemptionConfirmModal('${r._id}','rejected','${r.rewardName}')">
               Reject
             </button>
           </div>
@@ -3160,4 +3164,30 @@ async function updateRedemptionStatus(id, status) {
     console.log(err);
     showToast("Failed to update redemption", "error");
   }
+}
+function openRedemptionConfirmModal(id, status, rewardName) {
+  document.getElementById("confirmRedemptionId").value = id;
+  document.getElementById("confirmRedemptionStatus").value = status;
+
+  document.getElementById("redemptionConfirmTitle").innerText =
+    status === "delivered" ? "Mark Reward Delivered?" : "Reject Reward Request?";
+
+  document.getElementById("redemptionConfirmText").innerText =
+    status === "delivered"
+      ? "Confirm that " + rewardName + " has been delivered to the member."
+      : "Are you sure you want to reject " + rewardName + "?";
+
+  document.getElementById("redemptionConfirmModal").classList.remove("hidden");
+}
+
+function closeRedemptionConfirmModal() {
+  document.getElementById("redemptionConfirmModal").classList.add("hidden");
+}
+
+async function confirmRedemptionUpdate() {
+  const id = document.getElementById("confirmRedemptionId").value;
+  const status = document.getElementById("confirmRedemptionStatus").value;
+
+  closeRedemptionConfirmModal();
+  await updateRedemptionStatus(id, status);
 }
