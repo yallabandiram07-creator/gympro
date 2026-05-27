@@ -306,3 +306,65 @@ function startQRScanner() {
     qrScanProcessing = false;
   });
 }
+async function loadMemberRewards() {
+  const token = getMemberToken();
+
+  const res = await fetch(API + "/member-rewards", {
+    headers: { Authorization: token }
+  });
+
+  const data = await res.json();
+
+  document.getElementById("memberRewardPoints").innerText =
+    Number(data.memberPoints || 0).toLocaleString("en-IN");
+
+  const shop = document.getElementById("memberRewardShop");
+
+  shop.innerHTML = data.rewards.map(r => `
+    <div class="member-reward-card">
+      <img src="${r.image}" alt="${r.name}">
+      <h3>${r.name}</h3>
+      <p>🪙 ${r.points.toLocaleString("en-IN")} Points</p>
+      <button onclick="redeemMemberReward('${r.name}')">
+        Redeem
+      </button>
+    </div>
+  `).join("");
+
+  const history = document.getElementById("memberRedemptionHistory");
+
+  if (!data.redemptions.length) {
+    history.innerHTML = "No redemptions yet.";
+    return;
+  }
+
+  history.innerHTML = data.redemptions.map(r => `
+    <div class="member-redeem-row">
+      <b>${r.rewardName}</b><br>
+      ${r.points} Points • ${r.status}<br>
+      ${new Date(r.createdAt).toLocaleString("en-IN")}
+    </div>
+  `).join("");
+}
+
+async function redeemMemberReward(rewardName) {
+  const token = getMemberToken();
+
+  if (!confirm("Redeem " + rewardName + "?")) return;
+
+  const res = await fetch(API + "/member-redeem-reward", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token
+    },
+    body: JSON.stringify({ rewardName })
+  });
+
+  const data = await res.json();
+
+  alert(data.message);
+
+  loadMemberDashboard();
+  loadMemberRewards();
+}

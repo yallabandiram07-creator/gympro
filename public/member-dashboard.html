@@ -36,6 +36,7 @@
     <button onclick="showSection('diet')">🥗 Diet</button>
     <button onclick="showSection('payment')">💳 Payment</button>
     <button onclick="showSection('qrscan')">📷 QR Attendance</button>
+    <button onclick="showSection('rewards'); loadMemberRewards();">🎁 Rewards</button>
 
     <button class="logout-btn" onclick="logout()">Logout</button>
   </aside>
@@ -121,6 +122,22 @@
     </button>
 
     <p id="qrScanResult"></p>
+  </div>
+</section>
+
+<section id="rewards" class="section">
+  <h1>Reward Shop</h1>
+
+  <div class="card">
+    <h2>Your Points: <span id="memberRewardPoints">0</span></h2>
+    <p>Redeem your points for GymPro rewards.</p>
+  </div>
+
+  <div class="member-reward-grid" id="memberRewardShop"></div>
+
+  <div class="card">
+    <h2>My Redemptions</h2>
+    <div id="memberRedemptionHistory">No redemptions yet.</div>
   </div>
 </section>
 

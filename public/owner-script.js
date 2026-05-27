@@ -44,7 +44,10 @@ function showSection(section, btn) {
   if (section === "whatsapp") loadWhatsAppSettings();
   if (section === "rewards") {
   loadMembers();
-  setTimeout(loadPremiumRewardsPage, 500);
+  setTimeout(() => {
+    loadPremiumRewardsPage();
+    loadOwnerRedemptions();
+  }, 500);
 }
 }
  
@@ -3031,4 +3034,60 @@ function redeemReward(itemName, pointsRequired) {
       </div>
     ` + list.innerHTML;
   }
+}
+async function loadOwnerRedemptions() {
+  const token = tokenOrLogin();
+  if (!token) return;
+
+  const res = await fetch(API + "/owner-redemptions", {
+    headers: { Authorization: token }
+  });
+
+  const redemptions = await res.json();
+
+  const list = document.getElementById("rewardRedemptionList");
+  if (!list) return;
+
+  if (!redemptions.length) {
+    list.innerHTML = `<p>No reward redemptions yet.</p>`;
+    return;
+  }
+
+  list.innerHTML = redemptions.map(r => `
+    <div class="reward-leaderboard-row">
+      <div class="reward-rank">🎁</div>
+
+      <div class="reward-member-name">
+        ${r.memberName}<br>
+        <small>${r.rewardName} • ${r.points} Points • ${r.status}</small>
+      </div>
+
+      <div>
+        <button class="primary-btn small-btn" onclick="updateRedemptionStatus('${r._id}','delivered')">
+          Delivered
+        </button>
+
+        <button class="danger-btn small-btn" onclick="updateRedemptionStatus('${r._id}','rejected')">
+          Reject
+        </button>
+      </div>
+    </div>
+  `).join("");
+}
+
+async function updateRedemptionStatus(id, status) {
+  const token = tokenOrLogin();
+
+  const res = await fetch(API + "/owner-redemptions/" + id, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token
+    },
+    body: JSON.stringify({ status })
+  });
+
+  const data = await res.json();
+  showToast(data.message || "Updated", "success");
+  loadOwnerRedemptions();
 }

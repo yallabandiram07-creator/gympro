@@ -22,6 +22,8 @@ const GymProfile = require("./models/GymProfile");
 
 const subscriptionRoutes = require("./routes/subscriptionRoutes");
 const superAdminRoutes = require("./routes/superAdminRoutes");
+const mongoose = require("mongoose");
+const Redemption = require("./models/Redemption");
 
 const app = express();
 
@@ -1305,6 +1307,110 @@ app.get("/payment-command-center", auth, async (req, res) => {
     res.status(500).json({
       message: "Server error"
     });
+  }
+});
+
+const rewardCatalog = [
+  { name: "Gym Sticker Pack", points: 100, image: "images/sticker-pack.png" },
+  { name: "Wrist Band", points: 200, image: "images/wrist-band.png" },
+  { name: "Shaker Bottle", points: 500, image: "images/shaker.png" },
+  { name: "Jump Rope", points: 700, image: "images/jump-rope.png" },
+  { name: "Gym Towel", points: 850, image: "images/towel.png" },
+  { name: "Resistance Band", points: 1000, image: "images/resistance-band.png" },
+  { name: "Gym Cap", points: 1300, image: "images/cap.png" },
+  { name: "Gym Gloves", points: 1500, image: "images/gloves.png" },
+  { name: "GymPro T-Shirt", points: 1800, image: "images/gympro-shirt.png" },
+  { name: "Creatine 300g", points: 3000, image: "images/creatine.png" },
+  { name: "Premium Bottle", points: 3500, image: "images/premium-bottle.png" },
+  { name: "Gym Bag", points: 4500, image: "images/gym-bag.png" },
+  { name: "Lifting Belt", points: 5000, image: "images/lifting-belt.png" },
+  { name: "Whey Protein 1kg", points: 6000, image: "images/whey.png" },
+  { name: "Supplement Hamper", points: 9000, image: "images/supplement-hamper.png" }
+];
+
+app.get("/member-rewards", memberAuth, async (req, res) => {
+  try {
+    const member = await Member.findById(req.member.id);
+
+    const redemptions = await Redemption.find({
+      memberId: member._id.toString()
+    }).sort({ createdAt: -1 });
+
+    res.json({
+      memberPoints: member.points || 0,
+      rewards: rewardCatalog,
+      redemptions
+    });
+  } catch (err) {
+    console.log("Member rewards error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.post("/member-redeem-reward", memberAuth, async (req, res) => {
+  try {
+    const { rewardName } = req.body;
+
+    const reward = rewardCatalog.find(r => r.name === rewardName);
+    if (!reward) return res.json({ message: "Reward not found" });
+
+    const member = await Member.findById(req.member.id);
+    if (!member) return res.json({ message: "Member not found" });
+
+    if (Number(member.points || 0) < reward.points) {
+      return res.json({ message: "Not enough points to redeem this reward" });
+    }
+
+    member.points = Number(member.points || 0) - reward.points;
+    await member.save();
+
+    await new Redemption({
+      userId: member.userId,
+      memberId: member._id.toString(),
+      memberName: member.name,
+      rewardName: reward.name,
+      points: reward.points,
+      image: reward.image,
+      status: "pending"
+    }).save();
+
+    res.json({ message: "Reward redemption request submitted successfully" });
+
+  } catch (err) {
+    console.log("Redeem reward error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.get("/owner-redemptions", auth, async (req, res) => {
+  try {
+    const redemptions = await Redemption.find({
+      userId: req.user.id
+    }).sort({ createdAt: -1 });
+
+    res.json(redemptions);
+  } catch {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.put("/owner-redemptions/:id", auth, async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    const redemption = await Redemption.findOne({
+      _id: req.params.id,
+      userId: req.user.id
+    });
+
+    if (!redemption) return res.json({ message: "Redemption not found" });
+
+    redemption.status = status || redemption.status;
+    await redemption.save();
+
+    res.json({ message: "Redemption status updated" });
+  } catch {
+    res.status(500).json({ message: "Server error" });
   }
 });
 
