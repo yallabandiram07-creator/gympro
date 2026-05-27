@@ -1191,7 +1191,7 @@
         </div>
         <p>Earn points, unlock amazing rewards and stay motivated!</p>
       </div>
-      <button class="reward-notify-btn">✈ Send Notification</button>
+      <button class="reward-notify-btn" onclick="sendRewardNotification()">✈ Send Notification</button>
     </div>
 
     <div class="reward-stats-grid">
@@ -1222,7 +1222,7 @@
       <div class="reward-panel earn-panel">
         <div class="panel-head">
           <h2>Ways to Earn Points</h2>
-          <button>View All</button>
+          <button onclick="openWaysToEarnModal()">View All</button>
         </div>
 
         <div class="earn-points-grid">
@@ -1249,18 +1249,18 @@
             <span>Total Available Points</span>
             <h3 id="rewardAvailableShopPoints">0</h3>
           </div>
-          <button>⏱ My Redemptions</button>
+          <button onclick="scrollToRedemptions()">⏱ My Redemptions</button>
         </div>
       </div>
 
       <div class="reward-tabs">
-        <button class="active">All Rewards</button>
-        <button>Accessories</button>
-        <button>Apparel</button>
-        <button>Supplements</button>
-        <button>Merchandise</button>
-        <button>Lifestyle</button>
-      </div>
+  <button class="active" onclick="filterRewardShop('all', this)">All Rewards</button>
+  <button onclick="filterRewardShop('accessories', this)">Accessories</button>
+  <button onclick="filterRewardShop('apparel', this)">Apparel</button>
+  <button onclick="filterRewardShop('supplements', this)">Supplements</button>
+  <button onclick="filterRewardShop('merchandise', this)">Merchandise</button>
+  <button onclick="filterRewardShop('lifestyle', this)">Lifestyle</button>
+</div>
 
       <h3 class="tier-title green">TIER 1 - QUICK REWARDS</h3>
 <div class="reward-shop-grid">
@@ -1335,7 +1335,7 @@
 <h3 class="tier-title blue">TIER 2 - MOST POPULAR</h3>
 <div class="reward-shop-grid">
 
-  <div class="reward-item">
+  <div class="reward-item" data-category="accessories">
     <span class="reward-category">Popular</span>
     <span class="reward-stock">Stock 18</span>
     <div class="reward-img">
@@ -1348,7 +1348,7 @@
     <button onclick="redeemReward('Resistance Band',1000)">Redeem</button>
   </div>
 
-  <div class="reward-item">
+  <div class="reward-item" data-category="apparel">
     <span class="reward-category">Apparel</span>
     <span class="reward-stock">Stock 20</span>
     <div class="reward-img">
@@ -1361,7 +1361,7 @@
     <button onclick="redeemReward('Gym Cap',1300)">Redeem</button>
   </div>
 
-  <div class="reward-item">
+  <div class="reward-item" data-category="accessories">
     <span class="reward-category">Popular</span>
     <span class="reward-stock">Stock 15</span>
     <div class="reward-img">
@@ -1374,7 +1374,7 @@
     <button onclick="redeemReward('Gym Gloves',1500)">Redeem</button>
   </div>
 
-  <div class="reward-item featured">
+  <div class="reward-item featured" data-category="apparel">
     <span class="reward-category">GymPro</span>
     <span class="reward-stock">Stock 18</span>
     <div class="reward-img">
@@ -1387,7 +1387,7 @@
     <button onclick="redeemReward('GymPro T-Shirt',1800)">Redeem</button>
   </div>
 
-  <div class="reward-item">
+  <div class="reward-item" data-category="merchandise">
     <span class="reward-category">Premium</span>
     <span class="reward-stock">Stock 8</span>
     <div class="reward-img">
@@ -1405,7 +1405,7 @@
 <h3 class="tier-title purple">TIER 3 - PREMIUM REWARDS</h3>
 <div class="reward-shop-grid">
 
-  <div class="reward-item featured">
+  <div class="reward-item featured" data-category="supplements">
     <span class="reward-category">Supplement</span>
     <span class="reward-stock">Stock 10</span>
     <div class="reward-img">
@@ -1418,7 +1418,7 @@
     <button onclick="redeemReward('Creatine 300g',3000)">Redeem</button>
   </div>
 
-  <div class="reward-item">
+  <div class="reward-item" data-category="lifestyle">
     <span class="reward-category">Premium</span>
     <span class="reward-stock">Stock 12</span>
     <div class="reward-img">
@@ -1431,7 +1431,7 @@
     <button onclick="redeemReward('Premium Bottle',3500)">Redeem</button>
   </div>
 
-  <div class="reward-item featured">
+  <div class="reward-item featured" data-category="supplements">
     <span class="reward-category">Supplement</span>
     <span class="reward-stock">Stock 6</span>
     <div class="reward-img">
@@ -1444,7 +1444,7 @@
     <button onclick="redeemReward('Whey Protein 1kg',6000)">Redeem</button>
   </div>
 
-  <div class="reward-item">
+  <div class="reward-item" data-category="accessories">
     <span class="reward-category">Premium</span>
     <span class="reward-stock">Stock 8</span>
     <div class="reward-img">
@@ -1457,7 +1457,7 @@
     <button onclick="redeemReward('Lifting Belt',5000)">Redeem</button>
   </div>
 
-  <div class="reward-item featured">
+  <div class="reward-item featured" data-category="supplements">
     <span class="reward-category">Elite</span>
     <span class="reward-stock">Stock 3</span>
     <div class="reward-img">
@@ -1472,6 +1472,7 @@
 
 </div>
 
+
 <div class="reward-panel owner-redemption-panel">
   <div class="owner-redemption-head">
     <div>
@@ -1480,12 +1481,12 @@
     </div>
 
     <div class="redemption-filter-box">
-      <select id="redemptionStatusFilter" onchange="loadOwnerRedemptions()">
-        <option value="all">All Status</option>
-        <option value="pending">Pending</option>
-        <option value="delivered">Delivered</option>
-        <option value="rejected">Rejected</option>
-      </select>
+      <select id="redemptionStatusFilter" onchange="renderOwnerRedemptions()">
+  <option value="all">All Status</option>
+  <option value="pending">Pending</option>
+  <option value="delivered">Delivered</option>
+  <option value="rejected">Rejected</option>
+</select>
     </div>
   </div>
 
@@ -1807,6 +1808,101 @@
       <button class="primary-btn" onclick="confirmRedemptionUpdate()">Confirm</button>
     </div>
   </div>
+</div>
+<div id="waysEarnModal" class="modal-overlay hidden">
+
+  <div class="app-modal ways-earn-modal">
+
+    <div class="ways-earn-header">
+      <div>
+        <h2>🔥 All Ways To Earn Points</h2>
+        <p>Help members stay active and engaged.</p>
+      </div>
+
+      <button class="close-modal-btn"
+        onclick="closeWaysToEarnModal()">
+        ✕
+      </button>
+    </div>
+
+    <div class="ways-earn-grid-large">
+
+      <div class="earn-big-card">
+        <span>📅</span>
+        <h3>Daily Attendance</h3>
+        <p>5 Points</p>
+      </div>
+
+      <div class="earn-big-card">
+        <span>🔥</span>
+        <h3>7 Day Streak</h3>
+        <p>25 Points</p>
+      </div>
+
+      <div class="earn-big-card">
+        <span>👑</span>
+        <h3>30 Day Streak</h3>
+        <p>120 Points</p>
+      </div>
+
+      <div class="earn-big-card">
+        <span>👥</span>
+        <h3>Refer Friend</h3>
+        <p>400 Points</p>
+      </div>
+
+      <div class="earn-big-card">
+        <span>📸</span>
+        <h3>Social Media Tag</h3>
+        <p>40 Points</p>
+      </div>
+
+      <div class="earn-big-card">
+        <span>🏆</span>
+        <h3>Challenge Winner</h3>
+        <p>200 Points</p>
+      </div>
+
+      <div class="earn-big-card">
+        <span>💳</span>
+        <h3>On-time Renewal</h3>
+        <p>100 Points</p>
+      </div>
+
+      <div class="earn-big-card">
+        <span>💬</span>
+        <h3>Feedback Review</h3>
+        <p>15 Points</p>
+      </div>
+
+      <div class="earn-big-card">
+        <span>🎯</span>
+        <h3>Workout Completion</h3>
+        <p>20 Points</p>
+      </div>
+
+      <div class="earn-big-card">
+        <span>🥗</span>
+        <h3>Diet Tracking</h3>
+        <p>10 Points</p>
+      </div>
+
+      <div class="earn-big-card">
+        <span>🎂</span>
+        <h3>Birthday Bonus</h3>
+        <p>150 Points</p>
+      </div>
+
+      <div class="earn-big-card">
+        <span>⭐</span>
+        <h3>Premium Member</h3>
+        <p>250 Points</p>
+      </div>
+
+    </div>
+
+  </div>
+
 </div>
 </body>
 </html>

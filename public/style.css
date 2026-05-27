@@ -5125,3 +5125,79 @@ button:active,
     grid-template-columns: 1fr;
   }
 }
+.ways-earn-modal{
+  width:1100px;
+  max-width:96%;
+}
+
+.ways-earn-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:25px;
+}
+
+.ways-earn-header h2{
+  color:#fff;
+  margin-bottom:6px;
+}
+
+.ways-earn-header p{
+  color:#94a3b8;
+}
+
+.close-modal-btn{
+  width:42px;
+  height:42px;
+  border:none;
+  border-radius:12px;
+  background:rgba(255,255,255,.08);
+  color:white;
+  cursor:pointer;
+  font-size:18px;
+}
+
+.ways-earn-grid-large{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:18px;
+}
+
+.earn-big-card{
+  background:linear-gradient(
+    145deg,
+    rgba(15,23,42,.95),
+    rgba(25,30,55,.98)
+  );
+  border:1px solid rgba(124,60,255,.2);
+  border-radius:22px;
+  padding:22px;
+  transition:.25s;
+}
+
+.earn-big-card:hover{
+  transform:translateY(-4px);
+  border-color:#7c3cff;
+}
+
+.earn-big-card span{
+  font-size:30px;
+}
+
+.earn-big-card h3{
+  color:white;
+  margin:16px 0 10px;
+}
+
+.earn-big-card p{
+  color:#fbbf24;
+  font-weight:800;
+}
+
+@media(max-width:900px){
+
+  .ways-earn-grid-large{
+    grid-template-columns:1fr;
+  }
+
+}
