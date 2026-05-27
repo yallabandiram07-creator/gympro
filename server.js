@@ -22,7 +22,6 @@ const GymProfile = require("./models/GymProfile");
 
 const subscriptionRoutes = require("./routes/subscriptionRoutes");
 const superAdminRoutes = require("./routes/superAdminRoutes");
-const mongoose = require("mongoose");
 const Redemption = require("./models/Redemption");
 
 const app = express();
