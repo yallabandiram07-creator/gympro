@@ -3035,59 +3035,129 @@ function redeemReward(itemName, pointsRequired) {
     ` + list.innerHTML;
   }
 }
+
 async function loadOwnerRedemptions() {
   const token = tokenOrLogin();
   if (!token) return;
 
-  const res = await fetch(API + "/owner-redemptions", {
-    headers: { Authorization: token }
-  });
+  const tbody = document.getElementById("rewardRedemptionList");
+  if (!tbody) return;
 
-  const redemptions = await res.json();
+  try {
+    const res = await fetch(API + "/owner-redemptions", {
+      headers: { Authorization: token }
+    });
 
-  const list = document.getElementById("rewardRedemptionList");
-  if (!list) return;
+    const redemptions = await res.json();
 
-  if (!redemptions.length) {
-    list.innerHTML = `<p>No reward redemptions yet.</p>`;
-    return;
+    const filter = document.getElementById("redemptionStatusFilter")?.value || "all";
+
+    let filtered = redemptions || [];
+
+    if (filter !== "all") {
+      filtered = filtered.filter(r => r.status === filter);
+    }
+
+    if (!filtered.length) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6">
+            <div class="redemption-empty">
+              No reward redemption requests found.
+            </div>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(r => `
+      <tr>
+        <td>
+          <div class="redemption-member">
+            <div class="redemption-avatar">
+              ${String(r.memberName || "M").charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <strong>${r.memberName || "Member"}</strong><br>
+              <small>Member reward request</small>
+            </div>
+          </div>
+        </td>
+
+        <td>
+          <div class="redemption-reward">
+            <img src="${r.image || "images/gympro-shirt.png"}" alt="${r.rewardName}">
+            <div>
+              <strong>${r.rewardName}</strong><br>
+              <small>Reward Shop Item</small>
+            </div>
+          </div>
+        </td>
+
+        <td>
+          🪙 ${Number(r.points || 0).toLocaleString("en-IN")}
+        </td>
+
+        <td>
+          ${r.createdAt ? new Date(r.createdAt).toLocaleString("en-IN") : "-"}
+        </td>
+
+        <td>
+          <span class="redemption-badge ${r.status}">
+            ${String(r.status || "pending").toUpperCase()}
+          </span>
+        </td>
+
+        <td>
+          <div class="redemption-actions">
+            <button class="primary-btn small-btn" onclick="updateRedemptionStatus('${r._id}','delivered')">
+              Delivered
+            </button>
+
+            <button class="danger-btn small-btn" onclick="updateRedemptionStatus('${r._id}','rejected')">
+              Reject
+            </button>
+          </div>
+        </td>
+      </tr>
+    `).join("");
+
+  } catch (err) {
+    console.log(err);
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6">
+          <div class="redemption-empty">
+            Failed to load redemptions.
+          </div>
+        </td>
+      </tr>
+    `;
   }
-
-  list.innerHTML = redemptions.map(r => `
-    <div class="reward-leaderboard-row">
-      <div class="reward-rank">🎁</div>
-
-      <div class="reward-member-name">
-        ${r.memberName}<br>
-        <small>${r.rewardName} • ${r.points} Points • ${r.status}</small>
-      </div>
-
-      <div>
-        <button class="primary-btn small-btn" onclick="updateRedemptionStatus('${r._id}','delivered')">
-          Delivered
-        </button>
-
-        <button class="danger-btn small-btn" onclick="updateRedemptionStatus('${r._id}','rejected')">
-          Reject
-        </button>
-      </div>
-    </div>
-  `).join("");
 }
 
 async function updateRedemptionStatus(id, status) {
   const token = tokenOrLogin();
+  if (!token) return;
 
-  const res = await fetch(API + "/owner-redemptions/" + id, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token
-    },
-    body: JSON.stringify({ status })
-  });
+  try {
+    const res = await fetch(API + "/owner-redemptions/" + id, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token
+      },
+      body: JSON.stringify({ status })
+    });
 
-  const data = await res.json();
-  showToast(data.message || "Updated", "success");
-  loadOwnerRedemptions();
+    const data = await res.json();
+
+    showToast(data.message || "Redemption updated", "success");
+    loadOwnerRedemptions();
+
+  } catch (err) {
+    console.log(err);
+    showToast("Failed to update redemption", "error");
+  }
 }

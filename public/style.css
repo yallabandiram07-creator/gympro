@@ -4836,3 +4836,132 @@ button:active,
     grid-template-columns: 1fr;
   }
 }
+.owner-redemption-panel {
+  margin-top: 20px;
+}
+
+.owner-redemption-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.owner-redemption-head h2 {
+  color: #fff;
+  margin-bottom: 5px;
+}
+
+.owner-redemption-head p {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.redemption-filter-box select {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(124, 60, 255, 0.35);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 14px;
+  outline: none;
+}
+
+.redemption-table-wrap {
+  overflow-x: auto;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.08);
+}
+
+.redemption-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+}
+
+.redemption-table th {
+  background: rgba(255,255,255,.05);
+  color: #c7d2fe;
+  text-align: left;
+  padding: 15px;
+  font-size: 13px;
+}
+
+.redemption-table td {
+  padding: 15px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  color: #e5e7eb;
+  font-size: 13px;
+}
+
+.redemption-member {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.redemption-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: linear-gradient(135deg,#2563eb,#7c3cff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 900;
+}
+
+.redemption-reward {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.redemption-reward img {
+  width: 52px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 13px;
+  border: 1px solid rgba(124,60,255,.35);
+}
+
+.redemption-badge {
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 12px;
+}
+
+.redemption-badge.pending {
+  background: rgba(251,191,36,.14);
+  color: #fbbf24;
+}
+
+.redemption-badge.delivered {
+  background: rgba(34,197,94,.14);
+  color: #22c55e;
+}
+
+.redemption-badge.rejected {
+  background: rgba(239,68,68,.14);
+  color: #ef4444;
+}
+
+.redemption-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.redemption-actions button {
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.redemption-empty {
+  padding: 25px;
+  text-align: center;
+  color: #94a3b8;
+}

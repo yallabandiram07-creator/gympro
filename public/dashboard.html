@@ -1472,6 +1472,44 @@
 
 </div>
 
+<div class="reward-panel owner-redemption-panel">
+  <div class="owner-redemption-head">
+    <div>
+      <h2>🎟 Reward Redemption Requests</h2>
+      <p>Approve, reject, or mark member rewards as delivered.</p>
+    </div>
+
+    <div class="redemption-filter-box">
+      <select id="redemptionStatusFilter" onchange="loadOwnerRedemptions()">
+        <option value="all">All Status</option>
+        <option value="pending">Pending</option>
+        <option value="delivered">Delivered</option>
+        <option value="rejected">Rejected</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="redemption-table-wrap">
+    <table class="redemption-table">
+      <thead>
+        <tr>
+          <th>Member</th>
+          <th>Reward</th>
+          <th>Points</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="rewardRedemptionList">
+        <tr>
+          <td colspan="6">Loading redemptions...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
 <div class="reward-warning">
   ⚠ Profit-safe reward economy enabled: no free memberships, no plan discounts, only low-cost high-value products.
 </div>
