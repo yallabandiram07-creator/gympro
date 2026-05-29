@@ -371,7 +371,7 @@
 
   <aside class="sidebar premium-sidebar" id="mobileSidebar">
     <div class="brand">
-      <div class="brand-icon">🏋️</div>
+      <div class="brand-icon">G</div>
       <div>
         <h2>GymPro</h2>
         <p>Elite Gym SaaS</p>
@@ -380,31 +380,28 @@
 
     <nav>
       <button onclick="showSection('dashboard', this)" class="nav-btn active">
-        <span class="nav-icon">📊</span> Dashboard
+        <span class="nav-icon"><i data-lucide="layout-dashboard"></i></span> Dashboard
       </button>
       <button onclick="showSection('gymProfile', this)" class="nav-btn">
-        <span class="nav-icon">🏋️</span> Gym Profile
+        <span class="nav-icon"><i data-lucide="dumbbell"></i></span> Gym Profile
       </button>
       <button onclick="showSection('attendance', this)" class="nav-btn">
-        <span class="nav-icon">✅</span> Attendance
+        <span class="nav-icon"><i data-lucide="square-check"></i></span> Attendance
       </button>
       <button onclick="showSection('qr', this)" class="nav-btn">
-        <span class="nav-icon">▣</span> Dynamic QR
+        <span class="nav-icon"><i data-lucide="scan-line"></i></span> Dynamic QR
       </button>
       <button onclick="showSection('trainers', this)" class="nav-btn">
-        <span class="nav-icon">👥</span> Trainers
+        <span class="nav-icon"><i data-lucide="users"></i></span> Trainers
       </button>
       <button onclick="showSection('payments', this)" class="nav-btn">
-        <span class="nav-icon">💳</span> Payment Settings
+        <span class="nav-icon"><i data-lucide="credit-card"></i></span> Payment Settings
       </button>
       <button onclick="showSection('whatsapp', this)" class="nav-btn">
-        <span class="nav-icon">📲</span> WhatsApp
+        <span class="nav-icon"><i data-lucide="message-circle"></i></span> WhatsApp
       </button>
       <button onclick="showSection('rewards', this)" class="nav-btn">
-        <span class="nav-icon">🎁</span> Rewards
-      </button>
-      <button onclick="showSection('reports', this)" class="nav-btn">
-        <span class="nav-icon">📈</span> Reports
+        <span class="nav-icon"><i data-lucide="gift"></i></span> Rewards
       </button>
     </nav>
 
@@ -866,135 +863,130 @@
         
 
     <!-- ===== ATTENDANCE SECTION ===== -->
-    <section id="attendanceSection" style="display:none;">
+  <section id="attendanceSection" style="display:none;">
 
-  <div class="attendance-header-card">
+  <div class="pro-att-header">
     <div>
       <h1>Attendance</h1>
       <p>Track gym attendance manually or with QR scanner.</p>
     </div>
 
-    <div class="attendance-header-actions">
-      <button class="secondary-action-btn" onclick="showSection('qr', document.querySelector('[onclick*=qr]'))">
-        ⌁ QR Scanner
-      </button>
-
-      <button class="primary-action-btn" onclick="scrollToAttendanceMembers()">
-        ✓ Mark Attendance
-      </button>
+    <div class="pro-att-actions">
+      <button onclick="showSection('qr', document.querySelector('[onclick*=qr]'))" class="pro-outline-btn">⌘ QR Scanner</button>
+      <button onclick="scrollToAttendanceMembers()" class="pro-primary-btn">✓ Mark Attendance</button>
     </div>
   </div>
 
-  <div class="attendance-kpi-grid">
-    <div class="attendance-kpi-card purple">
-      <div class="kpi-icon">👥</div>
-      <div>
-        <h3 id="attendanceTotalMembers">0</h3>
-        <p>Total Members</p>
-      </div>
-    </div>
-
-    <div class="attendance-kpi-card green">
-      <div class="kpi-icon">✓</div>
-      <div>
-        <h3 id="attendancePresentToday">0</h3>
-        <p>Present Today</p>
-      </div>
-    </div>
-
-    <div class="attendance-kpi-card orange">
-      <div class="kpi-icon">⚠</div>
-      <div>
-        <h3 id="attendanceAbsentToday">0</h3>
-        <p>Absent Today</p>
-      </div>
-    </div>
-
-    <div class="attendance-kpi-card blue">
-      <div class="kpi-icon">📈</div>
-      <div>
-        <h3 id="attendanceRate">0%</h3>
-        <p>Attendance Rate</p>
-      </div>
-    </div>
+  <div class="pro-att-kpis">
+    <div class="pro-att-kpi purple"><span><i data-lucide="users"></i></span><div><p>Total Members</p><h2 id="attendanceTotalMembers">0</h2></div></div>
+    <div class="pro-att-kpi green"><span><i data-lucide="check"></i></span><div><p>Present Today</p><h2 id="attendancePresentToday">0</h2></div></div>
+    <div class="pro-att-kpi orange"><span><i data-lucide="triangle-alert"></i></span><div><p>Absent Today</p><h2 id="attendanceAbsentToday">0</h2></div></div>
+    <div class="pro-att-kpi blue"><span><i data-lucide="chart-line"></i></span><div><p>Attendance Rate</p><h2 id="attendanceRate">0%</h2></div></div>
+    <div class="pro-att-kpi pink"><span><i data-lucide="calendar-days"></i></span><div><p>Streak Masters</p><h2 id="attendanceStreakCount">0</h2></div></div>
   </div>
 
-  <div id="manualAttendancePanel" class="manual-attendance-panel">
-    <div class="attendance-card-header">
-      <h2>Manual Attendance</h2>
-      <button class="clear-attendance-btn" onclick="clearTodayAttendance()">Clear Today</button>
+  <div class="pro-att-layout">
+
+    <div class="pro-att-left">
+
+      <div class="pro-card pro-chart-card">
+        <div class="pro-card-head">
+          <h2>Attendance Overview</h2>
+          <select id="attendanceMonthFilter" onchange="loadAttendanceAnalytics()">
+            <option value="this">This Week</option>
+            <option value="last">Last Week</option>
+          </select>
+        </div>
+
+        <div class="pro-chart-box">
+          <canvas id="attendanceOverviewChart"></canvas>
+        </div>
+
+        <div class="pro-mini-stats">
+          <div><span>Best Day</span><strong id="bestAttendanceDay">0%</strong></div>
+          <div><span>Worst Day</span><strong id="worstAttendanceDay">0%</strong></div>
+          <div><span>Total Marked</span><strong id="totalMarkedAttendance">0</strong></div>
+          <div><span>Total Missed</span><strong id="totalMissedAttendance">0</strong></div>
+          <div><span>Avg Check-in</span><strong>09:18 AM</strong></div>
+        </div>
+      </div>
+
+      <div class="pro-bottom-charts">
+        <div class="pro-card">
+          <h2>Attendance Distribution</h2>
+          <div class="pro-donut-wrap">
+            <canvas id="attendanceChart"></canvas>
+            <div class="pro-donut-center" id="attendanceDonutLabel">0%<small>Today</small></div>
+          </div>
+
+          <div class="pro-legend">
+            <div><span class="dot green"></span>Present <b id="presentCount">0</b></div>
+            <div><span class="dot red"></span>Absent <b id="absentCount">0</b></div>
+            <div><span class="dot grey"></span>Total <b id="totalLegend">0</b></div>
+          </div>
+        </div>
+
+        <div class="pro-card">
+          <h2>Peak Hours</h2>
+          <div class="peak-bars">
+            <div><span style="height:25%"></span><p>6 AM</p></div>
+            <div><span style="height:45%"></span><p>8 AM</p></div>
+            <div><span style="height:85%"></span><p>10 AM</p></div>
+            <div><span style="height:70%"></span><p>12 PM</p></div>
+            <div><span style="height:58%"></span><p>2 PM</p></div>
+            <div><span style="height:42%"></span><p>4 PM</p></div>
+            <div><span style="height:30%"></span><p>6 PM</p></div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <ul id="attendanceMemberList" class="manual-attendance-list"></ul>
-  </div>
-
-  <div class="attendance-main-grid">
-
-    <div class="attendance-overview-card">
-      <div class="attendance-card-header">
-        <h2>Attendance Overview</h2>
-
-        <select id="attendanceMonthFilter" class="attendance-filter-select" onchange="loadAttendanceAnalytics()">
-          <option value="this">This Month</option>
-          <option value="last">Last Month</option>
-        </select>
+    <div class="pro-card pro-today-card">
+      <div class="pro-card-head">
+        <h2>Today’s Attendance</h2>
+        <button onclick="clearTodayAttendance()" class="pro-danger-small">Clear All</button>
       </div>
 
-      <div class="attendance-chart-box">
-        <canvas id="attendanceOverviewChart"></canvas>
+      <div class="pro-search-row">
+        <input id="todayAttendanceSearch" oninput="filterTodayAttendance()" placeholder="Search present members...">
+        <button onclick="filterTodayAttendance()">Filter</button>
       </div>
 
-      <div class="attendance-stats-row">
-        <div class="mini-attendance-stat">
-          <span>Best Day</span>
-          <h3 id="bestAttendanceDay">0%</h3>
-        </div>
-
-        <div class="mini-attendance-stat">
-          <span>Worst Day</span>
-          <h3 id="worstAttendanceDay">0%</h3>
-        </div>
-
-        <div class="mini-attendance-stat">
-          <span>Total Marked</span>
-          <h3 id="totalMarkedAttendance">0</h3>
-        </div>
-
-        <div class="mini-attendance-stat">
-          <span>Total Missed</span>
-          <h3 id="totalMissedAttendance">0</h3>
-        </div>
-      </div>
-    </div>
-
-    <div class="today-members-card">
-      <div class="attendance-card-header">
-        <h2>Today Present Members</h2>
-        <button class="clear-attendance-btn" onclick="clearTodayAttendance()">Clear All</button>
-      </div>
-
-      <div class="attendance-search-row">
-        <input type="text" class="attendance-search-input" placeholder="Search members...">
-        <button class="attendance-filter-btn">Filter</button>
-      </div>
-
-      <div id="todayAttendanceList" class="today-members-list">
+      <div id="todayAttendanceList" class="pro-today-list">
         <div class="empty-attendance">No attendance marked today.</div>
       </div>
     </div>
 
-  </div>
-
-  <div class="attendance-bottom-grid">
-    <div class="attendance-action-card">
-      <div>
-        <h3>Quick Mark</h3>
-        <p>Mark multiple members instantly.</p>
+    <div id="manualAttendancePanel" class="pro-card pro-manual-card">
+      <div class="pro-card-head">
+        <div>
+          <h2>Manual Attendance</h2>
+          <p>Mark attendance manually for members</p>
+        </div>
       </div>
 
-      <button class="primary-action-btn small-btn" onclick="scrollToAttendanceMembers()">
-        Quick Mark
-      </button>
+      <div class="pro-search-row">
+        <input id="manualAttendanceSearch" oninput="filterManualAttendance()" placeholder="Search member by name or phone...">
+        <button onclick="filterManualAttendance()">⌕</button>
+      </div>
+
+      <ul id="attendanceMemberList" class="pro-manual-list"></ul>
+
+      <button onclick="markAllPresent()" class="pro-primary-btn full">✓ Mark All Present</button>
+      <button onclick="exportAttendanceCSV()" class="pro-outline-btn full">↓ Export Attendance</button>
+    </div>
+
+  </div>
+
+  <div class="pro-card pro-insights">
+    <h2>Attendance Insights</h2>
+
+    <div class="pro-insight-grid">
+      <div><span><i data-lucide="trending-up"></i></span><strong>Excellent!</strong><p>Your attendance system is working smoothly.</p></div>
+      <div><span><i data-lucide="target"></i></span><strong>Peak Time</strong><p>Most members check in during morning hours.</p></div>
+      <div><span><i data-lucide="users"></i></span><strong>Consistency</strong><p>Track regular members and improve retention.</p></div>
+      <div><span><i data-lucide="chart-no-axes-column-increasing"></i></span><strong>Improvement</strong><p>Use reminders to increase daily attendance.</p></div>
     </div>
   </div>
 
@@ -1815,86 +1807,185 @@
 
 </section>
 
-    <!-- ===== REPORTS SECTION ===== -->
-    <section id="reportsSection" style="display:none;">
-      <div class="page-header">
-        <h1>Reports</h1>
-        <p>Export and view gym performance reports.</p>
-      </div>
-      <div class="content-grid">
-        <div class="panel glass-panel">
-          <h2>Member Report</h2>
-          <button class="primary-btn" onclick="exportMembersCSV()">Export Members CSV</button>
-        </div>
-        <div class="panel glass-panel">
-          <h2>Revenue Summary</h2>
-          <h1>₹<span id="reportRevenue">0</span></h1>
-        </div>
-        <div class="panel glass-panel">
-          <h2>Member Summary</h2>
-          <p>Total: <strong id="reportTotalMembers">0</strong></p>
-          <p>Active: <strong id="reportActiveMembers">0</strong></p>
-          <p>Expired: <strong id="reportExpiredMembers">0</strong></p>
-        </div>
-        <div class="panel glass-panel">
-          <h2>Attendance Summary</h2>
-          <p>Present Today: <strong id="reportTodayAttendance">0</strong></p>
-        </div>
-      </div>
-    </section>
-
     <!-- ===== SETTINGS SECTION ===== -->
-    <section id="settingsSection" style="display:none;">
-      <div class="page-header">
-        <h1>Settings</h1>
-        <p>Manage your app preferences and account settings.</p>
-      </div>
-      <div class="content-grid">
-        <div class="panel glass-panel">
-          <h2>Account Settings</h2>
-          <input type="text" placeholder="Owner Name">
-          <input type="email" placeholder="Owner Email">
-          <input type="text" placeholder="Phone Number">
-          <button class="primary-btn">Save Account</button>
-        </div>
-        <div class="panel glass-panel">
-          <h2>Security</h2>
-          <input type="password" placeholder="Current Password">
-          <input type="password" placeholder="New Password">
-          <input type="password" placeholder="Confirm Password">
-          <button class="primary-btn">Update Password</button>
-        </div>
-        <div class="panel glass-panel">
-          <h2>Notification Settings</h2>
-          <label class="settings-option">
-            <span>WhatsApp Reminders</span>
-            <input type="checkbox" checked>
-          </label>
-          <label class="settings-option">
-            <span>Payment Alerts</span>
-            <input type="checkbox" checked>
-          </label>
-          <label class="settings-option">
-            <span>Expiry Alerts</span>
-            <input type="checkbox" checked>
-          </label>
-        </div>
-        <div class="panel glass-panel">
-          <h2>App Preferences</h2>
-          <select>
-            <option>Dark Theme</option>
-            <option>Light Theme</option>
-          </select>
-          <select>
-            <option>₹ INR Currency</option>
-          </select>
-          <button class="primary-btn">Save Preferences</button>
-        </div>
-      </div>
-    </section>
+   <section id="settingsSection" style="display:none;">
 
-  </main>
-</div>
+  <div class="settings-hero-pro">
+    <div class="settings-title-wrap">
+      <div class="settings-main-icon"><i data-lucide="settings"></i></div>
+      <div>
+        <h1>Settings</h1>
+        <p>Manage your gym, account, and application preferences.</p>
+      </div>
+    </div>
+
+    <div class="settings-top-actions">
+      <button onclick="showSection('dashboard', document.querySelector('.nav-btn'))"><i data-lucide="zap"></i> Quick Actions</button>
+      <button><i data-lucide="calendar-days"></i> <span id="settingsTodayDate">--</span><br><small id="settingsLiveTime">--:--</small></button>
+      <button onclick="toggleNotifications()"><i data-lucide="bell"></i></button>
+      <button onclick="toggleProfileMenu()" class="settings-profile-pill"><b id="settingsOwnerInitial">G</b><span id="settingsOwnerNameTop">Owner</span></button>
+    </div>
+  </div>
+
+  <div class="settings-main-layout">
+
+    <div class="settings-menu-card">
+      <h3>Settings Menu</h3>
+
+      <button class="settings-menu-item active" onclick="settingsTab(this)">
+        <span><i data-lucide="settings"></i></span>
+        <div><strong>General</strong><small>Basic gym information</small></div>
+      </button>
+
+      <button class="settings-menu-item" onclick="settingsTab(this)">
+        <span><i data-lucide="shield"></i></span>
+        <div><strong>Security</strong><small>Password & security</small></div>
+      </button>
+
+      <button class="settings-menu-item" onclick="settingsTab(this)">
+        <span><i data-lucide="bell"></i></span>
+        <div><strong>Notifications</strong><small>Email, SMS & alerts</small></div>
+      </button>
+
+      <button class="settings-menu-item" onclick="settingsTab(this)">
+        <span><i data-lucide="credit-card"></i></span>
+        <div><strong>Payment & Billing</strong><small>Billing, invoices & plans</small></div>
+      </button>
+
+      <button class="settings-menu-item" onclick="settingsTab(this)">
+        <span><i data-lucide="plug"></i></span>
+        <div><strong>Integrations</strong><small>Third-party integrations</small></div>
+      </button>
+
+      <button class="settings-menu-item" onclick="settingsTab(this)">
+        <span><i data-lucide="cloud"></i></span>
+        <div><strong>Backup & Data</strong><small>Backup & restore data</small></div>
+      </button>
+
+      <button class="settings-menu-item" onclick="settingsTab(this)">
+        <span><i data-lucide="palette"></i></span>
+        <div><strong>Appearance</strong><small>Theme & customization</small></div>
+      </button>
+
+      <button class="settings-menu-item" onclick="settingsTab(this)">
+        <span><i data-lucide="users"></i></span>
+        <div><strong>Staff Access</strong><small>Manage staff accounts</small></div>
+      </button>
+
+      <button class="settings-menu-item" onclick="settingsTab(this)">
+        <span><i data-lucide="crown"></i></span>
+        <div><strong>Subscription</strong><small>Manage your plan</small></div>
+      </button>
+    </div>
+
+    <div class="settings-content-grid">
+
+      <div class="settings-card wide">
+        <div class="settings-card-head">
+          <div><span><i data-lucide="landmark"></i></span><div><h2>Gym Information</h2><p>Update your gym details and contact information.</p></div></div>
+          <button onclick="showSection('gymProfile', document.querySelector('[onclick*=gymProfile]'))">Edit Details</button>
+        </div>
+
+        <div class="settings-info-box">
+          <div><small>Gym Name</small><strong id="setGymName">-</strong></div>
+          <div><small>Address</small><strong id="setGymAddress">-</strong></div>
+          <div><small>Owner Name</small><strong id="setOwnerName">-</strong></div>
+          <div><small>Timings</small><strong id="setGymTimings">-</strong></div>
+          <div><small>Email Address</small><strong id="setOwnerEmail">-</strong></div>
+          <div><small>Phone Number</small><strong id="setOwnerPhone">-</strong></div>
+        </div>
+      </div>
+
+      <div class="settings-card logo-card">
+        <div class="settings-card-head no-btn">
+          <div><span><i data-lucide="image"></i></span><div><h2>Gym Logo</h2><p>Preview your gym brand logo.</p></div></div>
+        </div>
+
+        <div class="settings-logo-preview" id="settingsLogoPreview">
+          <i data-lucide="dumbbell"></i>
+        </div>
+
+        <input id="settingsLogoFile" type="file" accept="image/*" style="display:none;" onchange="previewSettingsLogo(event)">
+        <button onclick="document.getElementById('settingsLogoFile').click()" class="outline-settings-btn">Change Logo</button>
+        <small>PNG, JPG or WEBP. Saved in this browser.</small>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-card-head">
+          <div><span><i data-lucide="user"></i></span><div><h2>Account Settings</h2><p>Update owner contact details.</p></div></div>
+        </div>
+
+        <input id="settingsOwnerName" placeholder="Owner Name">
+        <input id="settingsOwnerEmail" placeholder="Owner Email">
+        <input id="settingsOwnerPhone" placeholder="Phone Number">
+        <button onclick="savePremiumSettings()">Save Account</button>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-card-head">
+          <div><span><i data-lucide="lock"></i></span><div><h2>Security</h2><p>Update account password.</p></div></div>
+        </div>
+
+        <input id="settingsCurrentPassword" type="password" placeholder="Current Password">
+        <input id="settingsNewPassword" type="password" placeholder="New Password">
+        <input id="settingsConfirmPassword" type="password" placeholder="Confirm Password">
+        <button onclick="updateOwnerPassword()">Update Password</button>
+      </div>
+
+      <div class="settings-card wide">
+        <div class="settings-card-head">
+          <div><span><i data-lucide="briefcase"></i></span><div><h2>Business Settings</h2><p>Configure gym business preferences.</p></div></div>
+          <button onclick="savePremiumSettings()">Manage Settings</button>
+        </div>
+
+        <div class="settings-business-grid">
+          <div><span><i data-lucide="indian-rupee"></i></span><strong>Currency</strong><b>INR (₹)</b><p>Default currency for all transactions</p></div>
+          <div><span><i data-lucide="calendar"></i></span><strong>Date Format</strong><b id="settingsDateFormat">29 May 2026</b><p>DD MMM YYYY</p></div>
+          <div><span><i data-lucide="clock"></i></span><strong>Time Format</strong><b id="settingsTimeFormat">03:26 PM</b><p>12-hour format</p></div>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-card-head no-btn">
+          <div><span><i data-lucide="server"></i></span><div><h2>System Status</h2><p>Everything is running smoothly.</p></div></div>
+        </div>
+
+        <div class="settings-status-list">
+          <p><span><i data-lucide="wifi"></i> Server Status</span><b id="setServerStatus">Online</b></p>
+          <p><span><i data-lucide="database"></i> Database</span><b id="setDatabaseStatus">Connected</b></p>
+          <p><span><i data-lucide="cloud-check"></i> Backup Status</span><b id="setBackupStatus">Up to date</b></p>
+          <p><span><i data-lucide="hard-drive"></i> Storage Used</span><b id="setStorageStatus">32% of 50GB</b></p>
+          <p><span><i data-lucide="user-check"></i> Active Sessions</span><b id="setSessionStatus">1 Active</b></p>
+        </div>
+      </div>
+
+      <div class="settings-card danger-zone full">
+        <div class="settings-card-head no-btn">
+          <div><span><i data-lucide="shield-alert"></i></span><div><h2>Danger Zone</h2><p>Irreversible and sensitive actions.</p></div></div>
+        </div>
+
+        <div class="danger-actions-grid">
+          <div>
+            <span><i data-lucide="archive"></i></span>
+            <div><strong>Backup All Data</strong><p>Download complete backup of your gym data.</p></div>
+            <button onclick="backupOwnerData()">Backup Now</button>
+          </div>
+
+          <div class="delete-danger">
+            <span><i data-lucide="triangle-alert"></i></span>
+            <div><strong>Delete All Data</strong><p>Permanently delete members, attendance, payments and trainers.</p></div>
+            <button onclick="deleteAllOwnerData()">Delete All Data</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="settings-footer">© 2026 GymPro. All rights reserved.</div>
+
+</section>
+  
 
 <!-- NOTIFICATION DROPDOWN -->
 <div id="notificationDropdown" class="top-dropdown hidden">

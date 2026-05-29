@@ -17,7 +17,7 @@ function logout() {
 }
  
 function showSection(section, btn) {
-  const sections = ["dashboardSection","gymProfileSection","attendanceSection","qrSection","trainersSection","paymentsSection","whatsappSection","rewardsSection","reportsSection","settingsSection"];
+  const sections = ["dashboardSection","gymProfileSection","attendanceSection","qrSection","trainersSection","paymentsSection","whatsappSection","rewardsSection","settingsSection"];
   if (section === "reports") updateReports();
   sections.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = "none"; });
   if (section !== "qr") stopQRAutoRefresh();
@@ -147,13 +147,22 @@ function loadMembers() {
         }
  
         if (attendanceList) {
-          attendanceList.innerHTML += `
-            <li>
-              <strong>${m.name}</strong>
-              <span>${m.phone}</span>
-              <button onclick="markAttendance('${m._id}')" class="primary-btn small-btn" style="margin-top:8px;">Mark Attendance</button>
-            </li>`;
-        }
+  attendanceList.innerHTML += `
+    <li class="pro-manual-row">
+      <div class="pro-member-info">
+        <div class="pro-avatar">${String(m.name || "?").charAt(0).toUpperCase()}</div>
+        <div>
+          <strong>${m.name || "Member"}</strong>
+          <span>${m.phone || ""}</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;">
+        <button onclick="markAttendance('${m._id}')" class="present-mini-btn">Present</button>
+        <button onclick="showToast('Absent status is counted automatically', 'success')" class="absent-mini-btn">Absent</button>
+      </div>
+    </li>`;
+}
  
         if (rewardList) {
           rewardList.innerHTML += `
@@ -242,24 +251,26 @@ function loadAttendance() {
           `;
         } else {
           list.innerHTML = attendance.map(a => `
-            <div class="today-member-row">
-              <div class="today-member-info">
-                <div class="today-member-avatar">
-                  ${String(a.memberName || "?").charAt(0).toUpperCase()}
-                </div>
-                <div>
-                  <strong>${a.memberName || "Member"}</strong>
-                  <span>${a.date || ""}</span>
-                </div>
-              </div>
+          <div class="pro-today-row">
+  <div class="pro-member-info">
+    <div class="pro-avatar">
+      ${String(a.memberName || "?").charAt(0).toUpperCase()}
+    </div>
+    <div>
+      <strong>${a.memberName || "Member"}</strong>
+      <span>${a.date || ""}</span>
+    </div>
+  </div>
 
-              <div>
-                <span style="color:#94a3b8;font-size:12px;margin-right:12px;">
-                  ${a.time || ""}
-                </span>
-                <span class="present-badge">● Present</span>
-              </div>
-            </div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span style="color:#94a3b8;font-size:12px;">
+      ${a.time || ""}
+    </span>
+    <span class="present-badge">● Present</span>
+  </div>
+</div> 
+
+          
           `).join("");
         }
       }
@@ -3486,3 +3497,315 @@ async function loadLoggedInOwnerGymHeader() {
   }
 }
 document.addEventListener("DOMContentLoaded", loadLoggedInOwnerGymHeader);
+function filterManualAttendance() {
+  const search = document.getElementById("manualAttendanceSearch")?.value.toLowerCase() || "";
+  document.querySelectorAll("#attendanceMemberList .pro-manual-row").forEach(row => {
+    row.style.display = row.innerText.toLowerCase().includes(search) ? "flex" : "none";
+  });
+}
+
+function filterTodayAttendance() {
+  const search = document.getElementById("todayAttendanceSearch")?.value.toLowerCase() || "";
+  document.querySelectorAll("#todayAttendanceList .pro-today-row").forEach(row => {
+    row.style.display = row.innerText.toLowerCase().includes(search) ? "flex" : "none";
+  });
+}
+
+async function markAllPresent() {
+  const token = tokenOrLogin();
+  if (!token) return;
+
+  if (!confirm("Mark all members present today?")) return;
+
+  try {
+    showLoader();
+
+    for (const member of allMembersData) {
+      await fetch(API + "/attendance/" + member._id, {
+        method: "POST",
+        headers: { Authorization: token }
+      });
+    }
+
+    hideLoader();
+    showToast("All possible members marked present", "success");
+
+    loadMembers();
+    loadAttendance();
+
+  } catch (err) {
+    hideLoader();
+    console.log(err);
+    showToast("Mark all failed", "error");
+  }
+}
+
+function exportAttendanceCSV() {
+  const rows = [];
+  rows.push("Name,Phone,Status,Date");
+
+  const today = new Date().toLocaleDateString("en-IN");
+
+  allMembersData.forEach(m => {
+    rows.push(`${m.name},${m.phone},Attendance Page,${today}`);
+  });
+
+  const blob = new Blob([rows.join("\n")], { type: "text/csv" });
+  const url = window.URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "gympro-attendance.csv";
+  a.click();
+
+  window.URL.revokeObjectURL(url);
+}
+if (typeof lucide !== "undefined") {
+  lucide.createIcons();
+}
+async function loadPremiumSettings() {
+  const token = tokenOrLogin();
+  if (!token) return;
+
+  try {
+    const res = await fetch(API + "/owner-settings", {
+      headers: { Authorization: token }
+    });
+
+    const data = await res.json();
+    const owner = data.owner || {};
+    const profile = data.profile || {};
+    const prefs = owner.preferences || {};
+
+    setText("setGymName", profile.gymName || owner.gymName || "GymPro");
+    setText("setGymAddress", profile.address || "-");
+    setText("setOwnerName", profile.ownerName || owner.ownerName || "-");
+    setText("setGymTimings", profile.timings || "-");
+    setText("setOwnerEmail", owner.email || "-");
+    setText("setOwnerPhone", profile.phone || owner.phone || "-");
+
+    const nameInput = document.getElementById("settingsOwnerName");
+    const emailInput = document.getElementById("settingsOwnerEmail");
+    const phoneInput = document.getElementById("settingsOwnerPhone");
+
+    if (nameInput) nameInput.value = profile.ownerName || owner.ownerName || "";
+    if (emailInput) emailInput.value = owner.email || "";
+    if (phoneInput) phoneInput.value = profile.phone || owner.phone || "";
+
+    setText("settingsOwnerNameTop", profile.ownerName || owner.ownerName || "Owner");
+    setText("settingsOwnerInitial", String(profile.ownerName || owner.ownerName || "G").charAt(0).toUpperCase());
+
+    setText("setServerStatus", data.status?.server || "Online");
+    setText("setDatabaseStatus", data.status?.database || "Connected");
+    setText("setBackupStatus", data.status?.backup || "Up to date");
+    setText("setStorageStatus", data.status?.storage || "32% of 50GB");
+    setText("setSessionStatus", data.status?.sessions || "1 Active");
+
+    const savedLogo = localStorage.getItem("gymproSettingsLogo");
+    if (savedLogo) {
+      document.getElementById("settingsLogoPreview").innerHTML = `<img src="${savedLogo}">`;
+    }
+
+    if (typeof lucide !== "undefined") lucide.createIcons();
+  } catch (err) {
+    console.log("Settings load error:", err);
+    showToast("Settings load failed", "error");
+  }
+}
+
+async function savePremiumSettings() {
+  const token = tokenOrLogin();
+  if (!token) return;
+
+  const body = {
+    ownerName: document.getElementById("settingsOwnerName")?.value.trim() || "",
+    email: document.getElementById("settingsOwnerEmail")?.value.trim() || "",
+    phone: document.getElementById("settingsOwnerPhone")?.value.trim() || "",
+    preferences: {
+      whatsappReminders: true,
+      paymentAlerts: true,
+      expiryAlerts: true,
+      theme: "Dark Theme",
+      currency: "₹ INR Currency"
+    }
+  };
+
+  try {
+    showLoader();
+
+    const res = await fetch(API + "/owner-settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: token },
+      body: JSON.stringify(body)
+    });
+
+    const data = await res.json();
+    hideLoader();
+
+    if (!res.ok) {
+      showToast(data.message || "Settings save failed", "error");
+      return;
+    }
+
+    showToast(data.message || "Settings saved", "success");
+    loadPremiumSettings();
+    loadGymProfileOnDashboard();
+  } catch (err) {
+    hideLoader();
+    console.log(err);
+    showToast("Settings save failed", "error");
+  }
+}
+
+async function updateOwnerPassword() {
+  const token = tokenOrLogin();
+  if (!token) return;
+
+  const body = {
+    currentPassword: document.getElementById("settingsCurrentPassword")?.value || "",
+    newPassword: document.getElementById("settingsNewPassword")?.value || "",
+    confirmPassword: document.getElementById("settingsConfirmPassword")?.value || ""
+  };
+
+  try {
+    showLoader();
+
+    const res = await fetch(API + "/owner-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: token },
+      body: JSON.stringify(body)
+    });
+
+    const data = await res.json();
+    hideLoader();
+
+    if (!res.ok) {
+      showToast(data.message || "Password update failed", "error");
+      return;
+    }
+
+    document.getElementById("settingsCurrentPassword").value = "";
+    document.getElementById("settingsNewPassword").value = "";
+    document.getElementById("settingsConfirmPassword").value = "";
+
+    showToast(data.message || "Password updated", "success");
+  } catch (err) {
+    hideLoader();
+    console.log(err);
+    showToast("Password update failed", "error");
+  }
+}
+
+async function backupOwnerData() {
+  const token = tokenOrLogin();
+  if (!token) return;
+
+  try {
+    const res = await fetch(API + "/owner-backup", {
+      headers: { Authorization: token }
+    });
+
+    const data = await res.json();
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json"
+    });
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "gympro-backup.json";
+    a.click();
+    window.URL.revokeObjectURL(url);
+
+    showToast("Backup downloaded successfully", "success");
+  } catch (err) {
+    console.log(err);
+    showToast("Backup failed", "error");
+  }
+}
+
+function deleteAllOwnerData() {
+  openModal(
+    "Delete All Data",
+    "This will delete members, trainers, attendance, payments and reward redemptions. Your login and gym profile will remain safe.",
+    "Delete All",
+    async function () {
+      const token = tokenOrLogin();
+      if (!token) return;
+
+      try {
+        showLoader();
+
+        const res = await fetch(API + "/owner-delete-all-data", {
+          method: "DELETE",
+          headers: { Authorization: token }
+        });
+
+        const data = await res.json();
+        hideLoader();
+
+        if (!res.ok) {
+          showToast(data.message || "Delete failed", "error");
+          return;
+        }
+
+        showToast(data.message || "All data deleted", "success");
+        loadMembers();
+        loadAttendance();
+        loadDashboardAlerts();
+        loadRecentPayments();
+      } catch (err) {
+        hideLoader();
+        console.log(err);
+        showToast("Delete failed", "error");
+      }
+    }
+  );
+}
+
+function previewSettingsLogo(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (file.size > 2 * 1024 * 1024) {
+    showToast("Logo must be below 2MB", "error");
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    localStorage.setItem("gymproSettingsLogo", e.target.result);
+    document.getElementById("settingsLogoPreview").innerHTML = `<img src="${e.target.result}">`;
+    showToast("Logo updated in this browser", "success");
+  };
+
+  reader.readAsDataURL(file);
+}
+
+function settingsTab(btn) {
+  document.querySelectorAll(".settings-menu-item").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+
+  const name = btn.innerText.trim().split("\n")[0];
+
+  if (name.includes("Security")) {
+    document.getElementById("settingsCurrentPassword")?.focus();
+  }
+
+  if (name.includes("Payment")) {
+    showSection("payments", document.querySelector('[onclick*="payments"]'));
+  }
+
+  if (name.includes("Subscription")) {
+    window.location.href = "subscription.html";
+  }
+
+  if (name.includes("Backup")) {
+    document.querySelector(".danger-zone")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+}
+if (section === "settings") {
+  loadPremiumSettings();
+}

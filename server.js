@@ -1455,6 +1455,139 @@ app.get("/owner/current-gym", auth, async (req, res) => {
   }
 });
 
+app.get("/owner-settings", auth, async (req, res) => {
+  try {
+    const owner = await User.findById(req.user.id).select("-password -razorpayKeySecret");
+    const profile = await GymProfile.findOne({ userId: req.user.id });
+
+    res.json({
+      owner,
+      profile,
+      status: {
+        server: "Online",
+        database: mongoose.connection.readyState === 1 ? "Connected" : "Disconnected",
+        backup: "Up to date",
+        storage: "32% of 50GB",
+        sessions: "1 Active"
+      }
+    });
+  } catch (err) {
+    console.log("Owner settings get error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.post("/owner-settings", auth, async (req, res) => {
+  try {
+    const { ownerName, email, phone, preferences } = req.body;
+
+    const owner = await User.findById(req.user.id);
+    let profile = await GymProfile.findOne({ userId: req.user.id });
+
+    if (!profile) profile = new GymProfile({ userId: req.user.id });
+
+    owner.ownerName = ownerName || owner.ownerName || "";
+    owner.email = email || "";
+    owner.phone = phone || "";
+
+    if (preferences) {
+      owner.preferences = {
+        whatsappReminders: Boolean(preferences.whatsappReminders),
+        paymentAlerts: Boolean(preferences.paymentAlerts),
+        expiryAlerts: Boolean(preferences.expiryAlerts),
+        theme: preferences.theme || "Dark Theme",
+        currency: preferences.currency || "₹ INR Currency"
+      };
+    }
+
+    profile.ownerName = owner.ownerName;
+    profile.phone = phone || profile.phone || "";
+
+    await owner.save();
+    await profile.save();
+
+    res.json({ message: "Settings saved successfully" });
+  } catch (err) {
+    console.log("Owner settings save error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.post("/owner-password", auth, async (req, res) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ message: "Please fill all password fields" });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: "New passwords do not match" });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    }
+
+    const owner = await User.findById(req.user.id);
+    const match = await bcrypt.compare(currentPassword, owner.password);
+
+    if (!match) {
+      return res.status(400).json({ message: "Current password is wrong" });
+    }
+
+    owner.password = await bcrypt.hash(newPassword, 10);
+    await owner.save();
+
+    res.json({ message: "Password updated successfully" });
+  } catch (err) {
+    console.log("Password update error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.get("/owner-backup", auth, async (req, res) => {
+  try {
+    const owner = await User.findById(req.user.id).select("-password -razorpayKeySecret");
+    const profile = await GymProfile.findOne({ userId: req.user.id });
+    const members = await Member.find({ userId: req.user.id });
+    const trainers = await Trainer.find({ userId: req.user.id });
+    const attendance = await Attendance.find({ userId: req.user.id });
+    const payments = await Payment.find({ userId: req.user.id });
+    const redemptions = await Redemption.find({ userId: req.user.id });
+
+    res.json({
+      exportedAt: new Date(),
+      owner,
+      profile,
+      members,
+      trainers,
+      attendance,
+      payments,
+      redemptions
+    });
+  } catch (err) {
+    console.log("Backup error:", err);
+    res.status(500).json({ message: "Backup failed" });
+  }
+});
+
+app.delete("/owner-delete-all-data", auth, async (req, res) => {
+  try {
+    await Member.deleteMany({ userId: req.user.id });
+    await Trainer.deleteMany({ userId: req.user.id });
+    await Attendance.deleteMany({ userId: req.user.id });
+    await Payment.deleteMany({ userId: req.user.id });
+    await DietLog.deleteMany({ userId: req.user.id });
+    await Redemption.deleteMany({ userId: req.user.id });
+
+    res.json({ message: "All gym data deleted successfully. Profile and login are kept safe." });
+  } catch (err) {
+    console.log("Delete all data error:", err);
+    res.status(500).json({ message: "Delete failed" });
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, "0.0.0.0", () => {
