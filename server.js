@@ -1427,14 +1427,16 @@ app.get("/owner/current-gym", auth, async (req, res) => {
       owner?.username ||
       "GymPro";
 
-    res.json({
-      gymName
-    });
+    res.json({ gymName });
 
   } catch (err) {
     console.log("Current gym error:", err);
-    res.status(500).json({
-      message: "Failed to load gym name"
-    });
+    res.status(500).json({ message: "Failed to load gym name" });
   }
+});
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT} 🚀`);
 });
