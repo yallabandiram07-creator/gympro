@@ -7,6 +7,353 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+/* ===== ELITE OWNER DASHBOARD FINAL MATCH PATCH ===== */
+#dashboardSection{
+  display:block;
+}
+.elite-command-header{
+  min-height:92px!important;
+  border-radius:24px!important;
+  background:
+    radial-gradient(circle at 85% 20%, rgba(124,58,237,.22), transparent 35%),
+    linear-gradient(145deg, rgba(8,12,28,.98), rgba(9,10,26,.96))!important;
+  border:1px solid rgba(124,58,237,.25)!important;
+  padding:22px 26px!important;
+  margin-bottom:18px!important;
+}
+.elite-header-actions{
+  gap:14px!important;
+}
+.elite-search-box{
+  width:330px!important;
+  height:46px!important;
+  border-radius:14px!important;
+  background:rgba(15,23,42,.82)!important;
+  border:1px solid rgba(139,92,246,.22)!important;
+}
+.elite-search-box input{
+  height:100%!important;
+}
+.elite-quick-btn,
+.elite-date-btn,
+.elite-bell-btn,
+.elite-profile-mini{
+  height:46px!important;
+  border-radius:14px!important;
+  background:linear-gradient(145deg, rgba(21,20,45,.92), rgba(12,16,34,.98))!important;
+  border:1px solid rgba(139,92,246,.24)!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.25)!important;
+}
+.elite-profile-mini{
+  min-width:170px!important;
+  padding:0 14px 0 8px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+}
+.elite-profile-bubble{
+  width:42px!important;
+  height:42px!important;
+  border-radius:50%!important;
+  display:grid!important;
+  place-items:center!important;
+  background:radial-gradient(circle at 30% 20%, #f0abfc, #7c3aed 65%)!important;
+  color:#fff!important;
+  font-weight:900!important;
+  box-shadow:0 0 26px rgba(168,85,247,.65)!important;
+}
+.elite-profile-mini strong{
+  color:white!important;
+  font-size:13px!important;
+  display:block!important;
+}
+.elite-profile-mini span{
+  color:#94a3b8!important;
+  font-size:11px!important;
+}
+
+.elite-kpi-grid{
+  display:grid!important;
+  grid-template-columns:repeat(5, minmax(0, 1fr))!important;
+  gap:16px!important;
+  margin-bottom:18px!important;
+}
+.elite-kpi-card{
+  min-height:132px!important;
+  padding:24px 22px!important;
+  border-radius:18px!important;
+  position:relative!important;
+  overflow:hidden!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:18px!important;
+  background:linear-gradient(145deg, rgba(12,16,37,.98), rgba(11,13,30,.98))!important;
+  border:1px solid rgba(139,92,246,.22)!important;
+  box-shadow:0 18px 42px rgba(0,0,0,.25)!important;
+}
+.elite-kpi-card.purple{border-color:rgba(124,58,237,.55)!important;}
+.elite-kpi-card.blue{border-color:rgba(59,130,246,.45)!important;}
+.elite-kpi-card.green{border-color:rgba(34,197,94,.38)!important;}
+.elite-kpi-card.orange{border-color:rgba(249,115,22,.42)!important;}
+.elite-kpi-card.violet{border-color:rgba(168,85,247,.45)!important;}
+
+.elite-kpi-icon{
+  width:56px!important;
+  height:56px!important;
+  min-width:56px!important;
+  border-radius:16px!important;
+  display:grid!important;
+  place-items:center!important;
+  font-size:27px!important;
+  color:white!important;
+  background:linear-gradient(135deg, rgba(124,58,237,.95), rgba(59,130,246,.8))!important;
+  box-shadow:0 0 30px rgba(124,58,237,.35)!important;
+}
+.elite-kpi-card.blue .elite-kpi-icon{background:linear-gradient(135deg,#2563eb,#06b6d4)!important;}
+.elite-kpi-card.green .elite-kpi-icon{background:linear-gradient(135deg,#16a34a,#22c55e)!important;}
+.elite-kpi-card.orange .elite-kpi-icon{background:linear-gradient(135deg,#f97316,#fb923c)!important;}
+.elite-kpi-card.violet .elite-kpi-icon{background:linear-gradient(135deg,#7c3aed,#c026d3)!important;}
+
+.elite-kpi-card span{
+  color:#cbd5e1!important;
+  font-size:12px!important;
+  font-weight:700!important;
+}
+.elite-kpi-card h2{
+  color:white!important;
+  font-size:28px!important;
+  line-height:1.1!important;
+  margin:8px 0 8px!important;
+}
+.elite-kpi-card p{
+  color:#94a3b8!important;
+  font-size:12px!important;
+  margin:0!important;
+}
+.kpi-wave{
+  position:absolute;
+  right:-10px;
+  bottom:10px;
+  width:140px;
+  height:50px;
+  opacity:.25;
+  background:
+    radial-gradient(circle at 15% 55%, transparent 14px, rgba(124,58,237,.9) 15px, transparent 17px),
+    linear-gradient(110deg, transparent, rgba(124,58,237,.25), transparent);
+  filter:blur(1px);
+}
+
+.elite-main-grid{
+  display:grid!important;
+  grid-template-columns:1.65fr .88fr .88fr 1fr!important;
+  gap:16px!important;
+  margin-bottom:16px!important;
+  align-items:stretch!important;
+}
+.elite-main-grid > *{
+  min-width:0!important;
+  height:350px!important;
+}
+.elite-revenue-card,
+.elite-donut-card,
+.elite-ai-card,
+.elite-panel-card,
+.elite-actions-card,
+.elite-health-card{
+  border-radius:18px!important;
+  background:
+    radial-gradient(circle at 70% 0%, rgba(124,58,237,.12), transparent 32%),
+    linear-gradient(145deg, rgba(13,17,39,.96), rgba(7,10,26,.99))!important;
+  border:1px solid rgba(139,92,246,.22)!important;
+  box-shadow:0 18px 44px rgba(0,0,0,.28)!important;
+  overflow:hidden!important;
+}
+.elite-revenue-card{
+  padding:24px!important;
+}
+.elite-revenue-card canvas{
+  max-height:220px!important;
+}
+.elite-donut-card{
+  padding:22px!important;
+}
+.elite-donut-card .donut-wrap{
+  height:205px!important;
+  margin:8px 0 10px!important;
+}
+.elite-donut-card .donut-wrap canvas{
+  max-height:200px!important;
+}
+.premium-donut-legend{
+  margin-top:8px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:9px!important;
+}
+.premium-legend-row{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  color:#cbd5e1!important;
+  font-size:13px!important;
+  font-weight:700!important;
+}
+.premium-legend-row div{
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+}
+.premium-legend-row strong{
+  color:white!important;
+  font-weight:900!important;
+}
+.legend-dot{
+  width:10px!important;
+  height:10px!important;
+  border-radius:50%!important;
+  display:inline-block!important;
+}
+.legend-dot.green{background:#7ee787!important;}
+.legend-dot.red{background:#ff5f6d!important;}
+.legend-dot.orange{background:#f59e0b!important;}
+.legend-dot.grey{background:#9ca3af!important;}
+
+.elite-bottom-grid{
+  display:grid!important;
+  grid-template-columns:1.05fr 1.05fr 1fr 1fr!important;
+  gap:16px!important;
+  align-items:stretch!important;
+  margin-bottom:18px!important;
+}
+.elite-bottom-grid > *{
+  height:300px!important;
+  min-width:0!important;
+  padding:22px!important;
+}
+.elite-actions-grid{
+  display:grid!important;
+  grid-template-columns:repeat(4, 1fr)!important;
+  gap:12px!important;
+}
+.elite-actions-grid button{
+  height:86px!important;
+  border-radius:18px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:9px!important;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(139,92,246,.22), transparent 60%),
+    linear-gradient(145deg, rgba(23,29,53,.95), rgba(8,12,28,.98))!important;
+  border:1px solid rgba(139,92,246,.20)!important;
+  color:white!important;
+  box-shadow:0 12px 30px rgba(0,0,0,.22)!important;
+}
+.elite-actions-grid button span{
+  width:42px!important;
+  height:42px!important;
+  border-radius:14px!important;
+  display:grid!important;
+  place-items:center!important;
+  font-size:22px!important;
+  background:linear-gradient(135deg, rgba(124,58,237,.75), rgba(59,130,246,.45))!important;
+  box-shadow:0 0 18px rgba(124,58,237,.28)!important;
+}
+.elite-actions-grid button b{
+  font-size:11px!important;
+  line-height:1.15!important;
+  color:#fff!important;
+}
+.elite-actions-grid button:hover{
+  transform:translateY(-4px)!important;
+  box-shadow:0 20px 40px rgba(124,58,237,.20)!important;
+}
+
+.elite-health-card{
+  text-align:center!important;
+}
+.elite-health-card .owner-section-head{
+  justify-content:flex-start!important;
+}
+.elite-health-wrap{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  margin:4px 0 12px!important;
+}
+.elite-health-ring{
+  width:162px!important;
+  height:162px!important;
+  border-radius:50%!important;
+  position:relative!important;
+  display:grid!important;
+  place-items:center!important;
+  background:
+    conic-gradient(from 210deg, #5f6f8f 0deg 38deg, transparent 38deg 65deg, #22c55e 65deg 304deg, transparent 304deg 332deg, #5f6f8f 332deg 360deg)!important;
+  box-shadow:
+    0 0 34px rgba(34,197,94,.22),
+    inset 0 0 24px rgba(0,0,0,.45)!important;
+}
+.elite-health-ring::after{
+  content:""!important;
+  position:absolute!important;
+  width:104px!important;
+  height:104px!important;
+  border-radius:50%!important;
+  background:#070b1b!important;
+  z-index:1!important;
+}
+.elite-health-ring > div{
+  position:relative!important;
+  z-index:2!important;
+  display:flex!important;
+  align-items:baseline!important;
+  justify-content:center!important;
+  flex-wrap:wrap!important;
+}
+.elite-health-ring h1{
+  color:white!important;
+  font-size:34px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  margin:0!important;
+}
+.elite-health-ring h1 span{
+  font-size:13px!important;
+  color:#dbeafe!important;
+}
+.elite-health-ring p{
+  width:100%!important;
+  color:#4ade80!important;
+  font-size:12px!important;
+  font-weight:900!important;
+  margin-top:7px!important;
+}
+.elite-health-card .health-desc{
+  color:#cbd5e1!important;
+  margin:8px 0 14px!important;
+  font-size:13px!important;
+}
+.elite-health-card .health-btn{
+  height:48px!important;
+  border-radius:14px!important;
+  background:linear-gradient(135deg,#7c3aed,#4f46e5)!important;
+}
+
+@media(max-width:1400px){
+  .elite-main-grid{grid-template-columns:1.4fr 1fr 1fr!important;}
+  .elite-ai-card{grid-column:span 3!important;height:auto!important;}
+  .elite-bottom-grid{grid-template-columns:1fr 1fr!important;}
+}
+@media(max-width:1000px){
+  .elite-kpi-grid,.elite-main-grid,.elite-bottom-grid{grid-template-columns:1fr!important;}
+  .elite-main-grid > *, .elite-bottom-grid > *{height:auto!important;}
+}
+</style>
+
 </head>
 
 <body class="dashboard-page premium-dashboard">
@@ -78,7 +425,7 @@
 
     <section id="dashboardSection">
 
-  <div class="owner-command-header">
+  <div class="owner-command-header elite-command-header">
     <div class="owner-header-left">
       <button class="owner-menu-btn">☰</button>
       <div>
@@ -87,24 +434,24 @@
       </div>
     </div>
 
-    <div class="owner-header-actions">
-      <div class="owner-search-box">
+    <div class="owner-header-actions elite-header-actions">
+      <div class="owner-search-box elite-search-box">
         <input id="memberSearch" oninput="filterMembers()" placeholder="Search members, payments, etc...">
         <span>⌕</span>
       </div>
 
-      <button class="owner-quick-btn" onclick="scrollToAddMember()">⚡ Quick Actions</button>
+      <button class="owner-quick-btn elite-quick-btn" onclick="scrollToAddMember()">⚡ Quick Actions</button>
 
-      <button class="owner-date-btn">
+      <button class="owner-date-btn elite-date-btn">
         📅 <span id="todayDate"></span><br>
         <small id="liveTime">--:--</small>
       </button>
 
-      <button class="owner-bell-btn bell-btn" onclick="toggleNotifications()">
+      <button class="owner-bell-btn bell-btn elite-bell-btn" onclick="toggleNotifications()">
         🔔 <span id="notificationCount" style="display:none;">0</span>
       </button>
 
-      <div class="owner-profile-mini" onclick="toggleProfileMenu()">
+      <div class="owner-profile-mini elite-profile-mini" onclick="toggleProfileMenu()">
         <div id="profileBubble">SG</div>
         <div>
           <strong>Star Gym</strong>
@@ -121,35 +468,61 @@
     <p id="subscriptionInfo">Checking subscription...</p>
   </div>
 
-  <div class="owner-kpi-grid">
-    <div class="owner-kpi-card purple">
-      <div class="owner-kpi-icon">👥</div>
-      <div><span>Total Members</span><h2 id="totalMembers">0</h2><p>↑ 12% vs last month</p></div>
+  <div class="owner-kpi-grid elite-kpi-grid">
+    <div class="owner-kpi-card elite-kpi-card purple">
+      <div class="owner-kpi-icon"><i data-lucide="users"></i></div>
+      <div>
+        <span>Total Members</span>
+        <h2 id="totalMembers">0</h2>
+        <p>↑ 12% vs last month</p>
+      </div>
+      <div class="kpi-wave"></div>
     </div>
 
-    <div class="owner-kpi-card blue">
-      <div class="owner-kpi-icon">₹</div>
-      <div><span>Monthly Revenue</span><h2>₹<b id="totalRevenue">0</b></h2><p>↑ 18.6% vs last month</p></div>
+    <div class="owner-kpi-card elite-kpi-card blue">
+      <div class="owner-kpi-icon"><i data-lucide="indian-rupee"></i></div>
+      <div>
+        <span>Monthly Revenue</span>
+        <h2>₹<b id="totalRevenue">0</b></h2>
+        <p>↑ 18.6% vs last month</p>
+      </div>
+      <div class="kpi-wave"></div>
     </div>
 
-    <div class="owner-kpi-card green">
-      <div class="owner-kpi-icon">✅</div>
-      <div><span>Today Attendance</span><h2 id="todayAttendance">0</h2><p>↑ 8% vs yesterday</p></div>
+    <div class="owner-kpi-card elite-kpi-card green">
+      <div class="owner-kpi-icon"><i data-lucide="check"></i></div>
+
+      <div>
+        <span>Today Attendance</span>
+        <h2 id="todayAttendance">0</h2>
+        <p>↑ 8% vs yesterday</p>
+      </div>
+      <div class="kpi-wave"></div>
     </div>
 
-    <div class="owner-kpi-card orange">
-      <div class="owner-kpi-icon">🕘</div>
-      <div><span>Expiring Soon</span><h2 id="expiringSoonCount">0</h2><p>in next 7 days</p></div>
+    <div class="owner-kpi-card elite-kpi-card orange">
+      <div class="owner-kpi-icon"><i data-lucide="clock-3"></i></div>
+      <div>
+        <span>Expiring Soon</span>
+        <h2 id="expiringSoonCount">0</h2>
+        <p>in next 7 days</p>
+      </div>
+      <div class="kpi-wave"></div>
     </div>
 
-    <div class="owner-kpi-card violet">
-      <div class="owner-kpi-icon">▣</div>
-      <div><span>Active Plans</span><h2>3</h2><p>running</p></div>
+    <div class="owner-kpi-card elite-kpi-card violet">
+      <div class="owner-kpi-icon"><i data-lucide="calendar-days"></i></div>
+      <div>
+        <span>Active Plans</span>
+        <h2>3</h2>
+        <p>running</p>
+      </div>
+      <div class="kpi-wave"></div>
     </div>
   </div>
 
-  <div class="owner-main-grid">
-    <div class="chart-card revenue-chart-card owner-revenue-card">
+  <div class="owner-main-grid elite-main-grid">
+    <div class="chart-card revenue-chart-card owner-revenue-card elite-revenue-card">
       <div class="chart-card-header">
         <h2>Revenue Overview</h2>
         <select class="chart-select"><option>This Month</option></select>
@@ -159,39 +532,61 @@
       <canvas id="revenueChart"></canvas>
     </div>
 
-    <div class="chart-card donut-card">
+    <div class="chart-card donut-card elite-donut-card">
       <div class="chart-card-header">
         <h2>Attendance Overview</h2>
         <select class="chart-select"><option>This Week</option></select>
       </div>
+
       <div class="donut-wrap">
         <canvas id="attendanceChart"></canvas>
         <div class="donut-center" id="attendanceDonutLabel">0%<br><small>Avg. Attendance</small></div>
       </div>
-      <div class="donut-legend">
-        <div class="legend-item"><span class="dot green-dot"></span> Present <strong id="presentCount">0</strong></div>
-        <div class="legend-item"><span class="dot red-dot"></span> Absent <strong id="absentCount">0</strong></div>
-        <div class="legend-item">Total <strong id="totalLegend">0</strong></div>
+
+      <div class="premium-donut-legend">
+        <div class="premium-legend-row">
+          <div><span class="legend-dot green"></span> Present</div>
+          <strong id="presentCount">0</strong>
+        </div>
+        <div class="premium-legend-row">
+          <div><span class="legend-dot red"></span> Absent</div>
+          <strong id="absentCount">0</strong>
+        </div>
+        <div class="premium-legend-row">
+          <div><span class="legend-dot grey"></span> Total</div>
+          <strong id="totalLegend">0</strong>
+        </div>
       </div>
     </div>
 
-    <div class="chart-card donut-card">
+    <div class="chart-card donut-card elite-donut-card">
       <div class="chart-card-header">
         <h2>Members Overview</h2>
         <select class="chart-select"><option>This Month</option></select>
       </div>
+
       <div class="donut-wrap">
         <canvas id="membersChart"></canvas>
         <div class="donut-center" id="membersDonutLabel">0<br><small>Total Members</small></div>
       </div>
-      <div class="donut-legend">
-        <div class="legend-item"><span class="dot green-dot"></span> Active <strong id="activeCount">0</strong></div>
-        <div class="legend-item"><span class="dot red-dot"></span> Expired <strong id="expiredCount">0</strong></div>
-        <div class="legend-item"><span class="dot yellow-dot"></span> Paused <strong>0</strong></div>
+
+      <div class="premium-donut-legend">
+        <div class="premium-legend-row">
+          <div><span class="legend-dot green"></span> Active</div>
+          <strong id="activeCount">0</strong>
+        </div>
+        <div class="premium-legend-row">
+          <div><span class="legend-dot orange"></span> Expired</div>
+          <strong id="expiredCount">0</strong>
+        </div>
+        <div class="premium-legend-row">
+          <div><span class="legend-dot red"></span> Paused</div>
+          <strong>0</strong>
+        </div>
       </div>
     </div>
 
-    <div class="owner-ai-card compact">
+    <div class="owner-ai-card compact elite-ai-card">
       <div class="owner-section-head">
         <h3>AI Gym Insights</h3>
         <span class="ai-badge">BETA</span>
@@ -216,49 +611,51 @@
     </div>
   </div>
 
-  <div class="owner-bottom-grid">
-    <div class="owner-payments-card">
+  <div class="owner-bottom-grid elite-bottom-grid">
+    <div class="owner-payments-card elite-panel-card">
       <div class="owner-section-head">
         <h3>Recent Payments</h3>
-        <button>View All</button>
+        <button onclick="openRecentPaymentsModal()">View All</button>
       </div>
       <ul id="recentPaymentsList" class="dash-list"></ul>
     </div>
 
-    <div class="owner-expiring-card">
+    <div class="owner-expiring-card elite-panel-card">
       <div class="owner-section-head">
         <h3>Expiring Soon</h3>
-        <button>View All</button>
+        <button onclick="openExpiringModal()">View All</button>
       </div>
       <ul id="expiringMembersList" class="dash-list"></ul>
     </div>
 
-    <div class="owner-actions-card">
+    <div class="owner-actions-card elite-actions-card">
       <div class="owner-section-head">
         <h3>Quick Actions</h3>
       </div>
 
-      <div class="owner-actions-grid">
-        <button onclick="scrollToAddMember()">👤 Add Member</button>
-        <button onclick="showSection('attendance', this)">✅ Attendance</button>
-        <button onclick="showSection('qr', this)">📱 Generate QR</button>
-        <button onclick="showSection('trainers', this)">🏋️ Trainers</button>
-        <button onclick="showSection('whatsapp', this)">💬 WhatsApp</button>
-        <button onclick="showSection('reports', this)">📊 Reports</button>
-        <button onclick="showSection('payments', this)">💳 Payments</button>
-        <button onclick="showSection('rewards', this)">🎁 Rewards</button>
+      <div class="owner-actions-grid elite-actions-grid">
+        <button onclick="scrollToAddMember()"><span>👤</span><b>Add Member</b></button>
+        <button onclick="showSection('attendance', this)"><span>✅</span><b>Mark Attendance</b></button>
+        <button onclick="showSection('qr', this)"><span>📱</span><b>Generate QR</b></button>
+        <button onclick="showSection('trainers', this)"><span>👥</span><b>Add Trainer</b></button>
+        <button onclick="showSection('whatsapp', this)"><span>💬</span><b>Send WhatsApp</b></button>
+        <button onclick="showSection('reports', this)"><span>📊</span><b>View Reports</b></button>
+        <button onclick="showSection('payments', this)"><span>💳</span><b>Payment Settings</b></button>
+        <button onclick="showSection('rewards', this)"><span>🎁</span><b>Rewards</b></button>
       </div>
     </div>
 
-    <div class="owner-health-card">
+    <div class="owner-health-card elite-health-card">
       <div class="owner-section-head">
         <h3>Gym Health Score</h3>
       </div>
 
-      <div class="health-ring">
-        <div>
-          <h1>92<span>/100</span></h1>
-          <p>Excellent</p>
+      <div class="elite-health-wrap">
+        <div class="elite-health-ring">
+          <div>
+            <h1>92<span>/100</span></h1>
+            <p>Excellent</p>
+          </div>
         </div>
       </div>
 
@@ -1076,25 +1473,13 @@
       <button class="reward-notify-btn" onclick="sendRewardNotification()">✈ Send Notification</button>
     </div>
 
-    <div class="stat-icon purple">
-  <i class="fas fa-users"></i>
-</div>
-
-<div class="stat-icon blue">
-  <i class="fas fa-indian-rupee-sign"></i>
-</div>
-
-<div class="stat-icon green">
-  <i class="fas fa-check"></i>
-</div>
-
-<div class="stat-icon orange">
-  <i class="fas fa-clock"></i>
-</div>
-
-<div class="stat-icon pink">
-  <i class="fas fa-calendar"></i>
-</div>
+    <div class="reward-stats-grid">
+      <div class="reward-stat-card"><div class="stat-icon coin">🪙</div><span>Total Points</span><h2 id="rewardTotalPoints">0</h2><p>Available Balance</p></div>
+      <div class="reward-stat-card"><div class="stat-icon green">📈</div><span>Points Earned</span><h2 id="rewardEarnedPoints">0</h2><p>This Month ↑ 18%</p></div>
+      <div class="reward-stat-card"><div class="stat-icon gift">🎁</div><span>Points Redeemed</span><h2 id="rewardRedeemedPoints">0</h2><p>This Month ↑ 12%</p></div>
+      <div class="reward-stat-card"><div class="stat-icon cup">🏆</div><span>Current Rank</span><h2 id="rewardRank">Silver</h2><p>Next: Gold 🪙</p></div>
+      <div class="reward-stat-card"><div class="stat-icon cal">🗓️</div><span>Membership Since</span><h2>245</h2><p>Days with us 💜</p></div>
+    </div>
 
     <div class="reward-top-grid">
       <div class="reward-panel next-reward-panel">
@@ -1272,7 +1657,7 @@
     <span class="reward-category">GymPro</span>
     <span class="reward-stock">Stock 18</span>
     <div class="reward-img">
-      <img src="images/t shirt.png" alt="GymPro T-Shirt">
+      <img src="images/gympro-shirt.png" alt="GymPro T-Shirt">
     </div>
     <h4>GymPro T-Shirt</h4>
     <p>🪙 1,800 Points</p>
@@ -1285,7 +1670,7 @@
     <span class="reward-category">Premium</span>
     <span class="reward-stock">Stock 8</span>
     <div class="reward-img">
-      <img src="images/gym bag.png" alt="Gym Bag">
+      <img src="images/gym-bag.png" alt="Gym Bag">
     </div>
     <h4>Gym Bag</h4>
     <p>🪙 4,500 Points</p>
@@ -1823,6 +2208,61 @@
   </div>
 
 </div>
+</div>
+
+<div id="recentPaymentsModal" class="modal-overlay hidden">
+  <div class="app-modal recent-payments-modal">
+    <div class="modal-title-row">
+      <h2>Recent Payments</h2>
+      <button class="view-all-btn" onclick="closeRecentPaymentsModal()">✕</button>
+    </div>
+
+    <div id="recentPaymentsModalList" class="recent-payments-modal-list">
+      Loading payments...
+    </div>
+  </div>
+</div>
+
+<!-- EXPIRING MEMBERS MODAL -->
+
+<div id="expiringModal" class="modal-overlay hidden">
+  <div class="app-modal recent-payments-modal">
+
+    <div class="modal-title-row">
+      <h2>Expiring Members</h2>
+
+      <button class="view-all-btn"
+        onclick="closeExpiringModal()">
+        ✕
+      </button>
+    </div>
+
+    <div id="expiringModalList"
+      class="recent-payments-modal-list">
+
+      <div class="dash-payment-item">
+
+        <div class="payment-avatar">R</div>
+
+        <div>
+          <strong>Rahul Sharma</strong>
+          <p>90 Day Plan</p>
+        </div>
+
+        <div>
+          <b>2 Days</b>
+          <small>Remaining</small>
+        </div>
+
+        <div>
+          <span>30 May 2026</span>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
 </div>
 </body>
 </html>

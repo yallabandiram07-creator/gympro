@@ -3187,3 +3187,130 @@ function renderRedemptionsV2() {
     `;
   }).join("");
 }
+function openRecentPaymentsModal() {
+  const modal = document.getElementById("recentPaymentsModal");
+  const modalList = document.getElementById("recentPaymentsModalList");
+  const sourceList = document.getElementById("recentPaymentsList");
+
+  if (!modal || !modalList || !sourceList) return;
+
+  modalList.innerHTML = sourceList.innerHTML || `
+    <div class="empty-state">
+      <strong>No recent payments</strong>
+      <span>Payments will appear here after collection.</span>
+    </div>
+  `;
+
+  modal.classList.remove("hidden");
+}
+
+function closeRecentPaymentsModal() {
+  document.getElementById("recentPaymentsModal")?.classList.add("hidden");
+}
+/* EXPIRING MEMBERS MODAL */
+
+function openExpiringModal() {
+  document
+    .getElementById("expiringModal")
+    .classList.remove("hidden");
+
+  loadExpiringModal();
+}
+
+function closeExpiringModal() {
+  document
+    .getElementById("expiringModal")
+    .classList.add("hidden");
+}
+
+function loadExpiringModal() {
+
+  const container =
+    document.getElementById("expiringModalList");
+
+  if (!container) return;
+
+  const members =
+    JSON.parse(localStorage.getItem("members")) || [];
+
+  const today = new Date();
+
+  const expiring = members.filter(member => {
+
+    if (!member.expiryDate) return false;
+
+    const expiry =
+      new Date(member.expiryDate);
+
+    const diff =
+      Math.ceil(
+        (expiry - today) /
+        (1000 * 60 * 60 * 24)
+      );
+
+    return diff >= 0 && diff <= 7;
+  });
+
+  if (expiring.length === 0) {
+
+    container.innerHTML = `
+      <div class="dash-payment-item">
+        <div class="payment-avatar">✓</div>
+
+        <div>
+          <strong>No expiring members</strong>
+          <p>All memberships are safe for now.</p>
+        </div>
+
+        <div>
+          <b>0 Days</b>
+        </div>
+
+        <div>
+          <span>Gym Stable</span>
+        </div>
+      </div>
+    `;
+
+    return;
+  }
+
+  container.innerHTML = expiring.map(member => {
+
+    const expiry =
+      new Date(member.expiryDate);
+
+    const diff =
+      Math.ceil(
+        (expiry - today) /
+        (1000 * 60 * 60 * 24)
+      );
+
+    return `
+      <div class="dash-payment-item">
+
+        <div class="payment-avatar">
+          ${member.name.charAt(0)}
+        </div>
+
+        <div>
+          <strong>${member.name}</strong>
+          <p>${member.planName || "Membership Plan"}</p>
+        </div>
+
+        <div>
+          <b>${diff} Days</b>
+          <small>Remaining</small>
+        </div>
+
+        <div>
+          <span>
+            ${expiry.toDateString()}
+          </span>
+        </div>
+
+      </div>
+    `;
+
+  }).join("");
+}
