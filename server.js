@@ -1044,7 +1044,25 @@ app.get("/gym-profile", auth, async (req, res) => {
 
 app.post("/gym-profile", auth, async (req, res) => {
   try {
-    const { gymName, ownerName, phone, address, timings, plans } = req.body;
+    const { gymName, ownerName, phone, address, timings } = req.body;
+
+    const plans = Array.isArray(req.body.plans)
+      ? req.body.plans
+          .filter(p => 
+  p &&
+  String(p.name || "").trim() !== "" &&
+  Number(p.price) > 0 &&
+  Number(p.days) > 0
+)
+          .slice(0, 15)
+          .map(p => ({
+            name: String(p.name).trim(),
+            price: Number(p.price),
+            days: Number(p.days)
+          }))
+      : [];
+
+    console.log("Saving plans count:", plans.length);
 
     let profile = await GymProfile.findOne({ userId: req.user.id });
 
@@ -1057,11 +1075,15 @@ app.post("/gym-profile", auth, async (req, res) => {
     profile.phone = phone;
     profile.address = address;
     profile.timings = timings;
-    profile.plans = plans || [];
+    profile.plans = plans;
 
     await profile.save();
 
-    res.json({ message: "Gym profile saved successfully" });
+    res.json({
+      message: "Gym profile saved successfully",
+      plansSaved: plans.length
+    });
+
   } catch (err) {
     console.log("Gym profile save error:", err);
     res.status(500).json({ message: "Server error" });

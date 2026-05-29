@@ -511,100 +511,213 @@ function sendExpiryReminders() {
 }
  
 /* ===== GYM PROFILE ===== */
+
+if (typeof dynamicGymPlans === "undefined") {
+  var dynamicGymPlans = [];
+}
+
 async function saveGymProfile() {
   const token = tokenOrLogin();
   if (!token) return;
 
-  const plansSource = typeof dynamicGymPlans !== "undefined" ? dynamicGymPlans : [];
+  const plansSource = Array.isArray(dynamicGymPlans) ? dynamicGymPlans : [];
 
-  const plans = plansSource
-    .filter(p => p.name && p.price && p.days)
-    .map(p => ({
-      name: p.name,
-      price: Number(p.price),
-      days: Number(p.days)
-    }));
+ const plans = plansSource
+  .filter(p =>
+    p &&
+    String(p.name || "").trim() !== "" &&
+    Number(p.price) > 0 &&
+    Number(p.days) > 0
+  )
+  .slice(0, 15)
+  .map(p => ({
+    name: String(p.name).trim(),
+    price: Number(p.price),
+    days: Number(p.days)
+  }));
 
   const body = {
-    gymName: document.getElementById("gymName").value,
-    ownerName: document.getElementById("ownerName").value,
-    phone: document.getElementById("gymPhone").value,
-    address: document.getElementById("gymAddress").value,
-    timings: document.getElementById("gymTimings").value,
+    gymName: document.getElementById("gymName")?.value.trim() || "",
+    ownerName: document.getElementById("ownerName")?.value.trim() || "",
+    phone: document.getElementById("gymPhone")?.value.trim() || "",
+    address: document.getElementById("gymAddress")?.value.trim() || "",
+    timings: document.getElementById("gymTimings")?.value.trim() || "",
     plans: plans
   };
 
-  const res = await fetch(API + "/gym-profile", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token
-    },
-    body: JSON.stringify(body)
-  });
+  if (!body.gymName || !body.ownerName || !body.phone || !body.address || !body.timings) {
+    showToast("Please fill all gym profile details", "error");
+    return;
+  }
 
-  const data = await res.json();
+  try {
+    const res = await fetch(API + "/gym-profile", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token
+      },
+      body: JSON.stringify(body)
+    });
 
-  showToast(data.message || "Gym profile saved successfully", "success");
+    const data = await res.json();
 
-  loadGymProfileOnDashboard();
-  loadGymPlansForMemberForm();
+    if (!res.ok) {
+      showToast(data.message || "Gym profile save failed", "error");
+      return;
+    }
+
+    showToast(data.message || "Gym profile saved successfully", "success");
+
+    await loadGymProfileOnDashboard();
+    await loadGymPlansForMemberForm();
+
+    if (typeof updateGymProfilePreview === "function") {
+      updateGymProfilePreview();
+    }
+
+    if (typeof loadLoggedInOwnerGymHeader === "function") {
+      loadLoggedInOwnerGymHeader();
+    }
+
+  } catch (err) {
+    console.log("Gym profile save error:", err);
+    showToast("Gym profile save failed", "error");
+  }
 }
- 
+
 async function loadGymProfileOnDashboard() {
   const token = localStorage.getItem("token");
   if (!token) return;
+
   try {
-    const res = await fetch(API + "/gym-profile", { headers: { Authorization: token } });
+    const res = await fetch(API + "/gym-profile", {
+      headers: { Authorization: token }
+    });
+
     const profile = await res.json();
-    if (document.getElementById("dashboardGymName") && profile.gymName) {
-      document.getElementById("dashboardGymName").innerText = "Welcome back, " + profile.gymName + " 👋";
-      // Update profile bubble initials
-      const bubble = document.getElementById("profileBubble");
-      if (bubble && profile.gymName) bubble.textContent = profile.gymName.slice(0,2).toUpperCase();
+
+    const gymName = profile.gymName || "GymPro";
+
+    if (document.getElementById("dashboardGymName")) {
+      document.getElementById("dashboardGymName").innerText =
+        "Welcome back, " + gymName + " 👋";
     }
+
+    if (document.getElementById("topProfileGymName")) {
+      document.getElementById("topProfileGymName").innerText = gymName;
+    }
+
+    const bubble = document.getElementById("profileBubble");
+    if (bubble) {
+      bubble.textContent = gymName
+        .split(" ")
+        .map(w => w[0])
+        .join("")
+        .substring(0, 2)
+        .toUpperCase();
+    }
+
     if (document.getElementById("dashboardOwnerInfo") && profile.ownerName) {
-      document.getElementById("dashboardOwnerInfo").innerText = "Owner: " + profile.ownerName;
+      document.getElementById("dashboardOwnerInfo").innerText =
+        "Owner: " + profile.ownerName;
     }
+
     let info = "";
     if (profile.phone) info += "Phone: " + profile.phone + " | ";
     if (profile.timings) info += "Timings: " + profile.timings + " | ";
     if (profile.address) info += "Address: " + profile.address;
-    if (document.getElementById("dashboardGymInfo")) document.getElementById("dashboardGymInfo").innerText = info;
- 
-    if (document.getElementById("gymName")) document.getElementById("gymName").value = profile.gymName || "";
-    if (document.getElementById("ownerName")) document.getElementById("ownerName").value = profile.ownerName || "";
-    if (document.getElementById("gymPhone")) document.getElementById("gymPhone").value = profile.phone || "";
-    if (document.getElementById("gymAddress")) document.getElementById("gymAddress").value = profile.address || "";
-    if (document.getElementById("gymTimings")) document.getElementById("gymTimings").value = profile.timings || "";
- 
-    const plans = profile.plans || [];
-    if (plans[0]) { document.getElementById("plan1Name").value = plans[0].name || ""; document.getElementById("plan1Price").value = plans[0].price || ""; document.getElementById("plan1Days").value = plans[0].days || ""; }
-    if (plans[1]) { document.getElementById("plan2Name").value = plans[1].name || ""; document.getElementById("plan2Price").value = plans[1].price || ""; document.getElementById("plan2Days").value = plans[1].days || ""; }
-    if (plans[2]) { document.getElementById("plan3Name").value = plans[2].name || ""; document.getElementById("plan3Price").value = plans[2].price || ""; document.getElementById("plan3Days").value = plans[2].days || ""; }
-  } catch (err) { console.log("Gym profile load error:", err); }
+
+    if (document.getElementById("dashboardGymInfo")) {
+      document.getElementById("dashboardGymInfo").innerText = info;
+    }
+
+    if (document.getElementById("gymName")) {
+      document.getElementById("gymName").value = profile.gymName || "";
+    }
+
+    if (document.getElementById("ownerName")) {
+      document.getElementById("ownerName").value = profile.ownerName || "";
+    }
+
+    if (document.getElementById("gymPhone")) {
+      document.getElementById("gymPhone").value = profile.phone || "";
+    }
+
+    if (document.getElementById("gymAddress")) {
+      document.getElementById("gymAddress").value = profile.address || "";
+    }
+
+    if (document.getElementById("gymTimings")) {
+      document.getElementById("gymTimings").value = profile.timings || "";
+    }
+
+    if (Array.isArray(profile.plans) && profile.plans.length > 0) {
+      dynamicGymPlans = profile.plans.slice(0, 15).map(p => ({
+        name: p.name || "",
+        price: p.price || "",
+        days: p.days || ""
+      }));
+    } else {
+      dynamicGymPlans = [
+        { name: "", price: "", days: "" },
+        { name: "", price: "", days: "" },
+        { name: "", price: "", days: "" }
+      ];
+    }
+
+    if (typeof renderDynamicPlans === "function") {
+      renderDynamicPlans();
+    }
+
+  } catch (err) {
+    console.log("Gym profile load error:", err);
+  }
 }
- 
+
 async function loadGymPlansForMemberForm() {
   const token = localStorage.getItem("token");
   if (!token) return;
+
   try {
-    const res = await fetch(API + "/gym-profile", { headers: { Authorization: token } });
+    const res = await fetch(API + "/gym-profile", {
+      headers: { Authorization: token }
+    });
+
     const profile = await res.json();
-    savedGymPlans = profile.plans || [];
+
+    savedGymPlans = Array.isArray(profile.plans)
+      ? profile.plans.slice(0, 15)
+      : [];
+
     const select = document.getElementById("memberPlanSelect");
     if (!select) return;
+
     select.innerHTML = `<option value="">Select Membership Plan</option>`;
+
     savedGymPlans.forEach((plan, index) => {
-      select.innerHTML += `<option value="${index}">${plan.name} - ₹${plan.price} / ${plan.days} days</option>`;
+      if (!plan.name || !plan.price || !plan.days) return;
+
+      select.innerHTML += `
+        <option value="${index}">
+          ${plan.name} - ₹${plan.price} / ${plan.days} days
+        </option>
+      `;
     });
-  } catch (err) { console.log("Plan loading error:", err); }
+
+  } catch (err) {
+    console.log("Plan loading error:", err);
+  }
 }
- 
+
 function applySelectedPlan() {
-  const index = document.getElementById("memberPlanSelect").value;
+  const index = document.getElementById("memberPlanSelect")?.value;
+
   if (index === "") return;
+
   const selectedPlan = savedGymPlans[index];
+  if (!selectedPlan) return;
+
   document.getElementById("plan").value = selectedPlan.days;
   document.getElementById("fees").value = selectedPlan.price;
 }
@@ -1366,12 +1479,12 @@ document.addEventListener("click", function (e) {
     document.getElementById("notificationDropdown")?.classList.add("hidden");
   }
 
-  if (
-    !e.target.closest(".profile-bubble") &&
-    !e.target.closest("#profileDropdown")
-  ) {
-    document.getElementById("profileDropdown")?.classList.add("hidden");
-  }
+ if (
+  !e.target.closest(".owner-profile-mini") &&
+  !e.target.closest("#profileDropdown")
+) {
+  document.getElementById("profileDropdown")?.classList.add("hidden");
+}
 });
 function showOwnerProfile() {
   toggleProfileMenu();
@@ -2304,13 +2417,21 @@ function updateDynamicPlan(index, field, value) {
 }
 
 function addMembershipPlanBox() {
+  if (dynamicGymPlans.length >= 15) {
+    showToast("Maximum 15 plans allowed", "error");
+    return;
+  }
+
   dynamicGymPlans.push({
-    name: "",
-    price: "",
-    days: ""
+    name: "New Plan",
+    price: 0,
+    days: 0
   });
 
   renderDynamicPlans();
+
+  const newIndex = dynamicGymPlans.length - 1;
+  editPlanInline(newIndex);
 }
 
 function deleteDynamicPlan(index) {
@@ -3364,5 +3485,4 @@ async function loadLoggedInOwnerGymHeader() {
     console.log("Gym name load failed", err);
   }
 }
-
 document.addEventListener("DOMContentLoaded", loadLoggedInOwnerGymHeader);

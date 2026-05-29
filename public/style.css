@@ -7707,3 +7707,102 @@ button:active,
   color: #cbd5e1 !important;
   font-weight: 700 !important;
 }
+/* FINAL FIX: ATTENDANCE + MEMBERS DONUT LEGEND CUTTING */
+
+.owner-main-grid .donut-card {
+  height: 430px !important;
+  min-height: 430px !important;
+  overflow: visible !important;
+}
+
+.owner-main-grid .donut-wrap {
+  height: 190px !important;
+  margin-top: 6px !important;
+  margin-bottom: 8px !important;
+}
+
+.owner-main-grid .donut-wrap canvas {
+  width: 180px !important;
+  height: 180px !important;
+  max-width: 180px !important;
+  max-height: 180px !important;
+}
+
+.premium-donut-legend {
+  margin-top: 10px !important;
+  gap: 11px !important;
+}
+
+.premium-legend-row {
+  min-height: 20px !important;
+}
+/* QUICK ACTION ICON FINAL FIX */
+
+.elite-actions-grid button span {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 13px !important;
+}
+
+.elite-actions-grid button span svg {
+  width: 25px !important;
+  height: 25px !important;
+  stroke-width: 2.6 !important;
+  color: white !important;
+}
+
+.elite-actions-grid button:nth-child(1) span {
+  background: linear-gradient(135deg,#7c3aed,#5b21b6) !important;
+}
+
+.elite-actions-grid button:nth-child(2) span {
+  background: linear-gradient(135deg,#22c55e,#166534) !important;
+}
+
+.elite-actions-grid button:nth-child(3) span {
+  background: linear-gradient(135deg,#2563eb,#0891b2) !important;
+}
+
+.elite-actions-grid button:nth-child(4) span {
+  background: linear-gradient(135deg,#f97316,#9a3412) !important;
+}
+
+.elite-actions-grid button:nth-child(5) span {
+  background: linear-gradient(135deg,#22c55e,#15803d) !important;
+}
+
+.elite-actions-grid button:nth-child(6) span {
+  background: linear-gradient(135deg,#3b82f6,#1d4ed8) !important;
+}
+
+.elite-actions-grid button:nth-child(7) span {
+  background: linear-gradient(135deg,#7c3aed,#4c1d95) !important;
+}
+
+.elite-actions-grid button:nth-child(8) span {
+  background: linear-gradient(135deg,#ec4899,#be185d) !important;
+}
+/* FIX GYM PROFILE SAVE BUTTON VISIBILITY */
+
+.gp-form-card {
+  height: auto !important;
+  min-height: auto !important;
+  overflow: visible !important;
+  padding-bottom: 28px !important;
+}
+
+.gp-main-grid {
+  align-items: start !important;
+}
+
+.gp-save-btn {
+  display: block !important;
+  width: 100% !important;
+  margin-top: 22px !important;
+  height: 54px !important;
+  border-radius: 16px !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5) !important;
+  color: white !important;
+}
