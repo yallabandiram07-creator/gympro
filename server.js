@@ -1413,24 +1413,28 @@ app.put("/owner-redemptions/:id", auth, async (req, res) => {
   }
 });
 
-app.get("/owner/current-gym", authMiddleware, async (req, res) => {
+app.get("/owner/current-gym", auth, async (req, res) => {
   try {
-    const ownerId = req.user.id || req.user._id || req.user.userId;
 
-    const gymProfile = await GymProfile.findOne({ ownerId });
+    const profile = await GymProfile.findOne({
+      userId: req.user.id
+    });
 
-    if (!gymProfile) {
+    if (!profile) {
       return res.json({
         gymName: "GymPro"
       });
     }
 
     res.json({
-      gymName: gymProfile.gymName || "GymPro"
+      gymName: profile.gymName || "GymPro"
     });
 
   } catch (err) {
-    res.status(500).json({ message: "Failed to load gym name" });
+    console.log(err);
+    res.status(500).json({
+      message: "Failed to load gym name"
+    });
   }
 });
 
