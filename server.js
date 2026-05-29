@@ -1413,6 +1413,27 @@ app.put("/owner-redemptions/:id", auth, async (req, res) => {
   }
 });
 
+app.get("/owner/current-gym", authMiddleware, async (req, res) => {
+  try {
+    const ownerId = req.user.id || req.user._id || req.user.userId;
+
+    const gymProfile = await GymProfile.findOne({ ownerId });
+
+    if (!gymProfile) {
+      return res.json({
+        gymName: "GymPro"
+      });
+    }
+
+    res.json({
+      gymName: gymProfile.gymName || "GymPro"
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: "Failed to load gym name" });
+  }
+});
+
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT} 🚀`);
 });

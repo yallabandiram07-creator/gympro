@@ -3314,3 +3314,55 @@ function loadExpiringModal() {
 
   }).join("");
 }
+function updateOwnerTopProfile(gymName = "GymPro") {
+  const cleanName = gymName || "GymPro";
+
+  const heading = document.getElementById("dashboardGymName");
+  const topName = document.getElementById("topProfileGymName");
+  const bubble = document.getElementById("profileBubble");
+
+  if (heading) heading.innerText = `Welcome back, ${cleanName}! 👋`;
+  if (topName) topName.innerText = cleanName;
+
+  if (bubble) {
+    const initials = cleanName
+      .split(" ")
+      .map(word => word[0])
+      .join("")
+      .substring(0, 2)
+      .toUpperCase();
+
+    bubble.innerText = initials || "GP";
+  }
+}
+async function loadLoggedInOwnerGymHeader() {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  try {
+    const res = await fetch(API + "/owner/current-gym", {
+      headers: { Authorization: token }
+    });
+
+    const data = await res.json();
+    const gymName = data.gymName || "GymPro";
+
+    document.getElementById("dashboardGymName").innerText =
+      `Welcome back, ${gymName}! 👋`;
+
+    document.getElementById("topProfileGymName").innerText = gymName;
+
+    document.getElementById("profileBubble").innerText =
+      gymName
+        .split(" ")
+        .map(w => w[0])
+        .join("")
+        .substring(0, 2)
+        .toUpperCase();
+
+  } catch (err) {
+    console.log("Gym name load failed", err);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadLoggedInOwnerGymHeader);
