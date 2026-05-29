@@ -1210,8 +1210,6 @@ app.get("/test-route", (req, res) => {
   res.json({ message: "Server route working" });
 });
 
-const PORT = process.env.PORT || 5000;
-
 setInterval(() => {
   https.get("https://gympro-mzx0.onrender.com/", () => {
     console.log("Keep-alive ping sent ✅");
