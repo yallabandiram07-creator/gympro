@@ -1415,29 +1415,26 @@ app.put("/owner-redemptions/:id", auth, async (req, res) => {
 
 app.get("/owner/current-gym", auth, async (req, res) => {
   try {
+    const owner = await User.findById(req.user.id);
 
     const profile = await GymProfile.findOne({
       userId: req.user.id
     });
 
-    if (!profile) {
-      return res.json({
-        gymName: "GymPro"
-      });
-    }
+    const gymName =
+      profile?.gymName ||
+      owner?.gymName ||
+      owner?.username ||
+      "GymPro";
 
     res.json({
-      gymName: profile.gymName || "GymPro"
+      gymName
     });
 
   } catch (err) {
-    console.log(err);
+    console.log("Current gym error:", err);
     res.status(500).json({
       message: "Failed to load gym name"
     });
   }
-});
-
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT} 🚀`);
 });
