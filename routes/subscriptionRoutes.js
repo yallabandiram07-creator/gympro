@@ -65,27 +65,55 @@ router.get("/owner-subscription", auth, async (req, res) => {
 
 router.post("/buy-subscription", auth, async (req, res) => {
   try {
-    const { planName, price, duration } = req.body;
+    // 1. Destructure the exact fields sent by your frontend script
+    const { planName, price, duration, paymentId } = req.body;
+    const userId = req.user.id;
 
+    const durationDays = Number(duration) || 30;
+
+    // Calculate precise expiry date
     const expiryDate = new Date();
-    expiryDate.setDate(expiryDate.getDate() + Number(duration));
+    expiryDate.setDate(expiryDate.getDate() + durationDays);
 
-    await new Subscription({
-      userId: req.user.id,
-      planName,
-      price,
-      durationDays: Number(duration),
-      startDate: new Date(),
-      expiryDate,
-      status: "active"
-    }).save();
+    // 2. Look for an existing subscription for this user to update it
+    let subscription = await Subscription.findOne({ userId });
 
+    if (subscription) {
+      // Update your existing database record
+      subscription.planName = planName;
+      subscription.price = Number(price);
+      subscription.durationDays = durationDays;
+      subscription.startDate = new Date();
+      subscription.expiryDate = expiryDate;
+      subscription.status = "active";
+      subscription.razorpayPaymentId = paymentId; // Connects your payment reference securely!
+
+      await subscription.save();
+    } else {
+      // If none exists, build a clean brand new one
+      subscription = new Subscription({
+        userId,
+        planName,
+        price: Number(price),
+        durationDays,
+        startDate: new Date(),
+        expiryDate,
+        status: "active",
+        razorpayPaymentId: paymentId
+      });
+
+      await subscription.save();
+    }
+
+    // 3. Return a successful response format
     res.json({
-      message: `${planName} subscription activated successfully`
+      success: true,
+      message: `${planName} subscription activated successfully`,
+      subscription
     });
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Server error" });
+    console.log("Backend route crash: ", err);
+    res.status(500).json({ message: "Server error saving transaction details." });
   }
 });
 

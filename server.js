@@ -1588,6 +1588,70 @@ app.delete("/owner-delete-all-data", auth, async (req, res) => {
   }
 });
 
+const express = require("express");
+const router = express.Router();
+const Subscription = require("../models/Subscription"); // Adjust path if needed
+const auth = require("../middleware/auth"); // Your authentication middleware
+
+// POST: Process and save the subscription after payment
+router.post("/buy-subscription", auth, async (req, res) => {
+  try {
+    // 1. Get the properties from the frontend payload
+    const { planName, price, duration, paymentId } = req.body;
+    const userId = req.user.id; // From your auth middleware
+
+    // 2. Map and match the frontend names to your Mongoose Schema fields
+    const durationDays = Number(duration) || 30;
+    
+    // Calculate precise expiry date
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + durationDays);
+
+    // 3. Look for an existing subscription or create a brand new one
+    let subscription = await Subscription.findOne({ userId });
+
+    if (subscription) {
+      // Update existing plan
+      subscription.planName = planName;
+      subscription.price = Number(price);
+      subscription.durationDays = durationDays;
+      subscription.startDate = new Date();
+      subscription.expiryDate = expiryDate;
+      subscription.status = "active";
+      subscription.razorpayPaymentId = paymentId; // Maps paymentId -> razorpayPaymentId
+      
+      await subscription.save();
+    } else {
+      // Create a clean new record
+      subscription = new Subscription({
+        userId,
+        planName,
+        price: Number(price),
+        durationDays,
+        startDate: new Date(),
+        expiryDate,
+        status: "active",
+        razorpayPaymentId = paymentId // Maps paymentId -> razorpayPaymentId
+      });
+      
+      await subscription.save();
+    }
+
+    // 4. Respond back to frontend with a 200 OK success block
+    res.json({ 
+      success: true, 
+      message: "Subscription processed and activated safely!", 
+      subscription 
+    });
+
+  } catch (err) {
+    console.error("Backend Subscription Saving Error:", err);
+    res.status(500).json({ message: "Internal server error updating account workspace status." });
+  }
+});
+
+module.exports = router;
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, "0.0.0.0", () => {

@@ -84,8 +84,8 @@ function buyPlan(planName, price, duration) {
     return;
   }
 
-  if (price === 0) {
-    processDatabaseUpgrade(planName, price, duration, "FREE_ACTIVATION");
+  if (price === 0 || price === "0") {
+    processDatabaseUpgrade(planName, 0, duration, "FREE_ACTIVATION");
     return;
   }
 
@@ -94,16 +94,21 @@ function buyPlan(planName, price, duration) {
     `Would you like to pay ₹${price} for the GymPro ${planName} Plan?`,
     "confirm",
     () => {
+      
+      // FORCES CONVERSION INTO RAW BALANCED INTEGERS (PAISE)
+      const cleanPrice = Math.round(parseFloat(price));
+      const finalAmountInPaise = cleanPrice * 100;
+
       const options = {
-        "key": "rzp_test_YOUR_KEY_HERE", // ⚠️ PUT YOUR RAZORPAY API TEST KEY HERE
-        "amount": price * 100, 
+        "key": "rzp_test_YOUR_KEY_HERE", // ⚠️ MAKE SURE TO PASTE YOUR PERSONAL ACTIVE RAZORPAY KEY HERE
+        "amount": finalAmountInPaise, 
         "currency": "INR",
         "name": "GymPro Management System",
         "description": `${planName} License Pack Upgrade`,
         "image": "https://img.icons8.com/fluency/96/gym.png",
         "handler": function (response) {
           const paymentId = response.razorpay_payment_id;
-          processDatabaseUpgrade(planName, price, duration, paymentId);
+          processDatabaseUpgrade(planName, cleanPrice, duration, paymentId);
         },
         "prefill": {
           "name": "Gym Owner",
@@ -124,7 +129,6 @@ function buyPlan(planName, price, duration) {
 function processDatabaseUpgrade(planName, price, duration, paymentId) {
   const token = localStorage.getItem("token");
 
-  // Local optimistic update UI change
   document.getElementById("currentPlan").textContent = planName + " Plan";
   document.getElementById("currentStatus").textContent = "ACTIVE";
   let targetExpiry = new Date();
@@ -138,7 +142,7 @@ function processDatabaseUpgrade(planName, price, duration, paymentId) {
   })
     .then(res => res.json())
     .then(data => {
-      showPremiumModal("Payment Complete", "Transaction verified! Your corporate portal subscription tier handles have been authorized.", "success", () => {
+      showPremiumModal("Payment Complete", "Transaction verified successfully!", "success", () => {
         loadCurrentSubscription();
       });
     })
