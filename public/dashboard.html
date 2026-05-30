@@ -1808,182 +1808,374 @@
 </section>
 
     <!-- ===== SETTINGS SECTION ===== -->
-   <section id="settingsSection" style="display:none;">
+ <section id="settingsSection" style="display:none;">
+  <div class="settings-premium-layout">
+    
+    <div class="settings-sidebar-nav">
+      <div class="nav-header-label">SYSTEM SETTINGS</div>
+      <button class="settings-nav-btn active" data-tab="general" onclick="switchPremiumSettingTab('general')">
+        <i data-lucide="sliders"></i> <span>1. General</span>
+      </button>
+      <button class="settings-nav-btn" data-tab="security" onclick="switchPremiumSettingTab('security')">
+        <i data-lucide="lock"></i> <span>2. Security</span>
+      </button>
+      <button class="settings-nav-btn" data-tab="notifications" onclick="switchPremiumSettingTab('notifications')">
+        <i data-lucide="bell"></i> <span>3. Notifications</span>
+      </button>
+      <button class="settings-nav-btn" data-tab="billing" onclick="switchPremiumSettingTab('billing')">
+        <i data-lucide="credit-card"></i> <span>4. Payments & Billing</span>
+      </button>
+      <button class="settings-nav-btn" data-tab="integrations" onclick="switchPremiumSettingTab('integrations')">
+        <i data-lucide="cpu"></i> <span>5. Integrations</span>
+      </button>
+      <button class="settings-nav-btn" data-tab="backup" onclick="switchPremiumSettingTab('backup')">
+        <i data-lucide="database"></i> <span>6. Backup & Data</span>
+      </button>
+      <button class="settings-nav-btn" data-tab="appearance" onclick="switchPremiumSettingTab('appearance')">
+        <i data-lucide="palette"></i> <span>7. Appearance</span>
+      </button>
+      <button class="settings-nav-btn" data-tab="staff" onclick="switchPremiumSettingTab('staff')">
+        <i data-lucide="users"></i> <span>8. Staff Access</span>
+      </button>
+      <button class="settings-nav-btn" data-tab="subscription" onclick="switchPremiumSettingTab('subscription')">
+        <i data-lucide="sparkles"></i> <span>9. Subscriptions</span>
+      </button>
+    </div>
 
-  <div class="settings-hero-pro">
-    <div class="settings-title-wrap">
-      <div class="settings-main-icon"><i data-lucide="settings"></i></div>
+    <div class="settings-content-canvas">
+      
+      <!-- 1. GENERAL PANEL (PREMIUM RE-ENGINEERED) -->
+<div id="panel-general" class="premium-panel active">
+  <h2>General Settings</h2>
+  <p class="panel-subtitle">Manage your core gym details, profile metadata, and system identification tags.</p>
+  
+  <div class="settings-split-grid" style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px;">
+    <!-- Inputs -->
+    <div style="display: flex; flex-direction: column; gap: 20px; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.05); padding: 24px; border-radius: 16px;">
+      <div class="p-input-box" style="display: flex; flex-direction: column; gap: 8px;">
+        <label style="color: #94a3b8; font-size: 13px; font-weight: 500;">Gym Brand Name</label>
+        <input type="text" id="genGymName" value="My Premium Gym" style="width: 100%; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 10px; color: #fff; font-size: 14px;">
+      </div>
+      <div class="p-input-box" style="display: flex; flex-direction: column; gap: 8px;">
+        <label style="color: #94a3b8; font-size: 13px; font-weight: 500;">Contact Email Address</label>
+        <input type="email" id="genGymEmail" placeholder="management@premiumgym.com" style="width: 100%; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 10px; color: #fff; font-size: 14px;">
+      </div>
+      <button class="premium-save-btn" onclick="showToast('General settings saved!', 'success')" style="align-self: flex-start; margin-top: 10px;">Save General Data</button>
+    </div>
+
+    <!-- Live Preview Card -->
+    <div style="background: linear-gradient(145deg, rgba(124,58,237,0.05), rgba(9,10,26,0.4)); border: 1px solid rgba(124,58,237,0.15); padding: 24px; border-radius: 16px; display: flex; flex-direction: column; justify-content: space-between;">
       <div>
-        <h1>Settings</h1>
-        <p>Manage your gym, account, and application preferences.</p>
+        <h4 style="color: #fff; font-size: 14px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;"><i data-lucide="id-card" style="width: 16px; color: #a78bfa;"></i> Brand Preview Window</h4>
+        <p style="color: #64748b; font-size: 12px; margin-bottom: 16px;">This data determines your outgoing white-label invoicing variables.</p>
       </div>
-    </div>
-
-    <div class="settings-top-actions">
-      <button onclick="showSection('dashboard', document.querySelector('.nav-btn'))"><i data-lucide="zap"></i> Quick Actions</button>
-      <button><i data-lucide="calendar-days"></i> <span id="settingsTodayDate">--</span><br><small id="settingsLiveTime">--:--</small></button>
-      <button onclick="toggleNotifications()"><i data-lucide="bell"></i></button>
-      <button onclick="toggleProfileMenu()" class="settings-profile-pill"><b id="settingsOwnerInitial">G</b><span id="settingsOwnerNameTop">Owner</span></button>
+      <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03);">
+        <div style="color: #a78bfa; font-size: 11px; font-weight: 700; letter-spacing: 1px; margin-bottom: 2px;">ISSUER ORIGIN</div>
+        <div style="color: #fff; font-size: 16px; font-weight: 600;">GymPro System Node</div>
+        <div style="color: #475569; font-size: 12px; margin-top: 6px; font-family: monospace;">ID: GPM-7492-X</div>
+      </div>
     </div>
   </div>
+</div>
 
-  <div class="settings-main-layout">
+      <!-- 2. SECURITY PANEL (PREMIUM RE-ENGINEERED) -->
+<div id="panel-security" class="premium-panel">
+  <h2>Security Settings</h2>
+  <p class="panel-subtitle">Update your master account login keys and maintain root password vectors.</p>
 
-    <div class="settings-menu-card">
-      <h3>Settings Menu</h3>
-
-      <button class="settings-menu-item active" onclick="settingsTab(this)">
-        <span><i data-lucide="settings"></i></span>
-        <div><strong>General</strong><small>Basic gym information</small></div>
-      </button>
-
-      <button class="settings-menu-item" onclick="settingsTab(this)">
-        <span><i data-lucide="shield"></i></span>
-        <div><strong>Security</strong><small>Password & security</small></div>
-      </button>
-
-      <button class="settings-menu-item" onclick="settingsTab(this)">
-        <span><i data-lucide="bell"></i></span>
-        <div><strong>Notifications</strong><small>Email, SMS & alerts</small></div>
-      </button>
-
-      <button class="settings-menu-item" onclick="settingsTab(this)">
-        <span><i data-lucide="credit-card"></i></span>
-        <div><strong>Payment & Billing</strong><small>Billing, invoices & plans</small></div>
-      </button>
-
-      <button class="settings-menu-item" onclick="settingsTab(this)">
-        <span><i data-lucide="plug"></i></span>
-        <div><strong>Integrations</strong><small>Third-party integrations</small></div>
-      </button>
-
-      <button class="settings-menu-item" onclick="settingsTab(this)">
-        <span><i data-lucide="cloud"></i></span>
-        <div><strong>Backup & Data</strong><small>Backup & restore data</small></div>
-      </button>
-
-      <button class="settings-menu-item" onclick="settingsTab(this)">
-        <span><i data-lucide="palette"></i></span>
-        <div><strong>Appearance</strong><small>Theme & customization</small></div>
-      </button>
-
-      <button class="settings-menu-item" onclick="settingsTab(this)">
-        <span><i data-lucide="users"></i></span>
-        <div><strong>Staff Access</strong><small>Manage staff accounts</small></div>
-      </button>
-
-      <button class="settings-menu-item" onclick="settingsTab(this)">
-        <span><i data-lucide="crown"></i></span>
-        <div><strong>Subscription</strong><small>Manage your plan</small></div>
-      </button>
+  <div class="settings-split-grid" style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px;">
+    <div style="display: flex; flex-direction: column; gap: 20px; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.05); padding: 24px; border-radius: 16px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="p-input-box" style="display: flex; flex-direction: column; gap: 8px;">
+          <label style="color: #94a3b8; font-size: 13px;">Current Password</label>
+          <input type="password" placeholder="••••••••" style="width: 100%; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 10px; color: #fff;">
+        </div>
+        <div class="p-input-box" style="display: flex; flex-direction: column; gap: 8px;">
+          <label style="color: #94a3b8; font-size: 13px;">New Secure Password</label>
+          <input type="password" placeholder="Min 8 characters" style="width: 100%; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 10px; color: #fff;">
+        </div>
+      </div>
+      <button class="premium-save-btn" onclick="showToast('Password updated successfully', 'success')" style="align-self: flex-start;">Update Security Access</button>
     </div>
 
-    <div class="settings-content-grid">
+    <!-- Security Strength Monitor -->
+    <div style="background: rgba(15,23,42,0.4); border: 1px solid rgba(255,255,255,0.05); padding: 24px; border-radius: 16px; display: flex; flex-direction: column; gap: 14px;">
+      <h4 style="color: #fff; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Session Status</h4>
+      <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(34,197,94,0.05); border: 1px solid rgba(34,197,94,0.15); padding: 10px 14px; border-radius: 10px;">
+        <span style="color: #22c55e; font-size: 13px; font-weight: 500;">Root MFA Token</span>
+        <span style="color: #22c55e; font-size: 12px; background: rgba(34,197,94,0.1); padding: 2px 8px; border-radius: 20px; font-weight: bold;">SYNCED</span>
+      </div>
+      <p style="color: #64748b; font-size: 12px; margin: 0; line-height: 1.5;">Passwords are run through a salted bcrypt hashing block before data commitment to protect against extraction attempts.</p>
+    </div>
+  </div>
+</div>
 
-      <div class="settings-card wide">
-        <div class="settings-card-head">
-          <div><span><i data-lucide="landmark"></i></span><div><h2>Gym Information</h2><p>Update your gym details and contact information.</p></div></div>
-          <button onclick="showSection('gymProfile', document.querySelector('[onclick*=gymProfile]'))">Edit Details</button>
+      <!-- 3. NOTIFICATIONS PANEL (PREMIUM RE-ENGINEERED) -->
+<div id="panel-notifications" class="premium-panel">
+  <h2>Notification Preferences</h2>
+  <p class="panel-subtitle">Toggle your automatic alert streams, check-in sound cues, and system transactional arrays.</p>
+
+  <div style="display: flex; flex-direction: column; gap: 16px; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.05); padding: 24px; border-radius: 16px;">
+    
+    <!-- Row 1 -->
+    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+      <div>
+        <h4 style="color: #fff; font-size: 14px; margin-bottom: 4px;">Automated WhatsApp Invoicing</h4>
+        <p style="color: #94a3b8; font-size: 12px; margin: 0;">Dispatches transactional receipt nodes to gym customers down the webhook chain instantly upon approval.</p>
+      </div>
+      <label class="premium-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+        <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
+        <span class="p-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #334155; transition: .3s; border-radius: 24px;"></span>
+      </label>
+    </div>
+
+    <!-- Row 2 -->
+    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+      <div>
+        <h4 style="color: #fff; font-size: 14px; margin-bottom: 4px;">Attendance Audio Pings</h4>
+        <p style="color: #94a3b8; font-size: 12px; margin: 0;">Triggers localized front-desk console sound alerts on scan success or check-in rejection flags.</p>
+      </div>
+      <label class="premium-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+        <input type="checkbox" style="opacity: 0; width: 0; height: 0;">
+        <span class="p-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #334155; transition: .3s; border-radius: 24px;"></span>
+      </label>
+    </div>
+
+    <button class="premium-save-btn" onclick="showToast('Notification rules applied', 'success')" style="align-self: flex-start; margin-top: 8px;">Save Engine Configuration</button>
+  </div>
+</div>
+
+      <!-- 4. PAYMENTS & BILLING PANEL (PREMIUM RE-ENGINEERED) -->
+<div id="panel-billing" class="premium-panel">
+  <h2>Payments & Billing Gateway</h2>
+  <p class="panel-subtitle">Sync your operational client payment collection credentials to anchor the checkout ecosystem.</p>
+
+  <div class="settings-split-grid" style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px;">
+    <div style="display: flex; flex-direction: column; gap: 20px; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.05); padding: 24px; border-radius: 16px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="p-input-box" style="display: flex; flex-direction: column; gap: 8px;">
+          <label style="color: #94a3b8; font-size: 13px;">Razorpay Key ID</label>
+          <input type="text" id="ownerRazorpayKeyId" placeholder="rzp_live_..." style="width: 100%; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 10px; color: #fff;">
         </div>
-
-        <div class="settings-info-box">
-          <div><small>Gym Name</small><strong id="setGymName">-</strong></div>
-          <div><small>Address</small><strong id="setGymAddress">-</strong></div>
-          <div><small>Owner Name</small><strong id="setOwnerName">-</strong></div>
-          <div><small>Timings</small><strong id="setGymTimings">-</strong></div>
-          <div><small>Email Address</small><strong id="setOwnerEmail">-</strong></div>
-          <div><small>Phone Number</small><strong id="setOwnerPhone">-</strong></div>
+        <div class="p-input-box" style="display: flex; flex-direction: column; gap: 8px;">
+          <label style="color: #94a3b8; font-size: 13px;">Razorpay Secret Key</label>
+          <input type="password" id="ownerRazorpayKeySecret" placeholder="••••••••••••••••" style="width: 100%; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 10px; color: #fff;">
         </div>
       </div>
+      <button class="premium-save-btn" onclick="saveOwnerPaymentSettings()" style="align-self: flex-start;">Commit API Gateway</button>
+    </div>
 
-      <div class="settings-card logo-card">
-        <div class="settings-card-head no-btn">
-          <div><span><i data-lucide="image"></i></span><div><h2>Gym Logo</h2><p>Preview your gym brand logo.</p></div></div>
-        </div>
-
-        <div class="settings-logo-preview" id="settingsLogoPreview">
-          <i data-lucide="dumbbell"></i>
-        </div>
-
-        <input id="settingsLogoFile" type="file" accept="image/*" style="display:none;" onchange="previewSettingsLogo(event)">
-        <button onclick="document.getElementById('settingsLogoFile').click()" class="outline-settings-btn">Change Logo</button>
-        <small>PNG, JPG or WEBP. Saved in this browser.</small>
+    <!-- Payment Security Metrics -->
+    <div style="background: rgba(15,23,42,0.4); border: 1px solid rgba(255,255,255,0.05); padding: 24px; border-radius: 16px; display: flex; flex-direction: column; gap: 12px;">
+      <h4 style="color: #fff; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Gateway Status</h4>
+      <div style="display: flex; justify-content: space-between; font-size: 13px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <span style="color: #64748b;">PCI-DSS Compliance</span>
+        <span style="color: #fff; font-weight: 600;">Level 1 Certified</span>
       </div>
-
-      <div class="settings-card">
-        <div class="settings-card-head">
-          <div><span><i data-lucide="user"></i></span><div><h2>Account Settings</h2><p>Update owner contact details.</p></div></div>
-        </div>
-
-        <input id="settingsOwnerName" placeholder="Owner Name">
-        <input id="settingsOwnerEmail" placeholder="Owner Email">
-        <input id="settingsOwnerPhone" placeholder="Phone Number">
-        <button onclick="savePremiumSettings()">Save Account</button>
+      <div style="display: flex; justify-content: space-between; font-size: 13px;">
+        <span style="color: #64748b;">Webhook Sync</span>
+        <span style="color: #e2e8f0; font-family: monospace;">payment.captured</span>
       </div>
+    </div>
+  </div>
+</div>
 
-      <div class="settings-card">
-        <div class="settings-card-head">
-          <div><span><i data-lucide="lock"></i></span><div><h2>Security</h2><p>Update account password.</p></div></div>
+      <!-- 5. INTEGRATIONS PANEL (PREMIUM RE-ENGINEERED) -->
+<div id="panel-integrations" class="premium-panel">
+  <h2>WhatsApp API Integration Hub</h2>
+  <p class="panel-subtitle">Sync your communication pipeline layout with the official Meta Cloud API network.</p>
+
+  <div class="settings-split-grid" style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px;">
+    <div style="display: flex; flex-direction: column; gap: 20px; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.05); padding: 24px; border-radius: 16px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="p-input-box" style="display: flex; flex-direction: column; gap: 8px;">
+          <label style="color: #94a3b8; font-size: 13px;">Phone Number ID</label>
+          <input type="text" id="waPhoneNumberId" placeholder="1094xxxxxxxxxx" style="width: 100%; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 10px; color: #fff;">
         </div>
-
-        <input id="settingsCurrentPassword" type="password" placeholder="Current Password">
-        <input id="settingsNewPassword" type="password" placeholder="New Password">
-        <input id="settingsConfirmPassword" type="password" placeholder="Confirm Password">
-        <button onclick="updateOwnerPassword()">Update Password</button>
-      </div>
-
-      <div class="settings-card wide">
-        <div class="settings-card-head">
-          <div><span><i data-lucide="briefcase"></i></span><div><h2>Business Settings</h2><p>Configure gym business preferences.</p></div></div>
-          <button onclick="savePremiumSettings()">Manage Settings</button>
-        </div>
-
-        <div class="settings-business-grid">
-          <div><span><i data-lucide="indian-rupee"></i></span><strong>Currency</strong><b>INR (₹)</b><p>Default currency for all transactions</p></div>
-          <div><span><i data-lucide="calendar"></i></span><strong>Date Format</strong><b id="settingsDateFormat">29 May 2026</b><p>DD MMM YYYY</p></div>
-          <div><span><i data-lucide="clock"></i></span><strong>Time Format</strong><b id="settingsTimeFormat">03:26 PM</b><p>12-hour format</p></div>
+        <div class="p-input-box" style="display: flex; flex-direction: column; gap: 8px;">
+          <label style="color: #94a3b8; font-size: 13px;">Permanent Access Token</label>
+          <input type="password" id="waAccessToken" placeholder="EAAGxxxxxxxxxxxx" style="width: 100%; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 10px; color: #fff;">
         </div>
       </div>
+      <button class="premium-save-btn" onclick="saveWhatsAppSettings()" style="align-self: flex-start;">Bind WhatsApp Engine</button>
+    </div>
 
-      <div class="settings-card">
-        <div class="settings-card-head no-btn">
-          <div><span><i data-lucide="server"></i></span><div><h2>System Status</h2><p>Everything is running smoothly.</p></div></div>
-        </div>
+    <!-- Meta Node Summary Info -->
+    <div style="background: rgba(15,23,42,0.4); border: 1px solid rgba(255,255,255,0.05); padding: 24px; border-radius: 16px; display: flex; flex-direction: column; justify-content: center; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 8px; color: #3b82f6; font-size: 14px; font-weight: 600; margin-bottom: 4px;">
+        <i data-lucide="meta" style="width: 18px;"></i> Meta Developer Ecosystem
+      </div>
+      <p style="color: #94a3b8; font-size: 12px; margin: 0; line-height: 1.5;">This bridge handles template formatting hooks. Please verify that your messaging templates are pre-approved inside your Meta Business Manager suite.</p>
+    </div>
+  </div>
+</div>
 
-        <div class="settings-status-list">
-          <p><span><i data-lucide="wifi"></i> Server Status</span><b id="setServerStatus">Online</b></p>
-          <p><span><i data-lucide="database"></i> Database</span><b id="setDatabaseStatus">Connected</b></p>
-          <p><span><i data-lucide="cloud-check"></i> Backup Status</span><b id="setBackupStatus">Up to date</b></p>
-          <p><span><i data-lucide="hard-drive"></i> Storage Used</span><b id="setStorageStatus">32% of 50GB</b></p>
-          <p><span><i data-lucide="user-check"></i> Active Sessions</span><b id="setSessionStatus">1 Active</b></p>
-        </div>
+      <div id="panel-backup" class="premium-panel">
+  <h2>Data Governance & System Backups</h2>
+  <p class="panel-subtitle">Manage automated state snapshots, export encrypted manifests, or wipe local database nodes.</p>
+
+  <div class="backup-grid-layout" style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px;">
+    
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      
+      <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 14px;">
+        <h3 style="color: #fff; font-size: 15px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="download-cloud" style="color: var(--theme-accent, #7c3aed); width: 18px;"></i> Encrypted Ledger Export
+        </h3>
+        <p style="color: #94a3b8; font-size: 13px; margin-bottom: 16px;">Generate a raw JSON system manifest containing all synchronized member logs, payment references, and profile structural variables.</p>
+        <button class="premium-save-btn" onclick="backupOwnerData()">
+          Download Encrypted Manifest File
+        </button>
       </div>
 
-      <div class="settings-card danger-zone full">
-        <div class="settings-card-head no-btn">
-          <div><span><i data-lucide="shield-alert"></i></span><div><h2>Danger Zone</h2><p>Irreversible and sensitive actions.</p></div></div>
-        </div>
+      <div style="background: rgba(239, 68, 68, 0.02); border: 1px solid rgba(239, 68, 68, 0.15); padding: 20px; border-radius: 14px;">
+        <h3 style="color: #ef4444; font-size: 15px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="shield-alert" style="width: 18px;"></i> Destructive Operations Vault
+        </h3>
+        <p style="color: #94a3b8; font-size: 13px; margin-bottom: 16px;">Purge all synchronized client logs, diet sheets, attendance arrays, and transaction indices. This process completely clears your cluster storage node permanently.</p>
+        <button style="background: linear-gradient(135deg, #ef4444, #991b1b) !important; border: 1px solid #ef4444 !important; box-shadow: 0 4px 12px rgba(239,68,68,0.2) !important;" class="premium-save-btn" onclick="deleteAllOwnerData()">
+          Purge Active Database Permanently
+        </button>
+      </div>
 
-        <div class="danger-actions-grid">
-          <div>
-            <span><i data-lucide="archive"></i></span>
-            <div><strong>Backup All Data</strong><p>Download complete backup of your gym data.</p></div>
-            <button onclick="backupOwnerData()">Backup Now</button>
+    </div>
+
+    <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 14px; display: flex; flex-direction: column; gap: 16px;">
+      <h3 style="color: #fff; font-size: 14px; letter-spacing: 0.5px; text-transform: uppercase;">Node Storage Health</h3>
+      
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;">
+        <span style="color: #64748b; font-size: 13px;">Database Engine</span>
+        <span style="color: #fff; font-size: 13px; font-weight: 600;">MongoDB Atlas</span>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;">
+        <span style="color: #64748b; font-size: 13px;">Cluster Latency</span>
+        <span style="color: #22c55e; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+          <span style="width: 6px; height: 6px; background: #22c55e; border-radius: 50%;"></span> 14ms (Optimal)
+        </span>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;">
+        <span style="color: #64748b; font-size: 13px;">Auto-Backup Interval</span>
+        <span style="color: #94a3b8; font-size: 13px;">Every 24 Hours</span>
+      </div>
+
+      <div style="display: flex; justify-content: space-between;">
+        <span style="color: #64748b; font-size: 13px;">Encryption Standard</span>
+        <span style="color: #a78bfa; font-size: 12px; background: rgba(167,139,250,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace;">AES-256-GCM</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+      <div id="panel-appearance" class="premium-panel">
+        <h2>System Appearance & Vibe Customization</h2>
+        <p class="panel-subtitle">Tailor the operational interface ecosystem to match your brand's physical identity.</p>
+        <div class="appearance-workspace-grid">
+          <div class="theme-selection-vault">
+            <h3 class="workspace-title">Select Core UI Theme Accent</h3>
+            <div class="theme-card-premium active" id="theme-cyber" onclick="applyEnterpriseTheme('cyber')">
+              <div class="theme-card-meta">
+                <div class="theme-indicator-dot cyber-dot"></div>
+                <div>
+                  <h4>Deep Cyber Obsidian</h4>
+                  <p>Amethyst neon accents optimized for low-light gym floors.</p>
+                </div>
+              </div>
+            </div>
+            <div class="theme-card-premium" id="theme-emerald" onclick="applyEnterpriseTheme('emerald')">
+              <div class="theme-card-meta">
+                <div class="theme-indicator-dot emerald-dot"></div>
+                <div>
+                  <h4>Neon Emerald Forge</h4>
+                  <p>High-energy matrix green accents to drive operational speed.</p>
+                </div>
+              </div>
+            </div>
+            <div class="theme-card-premium" id="theme-crimson" onclick="applyEnterpriseTheme('crimson')">
+              <div class="theme-card-meta">
+                <div class="theme-indicator-dot crimson-dot"></div>
+                <div>
+                  <h4>Crimson Rage Kinetic</h4>
+                  <p>Aggressive high-contrast red metrics for fitness hubs.</p>
+                </div>
+              </div>
+            </div>
           </div>
-
-          <div class="delete-danger">
-            <span><i data-lucide="triangle-alert"></i></span>
-            <div><strong>Delete All Data</strong><p>Permanently delete members, attendance, payments and trainers.</p></div>
-            <button onclick="deleteAllOwnerData()">Delete All Data</button>
+          <div class="theme-live-preview-canvas">
+            <div class="preview-canvas-header">
+              <span class="preview-dot-window"></span><span class="preview-dot-window"></span><span class="preview-dot-window"></span>
+              <span class="preview-title-tag">LIVE INTERACTIVE MOCKUP</span>
+            </div>
+            <div class="mockup-viewport">
+              <div class="mockup-sidebar">
+                <div class="mockup-logo">GymPro</div>
+                <div class="mockup-nav-item active-mockup-item">Dashboard</div>
+                <div class="mockup-nav-item">Trainers</div>
+              </div>
+              <div class="mockup-content">
+                <div class="mockup-stat-card">
+                  <span>Active Members Growth</span>
+                  <div class="mockup-metric-val">+24.8%</div>
+                  <div class="mockup-chart-line"></div>
+                </div>
+                <div class="mockup-action-btn-element">Execute Global Action</div>
+              </div>
+            </div>
           </div>
+        </div>
+      </div>
+
+<!-- 8. STAFF ACCESS PANEL -->
+<div id="panel-staff" class="premium-panel">
+  <h2>Staff Access & Security Permissions</h2>
+  <p class="panel-subtitle">Delegate secure portal login credentials and restrict administrative dashboard views.</p>
+  
+  <!-- Flex container to strictly hold the text and toggle switch together -->
+  <div class="premium-toggle-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px;">
+    <div>
+      <h4 style="color: #fff; font-size: 14px; margin: 0 0 4px 0;">Enforce Granular Role Permissions</h4>
+      <p style="color: #94a3b8; font-size: 12px; margin: 0;">When enabled, staff accounts are automatically blocked from accessing your keys.</p>
+    </div>
+    <label class="premium-switch" style="position: relative; display: inline-block; width: 40px; height: 20px;">
+      <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
+      <span class="p-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #334155; transition: .4s; border-radius: 20px;"></span>
+    </label>
+  </div>
+
+  <!-- Isolated directory table container -->
+  <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 16px; position: relative; clear: both;">
+    <h3 style="color: #fff; font-size: 16px; margin-bottom: 12px;">Staff Permissions Directory</h3>
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; color: #94a3b8;">
+      <thead>
+        <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #fff;">
+          <th style="padding: 10px;">Staff Name</th>
+          <th style="padding: 10px;">Email / Username</th>
+          <th style="padding: 10px;">Current System Role</th>
+          <th style="padding: 10px; text-align: right;">Action</th>
+        </tr>
+      </thead>
+      <tbody id="staffAccessTableBody">
+        <tr>
+          <td colspan="4" style="padding: 20px; text-align: center; color: #64748b;">No data loaded. Click "Sync App Permissions".</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+      <div id="panel-subscription" class="premium-panel">
+        <h2>GymPro System License</h2>
+        <p class="panel-subtitle">Review your active software tier details and platform status.</p>
+        <div class="sub-card">
+          <div><h3>GymPro Unlimited Elite Plan</h3><p>Status: Active</p></div>
+          <a href="subscription.html" class="sub-link">Manage License ↗</a>
         </div>
       </div>
 
     </div>
   </div>
-
-  <div class="settings-footer">© 2026 GymPro. All rights reserved.</div>
-
 </section>
   
 

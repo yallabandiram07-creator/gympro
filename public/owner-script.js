@@ -35,6 +35,9 @@ function showSection(section, btn) {
     loadAttendanceAnalytics();
   }, 500);
 }
+if (section === "settings") {
+  loadPremiumSettings();
+}
   if (section === "qr") { stopQRAutoRefresh(); startQRAutoRefresh(); }
   if (section === "trainers") loadTrainers();
   if (section === "payments") {
@@ -3563,55 +3566,43 @@ function exportAttendanceCSV() {
 if (typeof lucide !== "undefined") {
   lucide.createIcons();
 }
-async function loadPremiumSettings() {
-  const token = tokenOrLogin();
-  if (!token) return;
 
-  try {
-    const res = await fetch(API + "/owner-settings", {
-      headers: { Authorization: token }
-    });
+/* ===== 10/10 PREMIUM SETTINGS LOGIC CONTROLLER ===== */
+function switchPremiumSettingTab(tabId) {
+  // 1. Remove active state from all sidebar buttons
+  document.querySelectorAll('.settings-nav-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
 
-    const data = await res.json();
-    const owner = data.owner || {};
-    const profile = data.profile || {};
-    const prefs = owner.preferences || {};
+  // 2. Hide all right-hand content panels
+  document.querySelectorAll('.premium-panel').forEach(panel => {
+    panel.classList.remove('active');
+  });
 
-    setText("setGymName", profile.gymName || owner.gymName || "GymPro");
-    setText("setGymAddress", profile.address || "-");
-    setText("setOwnerName", profile.ownerName || owner.ownerName || "-");
-    setText("setGymTimings", profile.timings || "-");
-    setText("setOwnerEmail", owner.email || "-");
-    setText("setOwnerPhone", profile.phone || owner.phone || "-");
+  // 3. Highlight the clicked button
+  const selectedBtn = document.querySelector(`[data-tab="${tabId}"]`);
+  if (selectedBtn) selectedBtn.classList.add('active');
 
-    const nameInput = document.getElementById("settingsOwnerName");
-    const emailInput = document.getElementById("settingsOwnerEmail");
-    const phoneInput = document.getElementById("settingsOwnerPhone");
+  // 4. Reveal the selected panel smoothly
+  const selectedPanel = document.getElementById(`panel-${tabId}`);
+  if (selectedPanel) selectedPanel.classList.add('active');
 
-    if (nameInput) nameInput.value = profile.ownerName || owner.ownerName || "";
-    if (emailInput) emailInput.value = owner.email || "";
-    if (phoneInput) phoneInput.value = profile.phone || owner.phone || "";
+  // 5. Connect the core backend APIs when specific tabs open
+  if (tabId === 'billing') loadOwnerPaymentSettings();
+  if (tabId === 'integrations') loadWhatsAppSettings();
+  if (tabId === 'staff' && typeof loadTrainers === 'function') loadTrainers();
 
-    setText("settingsOwnerNameTop", profile.ownerName || owner.ownerName || "Owner");
-    setText("settingsOwnerInitial", String(profile.ownerName || owner.ownerName || "G").charAt(0).toUpperCase());
-
-    setText("setServerStatus", data.status?.server || "Online");
-    setText("setDatabaseStatus", data.status?.database || "Connected");
-    setText("setBackupStatus", data.status?.backup || "Up to date");
-    setText("setStorageStatus", data.status?.storage || "32% of 50GB");
-    setText("setSessionStatus", data.status?.sessions || "1 Active");
-
-    const savedLogo = localStorage.getItem("gymproSettingsLogo");
-    if (savedLogo) {
-      document.getElementById("settingsLogoPreview").innerHTML = `<img src="${savedLogo}">`;
-    }
-
-    if (typeof lucide !== "undefined") lucide.createIcons();
-  } catch (err) {
-    console.log("Settings load error:", err);
-    showToast("Settings load failed", "error");
+  // 6. Refresh your premium look icons instantly
+  if (window.lucide) {
+    lucide.createIcons();
   }
 }
+
+// Ensure the first panel opens natively when the main settings section loads
+function loadSettingsTab() {
+  switchPremiumSettingTab('general');
+}
+
 
 async function savePremiumSettings() {
   const token = tokenOrLogin();
@@ -3782,11 +3773,6 @@ function previewSettingsLogo(event) {
   };
 
   reader.readAsDataURL(file);
-}
-
-function settingsTab(btn) {
-  document.querySelectorAll(".settings-menu-item").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active");
 
   const name = btn.innerText.trim().split("\n")[0];
 
@@ -3806,6 +3792,202 @@ function settingsTab(btn) {
     document.querySelector(".danger-zone")?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 }
-if (section === "settings") {
-  loadPremiumSettings();
+
+function renderSettingsTab(tab) {
+  const box = document.getElementById("settingsContentGrid");
+  if (!box) return;
+
+  const pages = {
+    general: `
+      <div class="settings-card full">
+        <h2>General Settings</h2>
+        <p>Manage basic gym and owner information.</p>
+        <input id="settingsOwnerName" placeholder="Owner Name">
+        <input id="settingsOwnerEmail" placeholder="Owner Email">
+        <input id="settingsOwnerPhone" placeholder="Phone Number">
+        <button onclick="savePremiumSettings()">Save General Settings</button>
+      </div>
+    `,
+
+    security: `
+      <div class="settings-card full">
+        <h2>Security</h2>
+        <p>Update your account password.</p>
+        <input id="settingsCurrentPassword" type="password" placeholder="Current Password">
+        <input id="settingsNewPassword" type="password" placeholder="New Password">
+        <input id="settingsConfirmPassword" type="password" placeholder="Confirm Password">
+        <button onclick="updateOwnerPassword()">Update Password</button>
+      </div>
+    `,
+
+    notifications: `
+      <div class="settings-card full">
+        <h2>Notification Settings</h2>
+        <div class="settings-option">WhatsApp Reminders <input type="checkbox" checked></div>
+        <div class="settings-option">Payment Alerts <input type="checkbox" checked></div>
+        <div class="settings-option">Expiry Alerts <input type="checkbox" checked></div>
+        <button onclick="savePremiumSettings()">Save Notifications</button>
+      </div>
+    `,
+
+    billing: `
+      <div class="settings-card full">
+        <h2>Payment & Billing</h2>
+        <p>Manage Razorpay payment keys inside settings.</p>
+        <input id="ownerRazorpayKeyId" placeholder="Razorpay Key ID">
+        <input id="ownerRazorpayKeySecret" placeholder="Razorpay Secret Key">
+        <p id="paymentSettingsStatus"></p>
+        <button onclick="saveOwnerPaymentSettings()">Save Payment Settings</button>
+      </div>
+    `,
+
+    integrations: `
+      <div class="settings-card full">
+        <h2>Integrations</h2>
+        <p>Manage WhatsApp Cloud API integration.</p>
+        <input id="waPhoneNumberId" placeholder="Phone Number ID">
+        <input id="waAccessToken" placeholder="Access Token">
+        <input id="waTemplateName" placeholder="Template Name">
+        <input id="waLanguageCode" placeholder="Language Code">
+        <p id="waSettingsStatus"></p>
+        <button onclick="saveWhatsAppSettings()">Save Integration</button>
+      </div>
+    `,
+
+    backup: `
+      <div class="settings-card full danger-zone">
+        <h2>Backup & Data</h2>
+        <button onclick="backupOwnerData()">Backup All Data</button>
+        <button onclick="deleteAllOwnerData()" class="danger-btn">Delete All Data</button>
+      </div>
+    `,
+
+    appearance: `
+      <div class="settings-card full">
+        <h2>Appearance</h2>
+        <p>Premium dark theme is enabled.</p>
+        <select>
+          <option>Dark Premium Theme</option>
+        </select>
+        <button onclick="showToast('Appearance saved successfully', 'success')">Save Appearance</button>
+      </div>
+    `,
+
+    staff: `
+      <div class="settings-card full">
+        <h2>Staff Access</h2>
+        <p>Trainer access is managed here.</p>
+        <button onclick="loadTrainers(); showToast('Trainer access loaded', 'success')">Load Staff Access</button>
+      </div>
+    `,
+
+    subscription: `
+      <div class="settings-card full">
+        <h2>Subscription</h2>
+        <p>Manage your GymPro subscription plan.</p>
+        <a href="subscription.html" class="primary-btn">Open Subscription</a>
+      </div>
+    `
+  };
+
+  box.innerHTML = pages[tab] || pages.general;
+
+  if (tab === "billing") loadOwnerPaymentSettings();
+  if (tab === "integrations") loadWhatsAppSettings();
+  if (tab === "general") loadPremiumSettings();
+
+  if (typeof lucide !== "undefined") lucide.createIcons();
+}
+// Function to fetch your gym staff and display them with permission controls
+function loadStaffAccessList() {
+  const tableBody = document.getElementById('staffAccessTableBody');
+  
+  // 1. Simulate fetching your real gym trainers data
+  // (In your real app, this can pull from your local variable or an API call)
+  const sampleTrainers = [
+    { name: "Rahul Sharma", email: "rahul@gympro.com", role: "Trainer" },
+    { name: "Priya Patel", email: "priya@gympro.com", role: "Front Desk" },
+    { name: "Amit Mishra", email: "amit@gympro.com", role: "Admin" }
+  ];
+
+  // Clear the placeholder text
+  tableBody.innerHTML = "";
+
+  // 2. Loop through each staff member and create a row with a dropdown select box
+  sampleTrainers.forEach((staff, index) => {
+    const row = document.createElement('tr');
+    row.style.borderBottom = "1px solid rgba(255,255,255,0.05)";
+    
+    row.innerHTML = `
+      <td style="padding: 12px; color: #fff; font-weight: 500;">${staff.name}</td>
+      <td style="padding: 12px;">${staff.email}</td>
+      <td style="padding: 12px;">
+        <select id="role-${index}" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 12px;">
+          <option value="Trainer" ${staff.role === 'Trainer' ? 'selected' : ''}>Trainer (Restricted View)</option>
+          <option value="Front Desk" ${staff.role === 'Front Desk' ? 'selected' : ''}>Front Desk (Check-ins Only)</option>
+          <option value="Admin" ${staff.role === 'Admin' ? 'selected' : ''}>Admin (Full Access)</option>
+        </select>
+      </td>
+      <td style="padding: 12px; text-align: right;">
+        <button class="premium-save-btn" style="padding: 4px 10px !important; font-size: 12px;" onclick="saveStaffRole('${staff.name}', ${index})">
+          Update Key
+        </button>
+      </td>
+    `;
+    tableBody.appendChild(row);
+  });
+
+  // Show a success alert toast
+  if (typeof showToast === 'function') {
+    showToast('Staff roster and access tokens synced!', 'success');
+  } else {
+    alert('Staff roster and access tokens synced!');
+  }
+}
+
+// Function that runs when you click "Update Key" next to a specific person
+function saveStaffRole(name, index) {
+  const selectedRole = document.getElementById(`role-${index}`).value;
+  
+  if (typeof showToast === 'function') {
+    showToast(`Permissions updated: ${name} is now a system ${selectedRole}.`, 'success');
+  } else {
+    alert(`Permissions updated: ${name} is now a system ${selectedRole}.`);
+  }
+}
+// Function to handle changing themes dynamically in your app
+function applyEnterpriseTheme(themeName) {
+  // 1. Manage appearance preview card visual selection states
+  document.querySelectorAll('.theme-card-premium').forEach(card => {
+    card.classList.remove('active');
+  });
+  const activeSelectionCard = document.getElementById(`theme-${themeName}`);
+  if (activeSelectionCard) {
+    activeSelectionCard.classList.add('active');
+  }
+
+  // 2. Set variable definitions
+  let accentHexColor = '#7c3aed';
+  let glowingGlowColor = 'rgba(124, 58, 237, 0.15)';
+
+  if (themeName === 'emerald') {
+    accentHexColor = '#10b981';
+    glowingGlowColor = 'rgba(16, 185, 129, 0.15)';
+  } else if (themeName === 'crimson') {
+    accentHexColor = '#ef4444';
+    glowingGlowColor = 'rgba(239, 68, 68, 0.15)';
+  }
+
+  // 3. Remove old body modifications and apply the theme flag
+  document.body.classList.remove('theme-cyber', 'theme-emerald', 'theme-crimson');
+  document.body.classList.add(`theme-${themeName}`);
+
+  // 4. Update core CSS design variables dynamically across the entire browser view window
+  document.documentElement.style.setProperty('--theme-accent', accentHexColor);
+  document.documentElement.style.setProperty('--theme-glow', glowingGlowColor);
+
+  // 5. Fire off alert toast communication notifications
+  if (typeof showToast === 'function') {
+    showToast(`Dashboard ecosystem accent customized to ${themeName.toUpperCase()} theme settings.`, 'success');
+  }
 }

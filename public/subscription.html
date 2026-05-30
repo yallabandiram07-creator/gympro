@@ -1,90 +1,394 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Gym Subscription Plans</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GymPro Subscription Plans</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --card-bg: rgba(15, 23, 42, 0.45);
+      --border-color: rgba(255, 255, 255, 0.06);
+      --text-main: #ffffff;
+      --text-muted: #94a3b8;
+      --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      --premium-gradient: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+      --accent-glow: rgba(99, 102, 241, 0.15);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: '';
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4f46e5 0%, #a855f7 100%);
+      filter: blur(150px);
+      opacity: 0.15;
+      z-index: 0;
+    }
+    body::before { top: -10%; left: -10%; }
+    body::after { bottom: -10%; right: -10%; }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 20px;
+      transition: color 0.3s ease;
+    }
+
+    .back-btn:hover {
+      color: #6366f1;
+    }
+
+    .header h1 {
+      font-size: 42px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+
+    .header p {
+      color: var(--text-muted);
+      font-size: 16px;
+    }
+
+    .status-banner {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 16px 24px;
+      border-radius: 16px;
+      margin-bottom: 40px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      backdrop-filter: blur(10px);
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .status-item strong {
+      color: #fff;
+    }
+
+    .status-item span {
+      color: #10b981;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      align-items: stretch;
+    }
+
+    .pricing-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 40px 32px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 40px var(--accent-glow);
+    }
+
+    .pricing-card.featured {
+      border: 1px solid rgba(168, 85, 247, 0.4);
+      background: linear-gradient(180deg, rgba(23, 20, 43, 0.7) 0%, rgba(15, 23, 42, 0.45) 100%);
+      box-shadow: 0 10px 30px rgba(168, 85, 247, 0.05);
+    }
+
+    .pricing-card.featured:hover {
+      border-color: rgba(168, 85, 247, 0.6);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 40px rgba(168, 85, 247, 0.25);
+    }
+
+    .badge {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: var(--premium-gradient);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 50px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+    }
+
+    .plan-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .featured .plan-name {
+      color: #c084fc;
+    }
+
+    .plan-price {
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin-bottom: 32px;
+    }
+
+    .plan-price span {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .features-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 40px;
+      flex-grow: 1;
+    }
+
+    .features-list li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #cbd5e1;
+      font-size: 14px;
+    }
+
+    .features-list li i {
+      font-size: 16px;
+      color: #10b981;
+    }
+
+    .features-list li.disabled {
+      color: #64748b;
+    }
+
+    .features-list li.disabled i {
+      color: #475569;
+    }
+
+    .btn-action {
+      width: 100%;
+      padding: 16px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-primary {
+      background: var(--primary-gradient);
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+      transform: translateY(-2px);
+    }
+
+    .btn-premium {
+      background: var(--premium-gradient);
+      box-shadow: 0 4px 14px rgba(168, 85, 247, 0.4);
+    }
+
+    .btn-premium:hover {
+      box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 968px) {
+      .pricing-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+      body { padding: 40px 16px; }
+      .header h1 { font-size: 32px; }
+    }
+  </style>
 </head>
-<body class="dashboard-page">
+<body>
 
-<div class="trainer-page">
-
-  <div class="page-header">
-    <div>
+  <div class="container">
+    
+    <div class="header">
+      <a href="dashboard.html" class="back-btn">
+        <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+      </a>
       <h1>Gym Subscription Plans</h1>
       <p>Choose a plan for your gym management system.</p>
     </div>
 
-    <a href="dashboard.html" class="logout-small">
-      Back
-    </a>
-  </div>
-
-  <div class="dashboard-cards">
-
-    <div class="panel">
-      <h2>Free Plan</h2>
-
-      <h1>₹0</h1>
-
-      <ul class="modern-list">
-        <li>Up to 20 Members</li>
-        <li>Basic Dashboard</li>
-        <li>Manual Attendance</li>
-      </ul>
-
-      <button onclick="buyPlan('Free',0,30)">
-        Activate Free
-      </button>
+    <div class="status-banner">
+      <div class="status-item"><i class="fa-solid fa-layer-group" style="color: #6366f1;"></i> Active Plan: <strong id="currentPlan">Loading...</strong></div>
+      <div class="status-item"><i class="fa-solid fa-circle-check" style="color: #10b981;"></i> Status: <span id="currentStatus">Loading...</span></div>
+      <div class="status-item"><i class="fa-solid fa-calendar-days" style="color: #a855f7;"></i> Expiry Date: <strong id="currentExpiry">Loading...</strong></div>
     </div>
 
-    <div class="panel">
-      <h2>Basic Plan</h2>
+    <div class="pricing-grid">
+      
+      <div class="pricing-card">
+        <div class="plan-name">Free Plan</div>
+        <div class="plan-price">₹0<span>/month</span></div>
+        
+        <ul class="features-list">
+          <li><i class="fa-solid fa-circle-check"></i> Up to 20 Members</li>
+          <li><i class="fa-solid fa-circle-check"></i> Basic Dashboard</li>
+          <li><i class="fa-solid fa-circle-check"></i> Manual Attendance</li>
+          <li class="disabled"><i class="fa-solid fa-circle-xmark"></i> QR Attendance</li>
+          <li class="disabled"><i class="fa-solid fa-circle-xmark"></i> Trainer Login & Diet Tracking</li>
+          <li class="disabled"><i class="fa-solid fa-circle-xmark"></i> AI Workout Generator</li>
+        </ul>
 
-      <h1>₹999</h1>
+        <button class="btn-action btn-secondary" onclick="buyPlan('Free', 0, 30)">Activate Free</button>
+      </div>
 
-      <ul class="modern-list">
-        <li>Unlimited Members</li>
-        <li>QR Attendance</li>
-        <li>Trainer Login</li>
-        <li>Diet Tracking</li>
-      </ul>
+      <div class="pricing-card">
+        <div class="plan-name">Basic Plan</div>
+        <div class="plan-price">₹999<span>/month</span></div>
+        
+        <ul class="features-list">
+          <li><i class="fa-solid fa-circle-check"></i> Unlimited Members</li>
+          <li><i class="fa-solid fa-circle-check"></i> Advanced Dashboard</li>
+          <li><i class="fa-solid fa-circle-check"></i> QR Attendance System</li>
+          <li><i class="fa-solid fa-circle-check"></i> Trainer Login Management</li>
+          <li><i class="fa-solid fa-circle-check"></i> Diet Tracking Module</li>
+          <li class="disabled"><i class="fa-solid fa-circle-xmark"></i> AI Workout Generator</li>
+        </ul>
 
-      <button onclick="buyPlan('Basic',999,30)">
-        Buy Basic
-      </button>
+        <button class="btn-action btn-primary" onclick="buyPlan('Basic', 999, 30)">Buy Basic</button>
+      </div>
+
+      <div class="pricing-card featured">
+        <div class="badge">Most Popular</div>
+        <div class="plan-name">Premium Plan</div>
+        <div class="plan-price">₹2499<span>/month</span></div>
+        
+        <ul class="features-list">
+          <li><i class="fa-solid fa-circle-check"></i> Unlimited Members Matrix</li>
+          <li><i class="fa-solid fa-circle-check"></i> Advanced Analytics Engine</li>
+          <li><i class="fa-solid fa-circle-check"></i> Complete QR & Attendance Suite</li>
+          <li><i class="fa-solid fa-circle-check"></i> Dedicated Trainer Portals</li>
+          <li><i class="fa-solid fa-circle-check"></i> AI Workout Generator (Pro Max)</li>
+          <li><i class="fa-solid fa-circle-check"></i> Priority System Support</li>
+        </ul>
+
+        <button class="btn-action btn-premium" onclick="buyPlan('Premium', 2499, 30)">
+          <i class="fa-solid fa-crown" style="color: #ffd700; margin-right: 4px;"></i> Buy Premium Pro Max
+        </button>
+      </div>
+
     </div>
-
-    <div class="panel">
-      <h2>Premium Plan</h2>
-
-      <h1>₹2499</h1>
-
-      <ul class="modern-list">
-        <li>AI Workout Generator</li>
-        <li>Advanced Analytics</li>
-        <li>WhatsApp Reminders</li>
-        <li>Multi Trainer Support</li>
-      </ul>
-
-      <button onclick="buyPlan('Premium',2499,30)">
-        Buy Premium
-      </button>
-    </div>
-
   </div>
 
-  <div class="panel">
-    <h2>Current Subscription</h2>
-
-    <p><strong>Plan:</strong> <span id="currentPlan">-</span></p>
-
-    <p><strong>Status:</strong> <span id="currentStatus">-</span></p>
-
-    <p><strong>Expiry:</strong> <span id="currentExpiry">-</span></p>
+  <div id="premiumModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 5, 14, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 9999; align-items: center; justify-content: center; opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);">
+    <div style="background: linear-gradient(145deg, rgba(22, 28, 45, 0.9) 0%, rgba(10, 14, 26, 0.95) 100%); border: 1px solid rgba(255, 255, 255, 0.08); width: 100%; max-width: 440px; padding: 40px 32px; border-radius: 28px; text-align: center; box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255,255,255,0.1); transform: scale(0.85); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); position: relative; overflow: hidden;">
+      <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at 50% 30%, rgba(99, 102, 241, 0.12), transparent 50%); pointer-events: none; z-index: 0;"></div>
+      <div style="position: relative; z-index: 1;">
+        <div id="modalIconContainer" style="width: 76px; height: 76px; border-radius: 22px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px auto; font-size: 28px; transform: rotate(-5deg); box-shadow: 0 12px 24px rgba(0,0,0,0.3); transition: all 0.3s ease;">
+          <i id="modalIcon" class="fa-solid fa-crown"></i>
+        </div>
+        <h3 id="modalTitle" style="color: #ffffff; font-size: 24px; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.75px; background: linear-gradient(180deg, #fff 30%, #cbd5e1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Confirm Request</h3>
+        <p id="modalMessage" style="color: #94a3b8; font-size: 14px; line-height: 1.65; margin-bottom: 36px; padding: 0 8px; font-weight: 400;">Are you sure?</p>
+        <div id="modalActions" style="display: flex; gap: 14px;">
+          <button id="modalCancelBtn" style="flex: 1; padding: 15px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.07); color: #94a3b8; border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.25s ease;" onclick="closePremiumModal()">Cancel</button>
+          <button id="modalConfirmBtn" style="flex: 1; padding: 15px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border: none; color: #ffffff; border-radius: 14px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 8px 20px -6px rgba(99, 102, 241, 0.5);">Confirm</button>
+        </div>
+      </div>
+    </div>
   </div>
 
-</div>
-
-<script src="subscription-script.js"></script>
+  <script src="subscription-script.js"></script>
 </body>
 </html>

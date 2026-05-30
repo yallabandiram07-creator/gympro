@@ -9305,3 +9305,375 @@ body::after {
     align-items: flex-start;
   }
 }
+/* ===== PREMIUM GRID LAYOUT ENGINE ===== */
+.settings-premium-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+  margin-top: 20px;
+  min-height: 550px;
+}
+
+.settings-sidebar-nav {
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nav-header-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 1px;
+  padding: 8px 12px;
+}
+
+.settings-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  border-radius: 10px;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: #fff;
+}
+
+.settings-nav-btn.active {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(59, 130, 246, 0.1));
+  color: #fff;
+  font-weight: 600;
+  border: 1px solid rgba(124, 58, 237, 0.3);
+}
+
+/* RIGHT MAIN PANELS */
+.settings-content-canvas {
+  background: rgba(15, 23, 42, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.premium-panel {
+  display: none;
+  animation: tabReveal 0.3s ease forwards;
+}
+
+.premium-panel.active {
+  display: block;
+}
+
+@keyframes tabReveal {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.premium-panel h2 { font-size: 20px; color: #fff; margin-bottom: 4px; }
+.panel-subtitle { font-size: 13px; color: #64748b; margin-bottom: 24px; }
+
+/* INPUT FORM ELEMENTS */
+.premium-field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;}
+.p-input-box { display: flex; flex-direction: column; gap: 6px; }
+.p-input-box label { font-size: 12px; color: #94a3b8; }
+.p-input-box input, .p-select {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+  padding: 10px 14px !important;
+  border-radius: 8px !important;
+}
+
+.premium-save-btn {
+  background: linear-gradient(135deg, #7c3aed, #3b82f6) !important;
+  color: white !important;
+  border: none !important;
+  padding: 10px 20px !important;
+  border-radius: 8px !important;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.premium-toggle-row {
+  display: flex; justify-content: space-between; align-items: center;
+  background: rgba(255,255,255,0.02); padding: 16px; border-radius: 10px; margin-bottom: 20px;
+}
+.sub-card {
+  display: flex; justify-content: space-between; align-items: center;
+  background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.2);
+  padding: 20px; border-radius: 12px;
+}
+.sub-link { color: #a78bfa; text-decoration: none; font-size: 13px; font-weight: 600; }
+
+/* ===== 10/10 CLEAN PREMIUM ACCENT THEMES ===== */
+
+/* 1. Emerald Green Accent Theme */
+body.theme-emerald .nav-btn.active,
+body.theme-emerald .settings-nav-btn.active {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(4, 120, 87, 0.1)) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  color: #10b981 !important;
+}
+body.theme-emerald .nav-btn.active i,
+body.theme-emerald .settings-nav-btn.active i {
+  color: #10b981 !important;
+}
+body.theme-emerald .premium-save-btn {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3) !important;
+}
+
+/* 2. Crimson Red Accent Theme */
+body.theme-crimson .nav-btn.active,
+body.theme-crimson .settings-nav-btn.active {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.1)) !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+  color: #ef4444 !important;
+}
+body.theme-crimson .nav-btn.active i,
+body.theme-crimson .settings-nav-btn.active i {
+  color: #ef4444 !important;
+}
+body.theme-crimson .premium-save-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3) !important;
+}
+/* ===== ENTERPRISE APPERANCE WORKSPACE WORKFLOW ===== */
+.appearance-workspace-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.theme-selection-vault {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.workspace-title {
+  font-size: 14px;
+  color: #fff;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.theme-card-premium {
+  background: rgba(30, 41, 59, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-card-premium:hover {
+  background: rgba(255, 255, 255, 0.03);
+  transform: translateX(4px);
+}
+
+.theme-card-premium.active {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: var(--theme-accent, #7c3aed);
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.1);
+}
+
+.theme-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.theme-indicator-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.cyber-dot { background: #7c3aed; box-shadow: 0 0 10px #7c3aed; }
+.emerald-dot { background: #10b981; box-shadow: 0 0 10px #10b981; }
+.crimson-dot { background: #ef4444; box-shadow: 0 0 10px #ef4444; }
+
+.theme-card-meta h4 { color: #fff; font-size: 14px; margin: 0 0 4px 0; }
+.theme-card-meta p { color: #64748b; font-size: 12px; margin: 0; }
+
+/* LIVE CANVAS COMPONENTS */
+.theme-live-preview-canvas {
+  background: #090d16;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.preview-canvas-header {
+  background: rgba(255, 255, 255, 0.02);
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.preview-dot-window {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.preview-title-tag {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: 1px;
+}
+
+.mockup-viewport {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 16px;
+  flex-grow: 1;
+  background: radial-gradient(circle at 50% 50%, var(--theme-glow, rgba(124, 58, 237, 0.08)), transparent);
+  transition: background 0.4s ease;
+}
+
+.mockup-sidebar {
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  padding-right: 12px;
+}
+
+.mockup-logo { color: var(--theme-accent, #7c3aed); font-size: 11px; font-weight: 800; margin-bottom: 16px; }
+.mockup-nav-item { font-size: 9px; color: #475569; padding: 6px; border-radius: 4px; margin-bottom: 4px; }
+.mockup-nav-item.active-mockup-item {
+  background: var(--theme-glow, rgba(124, 58, 237, 0.15));
+  color: #fff;
+  border-left: 2px solid var(--theme-accent, #7c3aed);
+}
+
+.mockup-content { display: flex; flex-direction: column; gap: 12px; }
+.mockup-stat-card {
+  background: rgba(255,255,255,0.01);
+  border: 1px solid rgba(255,255,255,0.03);
+  padding: 12px;
+  border-radius: 8px;
+}
+.mockup-stat-card span { font-size: 9px; color: #64748b; }
+.mockup-metric-val { font-size: 18px; color: #fff; font-weight: 700; margin: 4px 0; }
+.mockup-chart-line {
+  height: 4px; background: var(--theme-accent, #7c3aed);
+  border-radius: 2px; width: 70%;
+  box-shadow: 0 0 8px var(--theme-accent, #7c3aed);
+}
+
+.mockup-action-btn-element {
+  background: var(--theme-accent, #7c3aed);
+  color: #fff; text-align: center; font-size: 9px; padding: 8px;
+  border-radius: 6px; font-weight: 600;
+  box-shadow: 0 4px 10px var(--theme-glow, rgba(124, 58, 237, 0.2));
+}
+
+/* GLOBAL VARIABLE APP INTERFACE SYSTEM LINKS */
+:root {
+  --theme-accent: #7c3aed;
+  --theme-glow: rgba(124, 58, 237, 0.15);
+}
+
+/* Map the current layout sidebar selectors directly to the dashboard tokens */
+.sidebar { border-right: 1px solid var(--theme-accent) !important; }
+.nav-btn.active, .settings-nav-btn.active {
+  background: var(--theme-glow) !important;
+  border-color: var(--theme-accent) !important;
+  color: #fff !important;
+}
+.nav-btn.active i, .settings-nav-btn.active i { color: var(--theme-accent) !important; }
+/* ===== 10/10 ENTERPRISE GLOBAL ACCENT THEMES ===== */
+
+/* --- 1. DEFAULT CYBER AMETHYST (PURPLE) --- */
+body.theme-cyber {
+  --theme-accent: #7c3aed;
+  --theme-glow: rgba(124, 58, 237, 0.15);
+}
+
+/* --- 2. EMERALD FORGE (GREEN) --- */
+body.theme-emerald {
+  --theme-accent: #10b981;
+  --theme-glow: rgba(16, 185, 129, 0.15);
+}
+
+/* --- 3. CRIMSON RAGE (RED) --- */
+body.theme-crimson {
+  --theme-accent: #ef4444;
+  --theme-glow: rgba(239, 68, 68, 0.15);
+}
+
+/* --- FORCE EVERYTHING TO USE THE VARIABLE ACCENT --- */
+
+/* This fixes the left main navigation sidebar buttons! */
+.sidebar .nav-btn.active {
+  background: var(--theme-glow) !important;
+  border-left: 4px solid var(--theme-accent) !important;
+  color: #fff !important;
+}
+
+.sidebar .nav-btn.active i, 
+.sidebar .nav-btn.active svg {
+  color: var(--theme-accent) !important;
+}
+
+/* This fixes the settings page panel inner navigation buttons */
+.settings-nav-btn.active {
+  background: var(--theme-glow) !important;
+  border: 1px solid var(--theme-accent) !important;
+  color: #fff !important;
+}
+
+.settings-nav-btn.active i {
+  color: var(--theme-accent) !important;
+}
+
+/* Fix your top control headers and save buttons to match the color theme */
+.elite-command-header {
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.premium-save-btn {
+  background: linear-gradient(135deg, var(--theme-accent), #0f172a) !important;
+  border: 1px solid var(--theme-accent) !important;
+  box-shadow: 0 4px 14px var(--theme-glow) !important;
+}
+.premium-switch input:checked + .p-slider {
+  background-color: #7c3aed !important;
+}
+.p-slider:before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+.premium-switch input:checked + .p-slider:before {
+  transform: translateX(20px);
+}
