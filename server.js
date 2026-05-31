@@ -1588,21 +1588,6 @@ app.delete("/owner-delete-all-data", auth, async (req, res) => {
   }
 });
 
-const express = require("express");
-const router = express.Router();
-const Subscription = require("../models/Subscription"); // Adjust path if needed
-const auth = require("../middleware/auth"); // Your authentication middleware
-
-
-// Ensure subscription routes middleware is mounted cleanly
-app.use("/", subscriptionRoutes);
-app.use("/", superAdminRoutes);
-
-// Database Connection
-mongoose
-  .connect(process.env.MONGO_URI || "mongodb://localhost:27017/gympro")
-  .then(() => console.log("MongoDB Connected Successfully"))
-  .catch((err) => console.log("MongoDB Connection Error:", err));
 
 const PORT = process.env.PORT || 5000;
 
