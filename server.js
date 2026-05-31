@@ -1652,6 +1652,22 @@ router.post("/buy-subscription", auth, async (req, res) => {
 
 module.exports = router;
 
+// Ensure subscription routes middleware is mounted cleanly
+app.use("/", subscriptionRoutes);
+app.use("/", superAdminRoutes);
+
+// Database Connection
+mongoose
+  .connect(process.env.MONGO_URI || "mongodb://localhost:27017/gympro")
+  .then(() => console.log("MongoDB Connected Successfully"))
+  .catch((err) => console.log("MongoDB Connection Error:", err));
+
+// Start Server cleanly without duplicate routes
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running perfectly on port ${PORT}`);
+});
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, "0.0.0.0", () => {

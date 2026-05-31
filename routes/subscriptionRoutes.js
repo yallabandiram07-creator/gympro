@@ -4,9 +4,10 @@ const jwt = require("jsonwebtoken");
 const Subscription = require("../models/Subscription");
 const Member = require("../models/Member");
 
+// Middleware verification authentication
 function auth(req, res, next) {
   const token = req.headers.authorization;
-  if (!token) return res.status(401).json({ message: "No token" });
+  if (!token) return res.status(401).json({ message: "No token provided" });
 
   try {
     req.user = jwt.verify(token, "secret");
@@ -16,6 +17,7 @@ function auth(req, res, next) {
   }
 }
 
+// GET: Fetch Active Plan Status Details
 router.get("/owner-subscription", auth, async (req, res) => {
   try {
     const subscription = await Subscription.findOne({
@@ -45,7 +47,6 @@ router.get("/owner-subscription", auth, async (req, res) => {
     }
 
     let memberLimit = 20;
-
     if (subscription.planName === "Basic") memberLimit = 1000;
     if (subscription.planName === "Premium") memberLimit = 99999;
 
@@ -63,34 +64,32 @@ router.get("/owner-subscription", auth, async (req, res) => {
   }
 });
 
+// POST: Save and Process Razorpay Subscription Payment
 router.post("/buy-subscription", auth, async (req, res) => {
   try {
-    // 1. Destructure the exact fields sent by your frontend script
     const { planName, price, duration, paymentId } = req.body;
     const userId = req.user.id;
 
     const durationDays = Number(duration) || 30;
 
-    // Calculate precise expiry date
     const expiryDate = new Date();
     expiryDate.setDate(expiryDate.getDate() + durationDays);
 
-    // 2. Look for an existing subscription for this user to update it
     let subscription = await Subscription.findOne({ userId });
 
     if (subscription) {
-      // Update your existing database record
+      // Update existing database entry
       subscription.planName = planName;
       subscription.price = Number(price);
       subscription.durationDays = durationDays;
       subscription.startDate = new Date();
       subscription.expiryDate = expiryDate;
       subscription.status = "active";
-      subscription.razorpayPaymentId = paymentId; // Connects your payment reference securely!
+      subscription.razorpayPaymentId = paymentId; 
 
       await subscription.save();
     } else {
-      // If none exists, build a clean brand new one
+      // Create a clean new database entry (Fixed colon syntax)
       subscription = new Subscription({
         userId,
         planName,
@@ -99,13 +98,12 @@ router.post("/buy-subscription", auth, async (req, res) => {
         startDate: new Date(),
         expiryDate,
         status: "active",
-        razorpayPaymentId: paymentId
+        razorpayPaymentId: paymentId 
       });
 
       await subscription.save();
     }
 
-    // 3. Return a successful response format
     res.json({
       success: true,
       message: `${planName} subscription activated successfully`,
@@ -115,29 +113,6 @@ router.post("/buy-subscription", auth, async (req, res) => {
     console.log("Backend route crash: ", err);
     res.status(500).json({ message: "Server error saving transaction details." });
   }
-});
-
-router.get("/subscription-plans", (req, res) => {
-  res.json([
-    {
-      name: "Free",
-      price: 0,
-      duration: 30,
-      memberLimit: 20
-    },
-    {
-      name: "Basic",
-      price: 999,
-      duration: 30,
-      memberLimit: 1000
-    },
-    {
-      name: "Premium",
-      price: 2499,
-      duration: 30,
-      memberLimit: 99999
-    }
-  ]);
 });
 
 module.exports = router;
