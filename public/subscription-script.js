@@ -100,7 +100,7 @@ function buyPlan(planName, price, duration) {
       const finalAmountInPaise = cleanPrice * 100;
 
       const options = {
-        "key": "rzp_test_YOUR_KEY_HERE", // ⚠️ MAKE SURE TO PASTE YOUR PERSONAL ACTIVE RAZORPAY KEY HERE
+        "key": "rzp_test_SvqtMfEw3BdLE3", // ⚠️ MAKE SURE TO PASTE YOUR PERSONAL ACTIVE RAZORPAY KEY HERE
         "amount": finalAmountInPaise, 
         "currency": "INR",
         "name": "GymPro Management System",
